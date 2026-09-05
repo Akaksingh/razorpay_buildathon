@@ -171,7 +171,8 @@ def _make_customer(rng: random.Random, cohort: str, ring: Ring | None = None, sh
 
 
 def _rto_prob(*, cohort: str, reliability: float, tier: int, addr_defect: float, channel: str, gmv: float,
-              switched: bool, is_new: bool, items: int, hour: int, coupon: bool, pay: str, prior_rtos: int) -> float:
+              switched: bool, is_new: bool, items: int, hour: int, coupon: bool, pay: str, prior_rtos: int,
+              logit_shift: float = 0.0) -> float:
     if pay != "COD":
         z = -3.3 + 0.9 * addr_defect + 0.25 * (tier - 1) + (1.5 if cohort == "ring" else 0.0)
         return 1 / (1 + math.exp(-z))
@@ -190,11 +191,13 @@ def _rto_prob(*, cohort: str, reliability: float, tier: int, addr_defect: float,
     z += 0.55 * min(prior_rtos, 3)
     if cohort == "ring":
         z += 1.6
+    z += logit_shift                       # regime knob for domain-shift experiments (festival sales)
     return 1 / (1 + math.exp(-z))
 
 
 def generate(n_orders: int = 60_000, days: int = 400, seed: int = 42, n_customers: int = 18_000,
-             n_rings: int = 45, n_shared_addresses: int = 40, shared_addr_share: float = 0.04) -> pd.DataFrame:
+             n_rings: int = 45, n_shared_addresses: int = 40, shared_addr_share: float = 0.04,
+             impulse_share: float = 0.12, rto_logit_shift: float = 0.0) -> pd.DataFrame:
     rng = random.Random(seed)
     np_rng = np.random.default_rng(seed)
 
@@ -223,7 +226,7 @@ def generate(n_orders: int = 60_000, days: int = 400, seed: int = 42, n_customer
     for _ in range(int(n_customers * 0.80)):
         place = rng.choice(places) if (places and rng.random() < shared_addr_share) else None
         customers.append(_make_customer(rng, "legit", shared_place=place))
-    for _ in range(int(n_customers * 0.12)):
+    for _ in range(int(n_customers * impulse_share)):
         customers.append(_make_customer(rng, "impulse"))
     for ring in rings:
         for _ in range(rng.randint(6, 40)):
@@ -274,7 +277,7 @@ def generate(n_orders: int = 60_000, days: int = 400, seed: int = 42, n_customer
         addr_defect = score_address(addr_text, pin).defect_score
         p_rto = _rto_prob(cohort=c.cohort, reliability=c.reliability, tier=tier, addr_defect=addr_defect,
                           channel=channel, gmv=gmv, switched=bool(switched), is_new=is_new, items=items,
-                          hour=hour, coupon=coupon, pay=pay, prior_rtos=prior_rtos)
+                          hour=hour, coupon=coupon, pay=pay, prior_rtos=prior_rtos, logit_shift=rto_logit_shift)
         rto = rng.random() < p_rto
         outcome_ts = ts + rng.uniform(2.5, 9.0) * _DAY
         disputed = False
