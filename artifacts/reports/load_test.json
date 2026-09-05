@@ -1,0 +1,98 @@
+{
+  "levels": [
+    {
+      "concurrency": 1,
+      "duration_s": 15.0,
+      "elapsed_s": 15.003144799997244,
+      "requests": 2709,
+      "attempts": 2709,
+      "errors": {},
+      "first_completion_s": 0.009808999999222578,
+      "rps": 180.5621445445556,
+      "latency_ms": {
+        "p50": 5.583899997873232,
+        "p95": 8.04686000046786,
+        "p99": 10.150451999797951,
+        "max": 18.464900000253692,
+        "mean": 5.524763787405957
+      },
+      "server_compute_ms_p50": 2.675,
+      "server_compute_ms_p99": 5.029440000000001,
+      "queueing_ms_p50": 2.908899997873232,
+      "budget_breach_share": 0.0
+    },
+    {
+      "concurrency": 4,
+      "duration_s": 15.0,
+      "elapsed_s": 15.014349900000525,
+      "requests": 4506,
+      "attempts": 4506,
+      "errors": {},
+      "first_completion_s": 0.018699600001127692,
+      "rps": 300.1128939988166,
+      "latency_ms": {
+        "p50": 12.872000001152628,
+        "p95": 20.25590000084776,
+        "p99": 25.20675000050687,
+        "max": 71.07539999924484,
+        "mean": 13.307013093635252
+      },
+      "server_compute_ms_p50": 4.379,
+      "server_compute_ms_p99": 15.458599999999988,
+      "queueing_ms_p50": 8.493000001152629,
+      "budget_breach_share": 0.01087438970261873
+    },
+    {
+      "concurrency": 16,
+      "duration_s": 15.0,
+      "elapsed_s": 15.034257200000866,
+      "requests": 4405,
+      "attempts": 4405,
+      "errors": {},
+      "first_completion_s": 0.041480800002318574,
+      "rps": 292.9975150351789,
+      "latency_ms": {
+        "p50": 52.114500002062414,
+        "p95": 78.25924000208033,
+        "p99": 101.86950800038176,
+        "max": 153.75900000071852,
+        "mean": 54.52315872875783
+      },
+      "server_compute_ms_p50": 6.017,
+      "server_compute_ms_p99": 47.28708000000002,
+      "queueing_ms_p50": 46.09750000206241,
+      "budget_breach_share": 0.9984108967082861
+    },
+    {
+      "concurrency": 64,
+      "duration_s": 15.0,
+      "elapsed_s": 15.175138300000981,
+      "requests": 3830,
+      "attempts": 3830,
+      "errors": {},
+      "first_completion_s": 0.0305874000005133,
+      "rps": 252.38649719586098,
+      "latency_ms": {
+        "p50": 237.27559999861114,
+        "p95": 424.7291550007502,
+        "p99": 1486.5718230010318,
+        "max": 1697.97550000294,
+        "mean": 251.8705793472724
+      },
+      "server_compute_ms_p50": 59.016,
+      "server_compute_ms_p99": 304.33809,
+      "queueing_ms_p50": 178.25959999861115,
+      "budget_breach_share": 0.9997389033942559
+    }
+  ],
+  "budget_ms": 25.0,
+  "workers": 1,
+  "explain": "auto",
+  "client": "threads, one keep-alive connection each",
+  "ledger_after": {
+    "decisions": 21598,
+    "control_cohort": 247,
+    "outcomes": 0
+  },
+  "note": "single uvicorn worker; the pipeline runs in FastAPI's threadpool, so throughput is bounded by the GIL-serialised share of the ~2.6 ms per order and extra concurrency becomes queueing"
+}

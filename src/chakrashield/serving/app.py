@@ -67,6 +67,7 @@ class State:
     decisions: DecisionLedger | None = None             # propensity-logged decision ledger
     learner: BehaviourLearner | None = None             # per-segment buyer-response estimates
     merchants: MerchantRegistry = field(default_factory=MerchantRegistry.builtin)   # config/merchants.json at startup
+    loop: asyncio.AbstractEventLoop | None = None       # the server loop; queue hand-offs from worker threads go through it
 
 
 state = State()
@@ -106,6 +107,7 @@ async def lifespan(app: FastAPI):
     state.learner = BehaviourLearner(prior=ECONOMICS).load(BEHAVIOUR_PATH)
     state.merchants = MerchantRegistry.load()
 
+    state.loop = asyncio.get_running_loop()
     state.queue = asyncio.Queue(maxsize=10_000)
     state.worker_task = asyncio.create_task(_graph_worker())
     state.started_at = time.time()
@@ -152,6 +154,35 @@ app = FastAPI(title="ChakraShield Risk Gateway", version="1.0.0", lifespan=lifes
 
 
 # --------------------------------------------------------------------------- core pipeline
+def _enqueue(*jobs: dict) -> None:
+    """Hand work to the observer queue from any thread.
+
+    The evaluate route runs in the threadpool (see risk_evaluate) and asyncio.Queue is not
+    thread-safe, so the put is scheduled onto the server loop; on the loop thread itself
+    (warm-up, tests) it is done directly. A full queue drops the job: the observer is
+    best-effort by design and must never make a checkout wait.
+    """
+    q, loop = state.queue, state.loop
+    if q is None or loop is None or loop.is_closed():
+        return
+
+    def _put() -> None:
+        for job in jobs:
+            try:
+                q.put_nowait(job)
+            except asyncio.QueueFull:
+                pass
+
+    try:
+        on_loop = asyncio.get_running_loop() is loop
+    except RuntimeError:
+        on_loop = False
+    if on_loop:
+        _put()
+    else:
+        loop.call_soon_threadsafe(_put)
+
+
 def _shadow_price_for(req: RiskRequest, merchant: MerchantConfig) -> tuple[float, str, float | None, str | None]:
     """(lambda_f, source, budget, budget_source): explicit price > request budget > merchant budget, each
     budget mapped through the validation frontier > the merchant's configured shadow price."""
@@ -234,12 +265,11 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
                "resolve_explain": round((t3 - t2) * 1e3, 3), "total": round(total, 3),
                "budget_ms": LATENCY_BUDGET_MS, "within_budget": total <= LATENCY_BUDGET_MS}
     if commit and state.queue is not None:
-        try:
-            state.queue.put_nowait({"kind": "order", "order_id": oid, "hashes": hyd.hashes, "pin": req.delivery_pin,
-                                    "ts": state.clock_ts, "gmv": req.cart_gmv, "served_action": served,
-                                    "policy_action": dec.action, "p_loss": round(sc.p_loss, 5), "segment": seg,
-                                    "addr_attr": round(ctx.address_attribution, 4)})
-            state.queue.put_nowait({"kind": "log", "rec": {
+        _enqueue({"kind": "order", "order_id": oid, "hashes": hyd.hashes, "pin": req.delivery_pin,
+                  "ts": state.clock_ts, "gmv": req.cart_gmv, "served_action": served,
+                  "policy_action": dec.action, "p_loss": round(sc.p_loss, 5), "segment": seg,
+                  "addr_attr": round(ctx.address_attribution, 4)},
+                 {"kind": "log", "rec": {
                 "ts": time.time(), "order_id": oid, "merchant_id": req.merchant_id, "merchant_config": merchant.merchant_id,
                 "shadow": merchant.shadow, "segment": seg, "p_loss": round(sc.p_loss, 5),
                 "p_raw": round(sc.p_raw, 5), "conformal_set": sc.conformal_set, "certainty": dec.certainty,
@@ -249,8 +279,6 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
                 "gmv": req.cart_gmv, "merchant_margin": ctx.merchant_margin, "cac": ctx.cac,
                 "weight_grams": req.weight_grams, "is_new_customer": bool(is_new), "addr_defect": hyd.address.defect_score,
                 "phone_h": hyd.hashes["phone"], "features": [round(float(v), 6) for v in hyd.vector[0]]}})
-        except asyncio.QueueFull:
-            pass
     conformal = {"alpha": CONFORMAL_ALPHA, "prediction_set": sc.conformal_set, "certainty": dec.certainty,
                  "nonconformity": sc.nonconformity, "quantiles": {"q0": state.scorer.conformal.q0, "q1": state.scorer.conformal.q1}}
     behaviour = est.as_dict() if est else {}
@@ -295,11 +323,17 @@ def build_request_from_row(r: dict) -> RiskRequest:
 
 # --------------------------------------------------------------------------- routes
 @app.post("/v1/risk/evaluate", response_model=RiskResponse, response_model_exclude_none=True)
-async def risk_evaluate(req: RiskRequest, commit: bool = Query(True, description="Push to the async graph observer"),
-                        explain: str = Query("auto", pattern="^(auto|always|never)$",
-                                             description="auto: TreeSHAP only when the decision applies friction (production default); always; never"),
-                        x_api_key: str | None = Header(None, alias="X-API-Key",
-                                                       description="Merchant key; checked only when CHAKRA_REQUIRE_API_KEY=1")):
+def risk_evaluate(req: RiskRequest, commit: bool = Query(True, description="Push to the async graph observer"),
+                  explain: str = Query("auto", pattern="^(auto|always|never)$",
+                                       description="auto: TreeSHAP only when the decision applies friction (production default); always; never"),
+                  x_api_key: str | None = Header(None, alias="X-API-Key",
+                                                 description="Merchant key; checked only when CHAKRA_REQUIRE_API_KEY=1")):
+    """Deliberately a plain ``def``: FastAPI runs it in the threadpool, so ~2.6 ms of CPU work per
+    order never blocks the event loop. Inside an ``async def`` the same pipeline collapsed under
+    concurrency in the load test (220 req/s at 4 clients falling to 65 req/s at 64, p99 in seconds)
+    because the loop could not accept connections or run the observer while a request computed.
+    ONNX Runtime and LightGBM release the GIL during inference, so threads also overlap real work.
+    """
     if state.scorer is None:
         raise HTTPException(503, "scorer not loaded")
     if api_key_required():

@@ -17,6 +17,7 @@ scoring garbage.
 from __future__ import annotations
 
 import json
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -52,6 +53,7 @@ class Scorer:
         self._iso: IsotonicKnots | None = None
         self._conf: ConformalCalibrator | None = None
         self._loaded = False
+        self._shap_lock = threading.Lock()   # LightGBM pred_contrib is not safe to call concurrently
 
     # ------------------------------------------------------------- loading
     def load(self) -> "Scorer":
@@ -130,7 +132,8 @@ class Scorer:
         t2 = time.perf_counter()
         contribs, bias = None, 0.0
         if explain and self._booster is not None:
-            c = self._booster.predict(x, pred_contrib=True)[0]
+            with self._shap_lock:
+                c = self._booster.predict(x, pred_contrib=True)[0]
             contribs, bias = c[:-1], float(c[-1])
         t3 = time.perf_counter()
         return ScoreResult(
@@ -150,7 +153,12 @@ class Scorer:
         if self._booster is None:
             return None, 0.0, 0.0
         t0 = time.perf_counter()
-        c = self._booster.predict(x, pred_contrib=True)[0]
+        # Serialised on purpose. The gateway runs requests in a threadpool, and concurrent
+        # pred_contrib calls on one Booster corrupted the native heap under load
+        # (STATUS_HEAP_CORRUPTION at 4 clients; see scripts/13_load_test.py). ONNX scoring
+        # stays parallel; only the ~2 ms TreeSHAP pass takes the lock.
+        with self._shap_lock:
+            c = self._booster.predict(x, pred_contrib=True)[0]
         return c[:-1], float(c[-1]), (time.perf_counter() - t0) * 1e3
 
     def score_batch(self, X: np.ndarray) -> np.ndarray:

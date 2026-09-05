@@ -64,7 +64,13 @@ hostels / offices / PGs with 581 resident phones. Test split = the chronological
 | Visa CE 3.0 dispute compiler | deterministic 120–365-day window + two-element hash match · SHA-256 evidence packet, no LLM |
 | FastAPI risk gateway (`explain=auto`: TreeSHAP only when friction is applied) | in-process **p50 1.90 ms / p99 2.97 ms**, mean **1.56 ms** vs 2.12 ms with every order explained (−26 % CPU per request) · HTTP p99 5.26 ms · **0 of 3,000** calls breached the 25 ms budget in either mode |
 | Console: checkout simulator, merchant P&L, ring visualizer, disputes, model health | rendered in headless Chrome, 0 JS errors |
-| Test suite | **58 / 58** passing (`pytest tests`) |
+| HTTP load test (real uvicorn worker, threaded clients) | **300 req/s at 4 clients, p99 25 ms**; 293 req/s at 16 (p99 102 ms); zero errors at every level after fixing two serving defects it exposed: concurrent LightGBM `pred_contrib` corrupted the native heap (`0xC0000374`, now serialised) and a sync pipeline inside an `async def` handler (now a threadpool endpoint, 182 → 293 req/s at 16 clients) |
+| Conformal α and conditioning as business knobs | α chosen on validation is 0.10, the served value; the gate is P&L-neutral there (₹84 below the ungated argmin) and costs ₹9k at α 0.20, ₹26k at 0.30; marginal (single-quantile) sets cover RTOs at only 64.2 % and lose ₹34,508; class × PIN-tier sets repair tier-1/2 under-coverage at α 0.05 for +₹398 |
+| Per-merchant configuration, API keys, shadow mode | `config/merchants.json`; the same order gets τ* 0.668 for the demo merchant and 0.754 for a beauty brand with a 25 % friction budget (λ = ₹60); a shadow merchant serves all six demo scenarios frictionless while its policy would friction four, earning untreated labels at propensity 1 |
+| Printable CE3.0 evidence packet | `?format=html` and `GET /v1/dispute/packet/{id}.html` carry the same SHA-256 as the JSON packet; 28 of 50 sampled disputes compile eligible; render 0.05 ms; Mastercard difference documented |
+| GraphSAGE ring embeddings (experiment, not served) | matches the served union-find on test-era phones (AUC 0.9999, precision 0.991 at recall 1.000) where a logistic regression on the same node features reaches 0.747; stacked into the served model it *lowers* test AUC 0.799 → 0.790 — an end-of-era score is not a point-in-time feature |
+| Docker Compose + GitHub Actions CI | 1.0 GB image, healthy 12 s after start on an empty volume; CI regenerates the default world, trains, runs the suite, and builds and health-checks the container |
+| Test suite | **92 / 92** passing (`pytest tests`) |
 
 ### Classification accuracy, stated plainly
 
@@ -234,6 +240,34 @@ until the resolver has decided a defence is needed; the learner lookup, elastici
 together add under 0.2 ms. Zero breaches of the 25 ms budget in either mode. A run taken while a browser and
 a second Python process were active showed p99 near 10 ms with every stage, hashing included, slowed
 uniformly — the budget check is self-reported on every response for exactly that reason.
+
+**Under load** (`13_load_test.py`: a real uvicorn process, one worker, threaded keep-alive clients on the same
+12-core laptop, 20 % of requests committing to the observer and ledger, `explain=auto`, 15 s per level):
+
+| clients | throughput | p50 | p95 | p99 | server compute p50 | errors |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 181 req/s | 5.6 ms | 8.1 ms | 10.2 ms | 2.7 ms | 0 |
+| 4 | **300 req/s** | 12.9 ms | 20.3 ms | 25.2 ms | 4.4 ms | 0 |
+| 16 | 293 req/s | 52 ms | 78 ms | 102 ms | 6.0 ms | 0 |
+| 64 | 252 req/s | 237 ms | 425 ms | 1,487 ms | 59 ms | 0 |
+
+One worker saturates near 300 req/s; past four clients the extra latency is queueing, which is the argument
+for scaling out rather than up. The test found two serving defects that no in-process benchmark could:
+
+* **Concurrent TreeSHAP corrupted the native heap.** With requests in a threadpool, parallel
+  `Booster.predict(pred_contrib=True)` calls on the shared LightGBM booster killed the process with
+  `0xC0000374` (`STATUS_HEAP_CORRUPTION`) within seconds at four clients; with SHAP disabled the same load ran
+  clean. The pass is now serialised behind a lock (~2 ms critical section; ONNX scoring stays parallel), and
+  two full runs at `explain=always` — every order explained, maximum contention — finished with zero errors.
+* **A synchronous pipeline inside an `async def` handler.** The route is now a plain `def`, so FastAPI runs it
+  in the threadpool and the event loop keeps accepting connections and running the observer; queue hand-offs go
+  through `call_soon_threadsafe` because `asyncio.Queue` is not thread-safe. Throughput at 16 clients rose from
+  182 to 293 req/s because ONNX Runtime and LightGBM release the GIL during inference.
+
+A third finding was about measurement: an asyncio `httpx` client on Windows loopback produced second-long
+tails at 16 connections (86 req/s) while a threaded client against the same server measured p99 under 100 ms.
+The tool uses threads, and the lesson is stated in its docstring — measure with the kind of client production
+will use.
 <!-- RESULTS:END -->
 
 ### Conformal alpha as a business knob
@@ -459,7 +493,7 @@ src/chakrashield/
   dispute/ce3.py            Visa CE3.0 compiler
   serving/                  FastAPI gateway + async observer; static console (vanilla JS, hand-rolled SVG)
 scripts/                    01–04 pipeline, 07–10 experiments, ingest_csv.py, serve.py
-tests/                      58 tests: policy, conformal, features, graph, drift, exploration, learner, adapter, CE3.0, API
+tests/                      92 tests: policy, conformal, features, graph, embeddings, drift, exploration, learner, adapter, CE3.0, render, merchants, packaging, API
 artifacts/                  models (+ candidates), reports, world summary; replay pickles are regenerated
 config/                     merchant_schema.example.json
 ```
