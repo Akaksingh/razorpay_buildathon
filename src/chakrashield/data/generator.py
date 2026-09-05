@@ -42,6 +42,11 @@ _SOCIETIES = ["Green Meadows", "Prestige Lakeside", "Shanti Apartments", "Sai Re
 _LANDMARKS = ["Hanuman Temple", "Bus Stand", "Govt School", "Old Post Office", "Shiv Mandir", "Jama Masjid",
               "Railway Station", "Primary Health Centre", "Panchayat Bhawan", "Water Tank", "Petrol Pump"]
 _VILLAGES = ["Rampur", "Sultanpur", "Bhagwanpur", "Kishanganj", "Madhopur", "Chandpur", "Gopalganj", "Narayanpur"]
+# Shared delivery points: hostels, PGs, offices, campuses. Dozens of unrelated, perfectly good
+# buyers ship to one address behind one NAT -- the super-node that collapses a naive entity graph.
+_SHARED_PLACES = ["Zolo Stays PG", "Stanza Living Hostel", "Sunrise PG for Gents", "Girls Hostel Block B",
+                  "Infosys DC Reception", "TCS Synergy Park Mailroom", "IIT Hostel 7", "Brigade Tech Park Tower A",
+                  "WeWork Coworking", "Prestige Trade Tower Office", "Amazon Dev Center Security Desk", "NIT Boys Hostel 3"]
 
 
 def _oid(i: int) -> str:
@@ -106,6 +111,7 @@ class Customer:
     ring_id: str | None = None
     order_rate: float = 1.0
     first_order_ts: float | None = None
+    shared_place_id: str | None = None   # lives at a hostel / office / PG (legit, shared address + NAT)
 
 
 @dataclass
@@ -124,7 +130,7 @@ def _sample_pin(rng: random.Random, tier_w=(0.42, 0.33, 0.14, 0.11)) -> tuple[st
     return rng.choice(pincodes.SAMPLE_PINS[tier]), tier
 
 
-def _make_customer(rng: random.Random, cohort: str, ring: Ring | None = None) -> Customer:
+def _make_customer(rng: random.Random, cohort: str, ring: Ring | None = None, shared_place: dict | None = None) -> Customer:
     if cohort == "ring":
         pin, tier = ring.addresses[0][1], pincodes.lookup(ring.addresses[0][1]).tier
         return Customer(
@@ -149,12 +155,18 @@ def _make_customer(rng: random.Random, cohort: str, ring: Ring | None = None) ->
     for _ in range(n_addr):
         p = pin if rng.random() < 0.8 else _sample_pin(rng)[0]
         addrs.append((_good_address(rng, p) if rng.random() < aq else _weak_address(rng, p), p))
+    ip = f"ip_{rng.randint(10**6, 10**7)}"
+    if shared_place is not None:                      # a resident: the shared address and the shared NAT
+        addrs = [(shared_place["text"], shared_place["pin"])]
+        tier = pincodes.lookup(shared_place["pin"]).tier
+        ip = shared_place["ip"]
     name = rng.choice(_FIRST).lower()
     return Customer(
         phone=_phone(rng), devices=[_device(rng) for _ in range(1 if rng.random() < 0.75 else 2)], addresses=addrs,
         tier=tier, reliability=rel, address_quality=aq, channel_w=cw, cohort=cohort,
         card=_card(rng) if rng.random() < 0.55 else None, email=f"{name}{rng.randint(1, 9999)}@gmail.com",
-        account_id=f"acc_{rng.randint(10**6, 10**7)}", ip=f"ip_{rng.randint(10**6, 10**7)}", order_rate=rate,
+        account_id=f"acc_{rng.randint(10**6, 10**7)}", ip=ip, order_rate=rate,
+        shared_place_id=shared_place["id"] if shared_place is not None else None,
     )
 
 
@@ -182,17 +194,26 @@ def _rto_prob(*, cohort: str, reliability: float, tier: int, addr_defect: float,
 
 
 def generate(n_orders: int = 60_000, days: int = 400, seed: int = 42, n_customers: int = 18_000,
-             n_rings: int = 45) -> pd.DataFrame:
+             n_rings: int = 45, n_shared_addresses: int = 40, shared_addr_share: float = 0.04) -> pd.DataFrame:
     rng = random.Random(seed)
     np_rng = np.random.default_rng(seed)
 
     # ---- population --------------------------------------------------------
+    places: list[dict] = []
+    for k in range(n_shared_addresses):
+        pin, _ = _sample_pin(rng, tier_w=(0.55, 0.35, 0.10, 0.0))
+        info = pincodes.lookup(pin)
+        places.append({"id": f"shared_{k:03d}", "pin": pin, "ip": f"ip_{rng.randint(10**6, 10**7)}",
+                       "text": f"{rng.choice(_SHARED_PLACES)}, {rng.choice(_STREETS)}, {info.city} {pin}"})
     rings: list[Ring] = []
     for r in range(n_rings):
         pin, _ = _sample_pin(rng, tier_w=(0.2, 0.3, 0.25, 0.25))
         n_dev = rng.randint(2, 6)
         n_addr = rng.randint(1, 4)
         addrs = [((_weak_address(rng, pin) if rng.random() < 0.7 else _good_address(rng, pin)), pin) for _ in range(n_addr)]
+        if places and rng.random() < 0.15:          # some rings also drop parcels at a hostel: the bridge hazard
+            p = rng.choice(places)
+            addrs.append((p["text"], p["pin"]))
         rings.append(Ring(
             ring_id=f"ring_{r:03d}", devices=[_device(rng) for _ in range(n_dev)], addresses=addrs,
             ips=[f"ip_{rng.randint(10**6, 10**7)}" for _ in range(rng.randint(1, 3))],
@@ -200,7 +221,8 @@ def generate(n_orders: int = 60_000, days: int = 400, seed: int = 42, n_customer
         ))
     customers: list[Customer] = []
     for _ in range(int(n_customers * 0.80)):
-        customers.append(_make_customer(rng, "legit"))
+        place = rng.choice(places) if (places and rng.random() < shared_addr_share) else None
+        customers.append(_make_customer(rng, "legit", shared_place=place))
     for _ in range(int(n_customers * 0.12)):
         customers.append(_make_customer(rng, "impulse"))
     for ring in rings:
@@ -267,7 +289,8 @@ def generate(n_orders: int = 60_000, days: int = 400, seed: int = 42, n_customer
             "pin_tier": tier, "cart_gmv": gmv, "items_count": items, "weight_grams": round(weight, 0),
             "payment_method": pay, "payment_switch_from": switched, "acquisition_channel": channel,
             "coupon_applied": coupon, "checkout_seconds": round(checkout_s, 1), "hour_of_day": hour,
-            "is_new_customer": is_new, "cohort": c.cohort, "ring_id": c.ring_id, "latent_p_rto": round(p_rto, 4),
+            "is_new_customer": is_new, "cohort": c.cohort, "ring_id": c.ring_id, "shared_addr_id": c.shared_place_id,
+            "latent_p_rto": round(p_rto, 4),
             "rto": rto, "disputed": disputed, "merchant_margin": 0.18, "cac": _cac_for(channel, rng),
         }
         rows.append(row)

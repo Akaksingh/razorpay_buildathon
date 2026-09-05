@@ -58,6 +58,8 @@ def main() -> None:
         "orders": int(len(df)), "phones": int(df.customer_phone.nunique()), "devices": int(df.device_fingerprint.nunique()),
         "cod_share": float(len(cod) / len(df)), "cod_rto_rate": float(cod.rto.mean()),
         "rto_by_cohort": {k: float(v) for k, v in cod.groupby("cohort").rto.mean().items()},
+        "shared_addresses": int(df.shared_addr_id.nunique()),
+        "shared_residents": int(df.loc[df.shared_addr_id.notna(), "customer_phone"].nunique()),
         "graph": graph.stats(), "top_rings": rings, "clock_ts": float(df.outcome_ts.max()) + 86400,
         "days": a.days, "seed": a.seed,
     }
