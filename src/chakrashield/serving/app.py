@@ -189,6 +189,7 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
         "velocity": hyd.velocity.as_dict(), "features": hyd.features, "hashes": hyd.hashes,
         "rationale": dec.rationale, "latency_ms": latency, "model_version": state.scorer.version,
         "scorer_backend": state.scorer.backend, "explained": contribs is not None, "explain_mode": explain,
+        "elasticity": ctx.elasticity(),
         "friction": {"shadow_price": round(lam, 2), "source": lam_source, "budget": req.friction_budget,
                      "budget_changed_action": dec.budget_changed_action},
     }

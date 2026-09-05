@@ -195,6 +195,19 @@ def main() -> None:
             sweep.append(row)
     wins = sum(1 for r in sweep if r["full_beats_best_binary"])
     print(f"[sensitivity] CHAKRA_FULL beats best binary policy in {wins}/{len(sweep)} behaviour scenarios")
+    # portfolio break-even: the good-buyer abandonment at which the full engine stops beating the best
+    # binary policy (at the assumed bad-buyer abandonment), by linear interpolation over the sweep
+    col = sorted((r for r in sweep if r["stepup_bad_abandon"] == sim.stepup_bad_abandon), key=lambda r: r["stepup_good_abandon"])
+    gaps = [(r["stepup_good_abandon"], r["CHAKRA_FULL"] - max(r["BASE@GLOBAL_COST"], r["BASE@TAU*(x)"], r["CHAKRA@TAU*(x)"])) for r in col]
+    portfolio_alpha_crit = None
+    for (a0, g0), (a1, g1) in zip(gaps, gaps[1:]):
+        if g0 > 0 >= g1:
+            portfolio_alpha_crit = a0 + (a1 - a0) * g0 / (g0 - g1)
+            break
+    if portfolio_alpha_crit is None and gaps and gaps[-1][1] > 0:
+        portfolio_alpha_crit = 1.0
+    print(f"[break-even] portfolio alpha_crit = {portfolio_alpha_crit if portfolio_alpha_crit is None else f'{portfolio_alpha_crit:.1%}'} "
+          f"(resolver assumes {ECONOMICS.stepup_abandon_rate:.0%})")
 
     # --- per-decile calibration & tau distribution for the console -----------
     deciles = pd.qcut(pc_te, 10, labels=False, duplicates="drop")
@@ -207,7 +220,7 @@ def main() -> None:
         "test_orders": int(len(yte)), "test_rto_rate": float(yte.mean()), "test_gmv": float(meta_te.cart_gmv.sum()),
         "thresholds": {"f1_optimal": thr_f1, "global_cost_optimal": best_t},
         "behaviour_sim": sim.as_dict(), "policies": results, "certainty": cert_tab, "sensitivity": sweep,
-        "sensitivity_wins": [wins, len(sweep)], "calibration_curve": calib_curve,
+        "sensitivity_wins": [wins, len(sweep)], "portfolio_alpha_crit": portfolio_alpha_crit, "calibration_curve": calib_curve,
         "tau_star_hist": {"edges": tau_hist[1].tolist(), "counts": tau_hist[0].tolist()},
         "p_loss_hist": {"edges": p_hist[1].tolist(), "counts": p_hist[0].tolist()},
         "conformal_test": cconf.evaluate(pc_te, yte),

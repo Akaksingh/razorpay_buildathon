@@ -112,3 +112,27 @@ def test_budget_changed_action_flag():
     assert free.action == STEP_UP and free.budget_changed_action is False
     priced = DynamicRiskResolver.resolve_action(ctx(p=p), [0, 1], friction_shadow_price=1000.0)
     assert priced.action == ALLOW and priced.budget_changed_action is True and "Friction budget" in priced.rationale
+
+
+def test_elasticity_break_even_is_where_the_resolver_flips():
+    """alpha_crit from the closed form must be the abandonment at which the step-up stops winning."""
+    base = ctx(p=0.35)
+    assert base.stepup_cost_at(base.econ.stepup_abandon_rate) == pytest.approx(base.expected_costs()[STEP_UP])
+    E = base.elasticity()
+    assert E["alpha_crit"] is not None and E["headroom"] > 0 and E["binding"] in (ALLOW, PREPAID)
+    crit = E["alpha_crit"]
+    below = ctx(p=0.35, econ=Economics(stepup_abandon_rate=max(0.0, crit - 0.03)))
+    above = ctx(p=0.35, econ=Economics(stepup_abandon_rate=min(1.0, crit + 0.03)))
+    assert DynamicRiskResolver.resolve_action(below, [0, 1]).action == STEP_UP
+    assert DynamicRiskResolver.resolve_action(above, [0, 1]).action != STEP_UP
+    # the curve is linear in alpha with the stated slope
+    c = E["curve"]
+    assert (c[1]["cost_stepup"] - c[0]["cost_stepup"]) / (c[1]["alpha"] - c[0]["alpha"]) == pytest.approx(E["slope"])
+
+
+def test_elasticity_headroom_shrinks_with_cac_and_shadow_price():
+    lo, hi = ctx(p=0.3, cac=150.0), ctx(p=0.3, cac=900.0)
+    assert hi.elasticity()["alpha_crit"] < lo.elasticity()["alpha_crit"]   # a costlier lost buyer: less room
+    priced = TransactionContext(gmv=1500.0, merchant_margin=0.15, cac=400.0, p_loss=0.3, is_new_customer=True,
+                                weight_grams=450.0, econ=Economics(), friction_shadow_price=30.0)
+    assert priced.elasticity()["alpha_crit"] < ctx(p=0.3).elasticity()["alpha_crit"]

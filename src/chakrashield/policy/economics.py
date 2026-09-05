@@ -24,6 +24,8 @@ from typing import Optional
 
 from ..config import ECONOMICS, Economics
 
+ALLOW_LABEL, PREPAID_LABEL = "ALLOW_COD", "FORCE_PREPAID"   # mirrors resolver constants without a cycle
+
 
 @dataclass
 class TransactionContext:
@@ -159,13 +161,57 @@ class TransactionContext:
         answers the doorbell). Fraudulent / non-serious buyers self-select out
         at zero logistics cost -- that is the whole point of the intervention.
         """
+        return self.stepup_cost_at(self.econ.stepup_abandon_rate)
+
+    def stepup_cost_at(self, alpha: float) -> float:
+        """E[cost | STEP_UP] as a function of the good-buyer abandonment rate alpha.
+
+        Linear in alpha:  intercept + slope * alpha  with
+            intercept = p * rho_eff * C_FN + f        (residual RTO + friction on everyone)
+            slope     = (1 - p) * (C_FP - f)          (each abandoning good buyer costs C_FP, saves f)
+        """
         e = self.econ
         p, q = self.p_loss, 1.0 - self.p_loss
-        good_abandon = q * e.stepup_abandon_rate * self.cost_fp
-        proceed_mass = 1.0 - q * e.stepup_abandon_rate  # everyone else proceeds
+        good_abandon = q * alpha * self.cost_fp
+        proceed_mass = 1.0 - q * alpha                 # everyone else proceeds
         residual_rto = p * self.stepup_rto_residual * self.cost_fn
         friction = proceed_mass * e.stepup_friction_cost
         return good_abandon + residual_rto + friction
+
+    def elasticity(self, alphas: tuple[float, ...] = tuple(round(0.05 * k, 2) for k in range(1, 13))) -> dict:
+        """Break-even analysis of the deposit in alpha = delta_s, the number a merchant knows least.
+
+        alpha_crit is the abandonment rate at which the step-up stops being the cheapest
+        admissible action; the resolver's assumed delta_s must sit below it with headroom,
+        otherwise the deposit is a bet on buyer psychology rather than a decision.
+        """
+        e = self.econ
+        p, q = self.p_loss, 1.0 - self.p_loss
+        lam, f = self.shadow_price, e.stepup_friction_cost
+        intercept = p * self.stepup_rto_residual * self.cost_fn + f
+        slope = q * (self.cost_fp - f)
+        c_allow, c_prepaid = self.expected_cost_allow(), self.expected_cost_prepaid()
+
+        def crit(target: float) -> float:
+            return (target - intercept) / slope if slope > 1e-9 else float("inf")
+
+        a_allow = crit(c_allow - lam)        # step-up + lambda == allow
+        a_prepaid = crit(c_prepaid)          # step-up + lambda == prepaid + lambda
+        a_crit = min(a_allow, a_prepaid)
+        margin = self.merchant_margin * self.gmv
+        clip = lambda a: None if a == float("inf") else float(min(1.0, max(0.0, a)))
+        curve = [{"alpha": a, "cost_stepup": intercept + slope * a,
+                  "profit_stepup": margin - (intercept + slope * a) - lam,
+                  "profit_allow": margin - c_allow, "profit_prepaid": margin - c_prepaid - lam} for a in alphas]
+        return {
+            "alpha_assumed": e.stepup_abandon_rate, "alpha_crit": clip(a_crit),
+            "alpha_crit_vs_allow": clip(a_allow), "alpha_crit_vs_prepaid": clip(a_prepaid),
+            "binding": ALLOW_LABEL if a_allow <= a_prepaid else PREPAID_LABEL,
+            "headroom": (clip(a_crit) - e.stepup_abandon_rate) if clip(a_crit) is not None else None,
+            "intercept": intercept, "slope": slope, "rupees_per_point": slope / 100.0,
+            "margin": margin, "shadow_price": lam, "profit_allow": margin - c_allow,
+            "profit_prepaid": margin - c_prepaid - lam, "curve": curve,
+        }
 
     def expected_cost_prepaid(self) -> float:
         """E[cost | FORCE_PREPAID]: heavy good-customer abandonment, near-zero RTO."""
