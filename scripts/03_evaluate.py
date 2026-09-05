@@ -8,8 +8,12 @@ Policies compared on identical orders with identical true outcomes:
     BASE@GLOBAL_COST     unweighted booster, single global threshold tuned for P&L on valid
     BASE@TAU*(x)         unweighted booster, instance-dependent tau*(x), hard block
     CHAKRA@TAU*(x)       cost-sensitive booster, tau*(x), hard block
-    CHAKRA_FULL          cost-sensitive + conformal set + 3-action expected-cost resolver
+    CHAKRA_FULL          served booster + conformal set + 3-action expected-cost resolver
+    CHAKRA_FULL@F<=30%   the same under a friction budget: Lagrangian shadow price chosen on VALID
     ORACLE               perfect foresight (upper bound)
+
+Also: the friction-budget frontier (P&L vs share of orders frictioned, for a grid of shadow prices)
+and the test P&L of every weight-temperature candidate trained in 02 (selection happened on VALID).
 
 Plus a sensitivity sweep over the buyer-behaviour parameters the resolver
 does NOT know, so the ranking is shown to be robust to mis-specification.
@@ -39,6 +43,9 @@ from chakrashield.policy.resolver import ALLOW, PREPAID, STEP_UP, DynamicRiskRes
 from chakrashield.policy.simulation import BehaviourSim, order_pnl, simulate
 
 META_COLS = ["cart_gmv", "merchant_margin", "cac", "is_new_customer", "weight_grams", "addr_defect_score"]
+LAMBDA_GRID = [0, 5, 10, 20, 30, 40, 60, 80, 100, 150, 200, 300, 500, 800]
+FRICTION_BUDGET = 0.30
+BUDGET_NAME = f"CHAKRA_FULL@F<={int(FRICTION_BUDGET * 100)}%"
 
 
 def load_model(tag: str):
@@ -106,6 +113,27 @@ def main() -> None:
         full_actions.append(d.action)
         certainty.append(d.certainty)
     policies["CHAKRA_FULL"] = np.array(full_actions, dtype=object)
+
+    # --- friction budget: Lagrangian shadow price chosen on VALID, applied unchanged on TEST ---------
+    def frontier(ctxs, sets, yy):
+        rows = []
+        for lam in LAMBDA_GRID:
+            acts = np.array([DynamicRiskResolver.resolve_action(c, s, friction_shadow_price=lam).action
+                             for c, s in zip(ctxs, sets)], dtype=object)
+            r = simulate(acts, yy, ctxs, sim)
+            rows.append({"lambda": lam, "friction_share": 1.0 - r["action_share"][ALLOW], "pnl_total": r["pnl_total"],
+                         "rto_shipped": r["rto_shipped_expected"], "good_lost": r["good_customers_lost_expected"],
+                         "actions": r["actions"]})
+        return rows
+
+    pc_va = np.clip(ciso.apply(cb.predict(Xva)), 1e-3, 1 - 1e-3)
+    ctx_c_va = contexts(meta_va, pc_va)
+    front_va = frontier(ctx_c_va, cconf.predict_set(pc_va), yva)
+    front_te = frontier(ctx_c, csets, yte)
+    ok = [r for r in front_va if r["friction_share"] <= FRICTION_BUDGET]
+    lam_budget = (min(ok, key=lambda r: r["lambda"]) if ok else max(front_va, key=lambda r: r["lambda"]))["lambda"]
+    policies[BUDGET_NAME] = np.array([DynamicRiskResolver.resolve_action(c, s, friction_shadow_price=lam_budget).action
+                                      for c, s in zip(ctx_c, csets)], dtype=object)
     # oracle: perfect label knowledge, best action per order
     oracle = []
     for c, yy in zip(ctx_c, yte):
@@ -127,6 +155,27 @@ def main() -> None:
         a = r["actions"]
         print(f"{name:18s} {r['pnl_total']:14,.0f} {r['delta_vs_allow_all']:12,.0f} {r['delta_vs_base_05']:14,.0f} "
               f"{a[ALLOW]:6d} {a[STEP_UP]:7d} {a[PREPAID]:8d} {r['good_customers_lost_expected']:10.0f} {r['rto_shipped_expected']:12.0f}")
+    print(f"[budget] friction budget {FRICTION_BUDGET:.0%} -> shadow price λ=₹{lam_budget:.0f} chosen on VALID; "
+          f"test friction share {1 - results[BUDGET_NAME]['action_share'][ALLOW]:.1%}")
+    print(f"{'λ':>5s} {'friction':>9s} {'Δ P&L vs ALLOW':>15s} {'RTO shipped':>12s} {'good lost':>10s}")
+    for r in front_te:
+        print(f"{r['lambda']:5.0f} {r['friction_share']:9.1%} {r['pnl_total'] - base_pnl:15,.0f} {r['rto_shipped']:12.0f} {r['good_lost']:10.0f}")
+
+    # --- every weight-temperature candidate from 02, on TEST (selection was on VALID) ----------------
+    summary = json.loads((MODEL_DIR / "training_summary.json").read_text(encoding="utf-8"))
+    cands = []
+    for cnd in summary.get("candidates", []):
+        b_, iso_, conf_ = load_model(cnd["tag"])
+        p_ = np.clip(iso_.apply(b_.predict(Xte)), 1e-3, 1 - 1e-3)
+        cx_ = contexts(meta_te, p_)
+        acts_ = np.array([DynamicRiskResolver.resolve_action(c, s).action for c, s in zip(cx_, conf_.predict_set(p_))], dtype=object)
+        r_ = simulate(acts_, yte, cx_, sim)
+        cands.append({**cnd, "test_pnl_full": r_["pnl_total"], "test_delta_vs_allow": r_["pnl_total"] - base_pnl,
+                      "test_rto_shipped": r_["rto_shipped_expected"], "test_good_lost": r_["good_customers_lost_expected"]})
+    print(f"{'gamma':>5s} {'trees':>5s} {'AUC':>7s} {'ECE':>7s} {'VALID P&L':>11s} {'TEST Δ vs ALLOW':>16s}  served")
+    for c in cands:
+        print(f"{c['gamma']:5.1f} {c['best_iter']:5d} {c['auc']:7.4f} {c['ece_calibrated']:7.4f} {c['valid_pnl_full']:11,.0f} "
+              f"{c['test_delta_vs_allow']:16,.0f}  {'<- chakra_rto' if c['selected'] else ''}")
 
     # --- certainty breakdown for the full policy -----------------------------
     cert = pd.Series(certainty)
@@ -139,7 +188,7 @@ def main() -> None:
         for sba in (0.40, 0.65, 0.85):
             s2 = BehaviourSim(stepup_good_abandon=sga, stepup_bad_abandon=sba)
             row = {"stepup_good_abandon": sga, "stepup_bad_abandon": sba}
-            for name in ("ALLOW_ALL", "BASE@0.5", "BASE@GLOBAL_COST", "BASE@TAU*(x)", "CHAKRA@TAU*(x)", "CHAKRA_FULL"):
+            for name in ("ALLOW_ALL", "BASE@0.5", "BASE@GLOBAL_COST", "BASE@TAU*(x)", "CHAKRA@TAU*(x)", "CHAKRA_FULL", BUDGET_NAME):
                 ctxs = ctx_c if name.startswith("CHAKRA") else ctx_b
                 row[name] = simulate(policies[name], yte, ctxs, s2)["pnl_total"]
             row["full_beats_best_binary"] = row["CHAKRA_FULL"] > max(row["BASE@GLOBAL_COST"], row["BASE@TAU*(x)"], row["CHAKRA@TAU*(x)"])
@@ -162,7 +211,11 @@ def main() -> None:
         "tau_star_hist": {"edges": tau_hist[1].tolist(), "counts": tau_hist[0].tolist()},
         "p_loss_hist": {"edges": p_hist[1].tolist(), "counts": p_hist[0].tolist()},
         "conformal_test": cconf.evaluate(pc_te, yte),
-        "model_metrics": json.loads((MODEL_DIR / "training_summary.json").read_text(encoding="utf-8")),
+        "friction_frontier": front_te, "friction_frontier_valid": front_va,
+        "friction_budget": {"budget": FRICTION_BUDGET, "lambda": lam_budget, "policy": BUDGET_NAME,
+                            "test_friction_share": 1 - results[BUDGET_NAME]["action_share"][ALLOW]},
+        "candidates": cands, "selected_gamma": summary.get("selected_gamma"),
+        "model_metrics": summary,
     }
     (REPORT_DIR / "evaluation.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"[done] report -> {REPORT_DIR / 'evaluation.json'}")

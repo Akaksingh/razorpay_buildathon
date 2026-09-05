@@ -29,7 +29,7 @@ from ..features.velocity import record_order, record_outcome
 from ..graph.syndicate import SyndicateGraph
 from ..policy.economics import TransactionContext
 from ..policy.reason_codes import reason_codes
-from ..policy.resolver import DynamicRiskResolver
+from ..policy.resolver import ALLOW, DynamicRiskResolver
 from ..runtime.scorer import Scorer
 from ..schemas import DisputeRequest, DisputeResponse, RiskRequest, RiskResponse
 from ..store.feature_store import MemoryStore, get_store
@@ -91,7 +91,7 @@ async def lifespan(app: FastAPI):
     # Warm the request path (pydantic validators, first ONNX run on real data, SHAP) so the
     # first live checkout does not pay ~100 ms of lazy initialisation.
     for sc in SCENARIOS[:2]:
-        evaluate_pipeline(RiskRequest(**sc["req"]), commit=False)
+        evaluate_pipeline(RiskRequest(**sc["req"]), commit=False, explain="always")
     print(f"[chakrashield] ready in {time.time() - t:.1f}s | scorer={state.scorer.backend} store={state.store.backend} "
           f"graph={state.graph.stats()} ledger={len(state.ledger)}")
     yield
@@ -125,25 +125,47 @@ app = FastAPI(title="ChakraShield Risk Gateway", version="1.0.0", lifespan=lifes
 
 
 # --------------------------------------------------------------------------- core pipeline
-def evaluate_pipeline(req: RiskRequest, commit: bool = True) -> dict:
+def _shadow_price_for(req: RiskRequest) -> tuple[float, str]:
+    """lambda_f for this request: explicit price > budget mapped through the validation frontier > config."""
+    if req.friction_shadow_price is not None:
+        return float(req.friction_shadow_price), "request"
+    if req.friction_budget is not None:
+        _refresh_reports()
+        fr = (state.report or {}).get("friction_frontier_valid") or []
+        if not fr:
+            return 0.0, "no_frontier"
+        ok = [r for r in fr if r["friction_share"] <= req.friction_budget]
+        lam = (min(ok, key=lambda r: r["lambda"]) if ok else max(fr, key=lambda r: r["lambda"]))["lambda"]
+        return float(lam), "frontier"
+    return float(ECONOMICS.friction_shadow_price), "config"
+
+
+def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "auto") -> dict:
     t0 = time.perf_counter()
     hyd = hydrate(req, state.store, now_ts=state.clock_ts)
     t1 = time.perf_counter()
-    sc = state.scorer.score(hyd.vector, explain=True)
+    sc = state.scorer.score(hyd.vector, explain=(explain == "always"))
     t2 = time.perf_counter()
     is_new = req.is_new_customer if req.is_new_customer is not None else hyd.velocity.phone_is_new
+    lam, lam_source = _shadow_price_for(req)
     ctx = TransactionContext(
         gmv=req.cart_gmv, merchant_margin=req.merchant_margin if req.merchant_margin is not None else ECONOMICS.default_margin,
         cac=req.cac if req.cac is not None else ECONOMICS.default_cac, p_loss=sc.p_loss, is_new_customer=bool(is_new),
         weight_grams=req.weight_grams, addr_defect=hyd.address.defect_score, logistics_loss=req.logistics_loss,
-        holding_cost=req.holding_cost,
+        holding_cost=req.holding_cost, friction_shadow_price=lam,
     )
     dec = DynamicRiskResolver.resolve_action(ctx, sc.conformal_set)
-    codes = reason_codes(sc.contribs, hyd.features)
+    # TreeSHAP is ~2/3 of the request cost. In "auto" mode it runs only when the decision applies
+    # friction: an ALLOW needs no defence, a step-up or a block must carry reason codes.
+    contribs, bias, shap_ms = sc.contribs, sc.bias, sc.timings_ms.get("treeshap", 0.0)
+    if contribs is None and explain == "auto" and dec.action != ALLOW:
+        contribs, bias, shap_ms = state.scorer.explain(hyd.vector)
+    codes = reason_codes(contribs, hyd.features) if contribs is not None else []
     t3 = time.perf_counter()
     total = (t3 - t0) * 1e3
     latency = {**{f"hydrate.{k}": round(v, 3) for k, v in hyd.timings_ms.items()},
                **{f"score.{k}": round(v, 3) for k, v in sc.timings_ms.items()},
+               "score.treeshap": round(shap_ms, 3),
                "hydrate_total": round((t1 - t0) * 1e3, 3), "score_total": round((t2 - t1) * 1e3, 3),
                "resolve_explain": round((t3 - t2) * 1e3, 3), "total": round(total, 3),
                "budget_ms": LATENCY_BUDGET_MS, "within_budget": total <= LATENCY_BUDGET_MS}
@@ -166,7 +188,9 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True) -> dict:
         "reason_codes": codes, "economics": ctx.as_dict(), "graph": hyd.graph, "address": hyd.address.as_dict(),
         "velocity": hyd.velocity.as_dict(), "features": hyd.features, "hashes": hyd.hashes,
         "rationale": dec.rationale, "latency_ms": latency, "model_version": state.scorer.version,
-        "scorer_backend": state.scorer.backend,
+        "scorer_backend": state.scorer.backend, "explained": contribs is not None, "explain_mode": explain,
+        "friction": {"shadow_price": round(lam, 2), "source": lam_source, "budget": req.friction_budget,
+                     "budget_changed_action": dec.budget_changed_action},
     }
 
 
@@ -190,10 +214,12 @@ def build_request_from_row(r: dict) -> RiskRequest:
 
 # --------------------------------------------------------------------------- routes
 @app.post("/v1/risk/evaluate", response_model=RiskResponse, response_model_exclude_none=True)
-async def risk_evaluate(req: RiskRequest, commit: bool = Query(True, description="Push to the async graph observer")):
+async def risk_evaluate(req: RiskRequest, commit: bool = Query(True, description="Push to the async graph observer"),
+                        explain: str = Query("auto", pattern="^(auto|always|never)$",
+                                             description="auto: TreeSHAP only when the decision applies friction (production default); always; never")):
     if state.scorer is None:
         raise HTTPException(503, "scorer not loaded")
-    out = evaluate_pipeline(req, commit=commit)
+    out = evaluate_pipeline(req, commit=commit, explain=explain)
     resp = JSONResponse(content=out)
     resp.headers["X-Chakra-Latency-Ms"] = str(out["latency_ms"]["total"])
     resp.headers["X-Chakra-Model"] = out["model_version"]
@@ -305,10 +331,10 @@ SCENARIOS = [
      "req": {"customer_phone": "9876501234", "delivery_pin": "560034", "shipping_address": "Flat 1203, Prestige Lakeside, Koramangala 5th Block, Bengaluru 560034",
              "cart_gmv": 1499, "items_count": 1, "device_fingerprint_hash": "fp_demo_returning_01", "payment_method": "COD",
              "acquisition_channel": "ORGANIC", "checkout_seconds": 95, "hour_of_day": 14, "is_new_customer": False, "merchant_margin": 0.18, "cac": 120}},
-    {"name": "Tier-4 PIN, landmark-only address, Meta ad, high basket", "tag": "step-up",
-     "req": {"customer_phone": "7012349876", "delivery_pin": "845401", "shipping_address": "Near Hanuman Temple, Ward 4",
-             "cart_gmv": 2899, "items_count": 2, "device_fingerprint_hash": "fp_demo_new_02", "payment_method": "COD",
-             "acquisition_channel": "META_ADS", "checkout_seconds": 40, "hour_of_day": 23, "is_new_customer": True, "merchant_margin": 0.18, "cac": 540}},
+    {"name": "Tier-4 PIN, thin address (house no. + landmark), Meta ad, evening — ambiguous, soft step-up", "tag": "step-up",
+     "req": {"customer_phone": "7012349876", "delivery_pin": "845401", "shipping_address": "H.No 7, Ward 4, near Hanuman Temple",
+             "cart_gmv": 1799, "items_count": 2, "device_fingerprint_hash": "fp_demo_new_02", "payment_method": "COD",
+             "acquisition_channel": "META_ADS", "checkout_seconds": 40, "hour_of_day": 20, "is_new_customer": True, "merchant_margin": 0.18, "cac": 540}},
     {"name": "Card failed → switched to COD, coupon, affiliate, 1 am (intent risk, deliverable address)", "tag": "step-up",
      "req": {"customer_phone": "8899001122", "delivery_pin": "226010", "shipping_address": "H.No 14, Vikas Khand 2, Gomti Nagar, near Bus Stand, Lucknow 226010",
              "cart_gmv": 3499, "items_count": 3, "device_fingerprint_hash": "fp_demo_switch_03", "payment_method": "COD",
@@ -322,4 +348,8 @@ SCENARIOS = [
      "req": {"customer_phone": "6001122334", "delivery_pin": "813001", "shipping_address": "asdf asdf",
              "cart_gmv": 4999, "items_count": 4, "device_fingerprint_hash": "fp_demo_junk_05", "payment_method": "COD",
              "acquisition_channel": "META_ADS", "checkout_seconds": 12, "hour_of_day": 2, "is_new_customer": True, "merchant_margin": 0.18, "cac": 420}},
+    {"name": "Tier-4 PIN, landmark-only address, Meta ad, high basket, 11 pm — certified RTO, address-driven", "tag": "prepaid-address",
+     "req": {"customer_phone": "7012349876", "delivery_pin": "845401", "shipping_address": "Near Hanuman Temple, Ward 4",
+             "cart_gmv": 2899, "items_count": 2, "device_fingerprint_hash": "fp_demo_new_02", "payment_method": "COD",
+             "acquisition_channel": "META_ADS", "checkout_seconds": 40, "hour_of_day": 23, "is_new_customer": True, "merchant_margin": 0.18, "cac": 540}},
 ]

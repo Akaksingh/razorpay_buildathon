@@ -1,9 +1,9 @@
 {
   "path": "D:\\razorpay\\artifacts\\models\\chakra_rto.onnx",
   "opset": 15,
-  "bytes": 252715,
-  "parity_max_abs_diff": 2.1904737493305682e-07,
-  "parity_mean_abs_diff": 4.4437529207113495e-08,
+  "bytes": 307045,
+  "parity_max_abs_diff": 2.822750579944966e-07,
+  "parity_mean_abs_diff": 4.296877920062156e-08,
   "parity_ok": true,
   "n_checked": 2000
 }

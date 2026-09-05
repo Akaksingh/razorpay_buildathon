@@ -48,8 +48,13 @@ MAX_ROUNDS = 1200
 EARLY_STOP = 80
 
 
-def instance_weights(meta: pd.DataFrame, y: np.ndarray, econ: Economics = ECONOMICS) -> np.ndarray:
-    """w_i = C_FN(x_i) if y_i = 1 else C_FP(x_i), normalised to mean 1 for optimiser stability."""
+def instance_weights(meta: pd.DataFrame, y: np.ndarray, econ: Economics = ECONOMICS, gamma: float = 1.0) -> np.ndarray:
+    """w_i = (C_FN(x_i) if y_i = 1 else C_FP(x_i)) ** gamma, normalised to mean 1 for optimiser stability.
+
+    gamma is the weight *temperature*: 0 recovers the unweighted accuracy model, 1 is the full rupee
+    weighting, 0.5 a tempered compromise. Which one to serve is decided by resolver P&L on the
+    validation split (scripts/02_train.py), not assumed.
+    """
     w = np.empty(len(y), dtype=float)
     for i, (gmv, m, cac, new, wt) in enumerate(zip(
             meta["cart_gmv"].to_numpy(), meta["merchant_margin"].to_numpy(), meta["cac"].to_numpy(),
@@ -57,6 +62,7 @@ def instance_weights(meta: pd.DataFrame, y: np.ndarray, econ: Economics = ECONOM
         ctx = TransactionContext(gmv=float(gmv), merchant_margin=float(m), cac=float(cac), p_loss=0.0,
                                  is_new_customer=bool(new), weight_grams=float(wt), econ=econ)
         w[i] = ctx.cost_fn if y[i] == 1 else ctx.cost_fp
+    w = np.power(w, float(gamma))
     return w / w.mean()
 
 

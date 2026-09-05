@@ -19,7 +19,7 @@ indifference point and is what an ops analyst wants to see next to p.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Iterable, Sequence
 
 from .economics import TransactionContext
@@ -50,10 +50,14 @@ class Decision:
     admissible: list[str]
     rationale: str
     ux: dict = field(default_factory=dict)
+    shadow_price: float = 0.0          # lambda_f applied (friction budget)
+    budget_changed_action: bool = False
 
     def as_dict(self) -> dict:
         return {
             "action": self.action,
+            "friction_shadow_price": round(self.shadow_price, 2),
+            "budget_changed_action": self.budget_changed_action,
             "conformal_set": self.conformal_set,
             "certainty": self.certainty,
             "p_loss": round(self.p_loss, 4),
@@ -87,15 +91,23 @@ class DynamicRiskResolver:
         return [STEP_UP, PREPAID], "NOVEL"
 
     @classmethod
-    def resolve_action(cls, ctx: TransactionContext, conformal_set: Iterable[int]) -> Decision:
+    def resolve_action(cls, ctx: TransactionContext, conformal_set: Iterable[int],
+                       friction_shadow_price: float | None = None) -> Decision:
+        if friction_shadow_price is not None:
+            ctx = replace(ctx, friction_shadow_price=friction_shadow_price)
         cset = sorted(set(int(v) for v in conformal_set))
         admissible, certainty = cls._admissible(cset)
         costs = ctx.expected_costs()
+        lam = ctx.shadow_price
         tau = ctx.tau_star
         tau_soft = ctx.tau_soft
 
-        # argmin over admissible actions; ties resolve to the *least* friction
-        best = min(admissible, key=lambda a: (round(costs[a], 6), ALL_ACTIONS.index(a)))
+        # Lagrangian of a friction budget: every non-ALLOW action also pays the shadow price lambda_f.
+        # argmin over admissible actions; ties resolve to the *least* friction. Because STEP_UP and
+        # PREPAID pay the same lambda_f, raising it can only move a decision toward ALLOW.
+        penalised = {a: costs[a] + (lam if a != ALLOW else 0.0) for a in costs}
+        best = min(admissible, key=lambda a: (round(penalised[a], 6), ALL_ACTIONS.index(a)))
+        unpriced = min(admissible, key=lambda a: (round(costs[a], 6), ALL_ACTIONS.index(a)))
         saving = costs[ALLOW] - costs[best]
 
         if certainty == "CERTIFIED_LOW":
@@ -128,6 +140,9 @@ class DynamicRiskResolver:
             why += (f" A deposit buys commitment, not deliverability: {ctx.address_attribution:.0%} of this "
                     f"order's risk is attributed to the address, so step-up residual RTO is "
                     f"{ctx.stepup_rto_residual:.0%}.")
+        if lam > 0 and unpriced != best:
+            why += (f" Friction budget: a shadow price of ₹{lam:.0f} per frictioned order tipped "
+                    f"{unpriced} → {best}.")
 
         return Decision(
             action=best,
@@ -141,4 +156,6 @@ class DynamicRiskResolver:
             admissible=admissible,
             rationale=why,
             ux=ACTION_UX[best],
+            shadow_price=lam,
+            budget_changed_action=bool(lam > 0 and unpriced != best),
         )

@@ -136,8 +136,22 @@ class Scorer:
         return ScoreResult(
             p_raw=p_raw, p_loss=p, conformal_set=cset, nonconformity=self._conf.nonconformity(p),
             contribs=contribs, bias=bias,
-            timings_ms={"onnx_infer": (t1 - t0) * 1e3, "calibrate_conformal": (t2 - t1) * 1e3, "treeshap": (t3 - t2) * 1e3},
+            timings_ms={"onnx_infer": (t1 - t0) * 1e3, "calibrate_conformal": (t2 - t1) * 1e3,
+                        "treeshap": (t3 - t2) * 1e3 if contribs is not None else 0.0},
         )
+
+    def explain(self, x: np.ndarray) -> tuple[np.ndarray | None, float, float]:
+        """Exact TreeSHAP log-odds contributions, deferred.
+
+        Returns (contribs, bias, elapsed_ms). Kept separate from score() so the
+        gateway can skip it for ALLOW decisions: an allow needs no defence, a
+        step-up or a block must carry reason codes.
+        """
+        if self._booster is None:
+            return None, 0.0, 0.0
+        t0 = time.perf_counter()
+        c = self._booster.predict(x, pred_contrib=True)[0]
+        return c[:-1], float(c[-1]), (time.perf_counter() - t0) * 1e3
 
     def score_batch(self, X: np.ndarray) -> np.ndarray:
         """Calibrated P(RTO) for evaluation; uses ONNX if present."""

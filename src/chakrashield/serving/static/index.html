@@ -67,6 +67,19 @@
           <label>Margin (M)<input name="merchant_margin" type="number" value="0.18" step="0.01" min="0" max="1"></label>
           <label>CAC (₹)<input name="cac" type="number" value="120" min="0"></label>
         </div>
+        <div class="row2">
+          <label>Friction budget (max share of orders frictioned)
+            <select name="friction_budget">
+              <option value="">none — pure expected cost</option>
+              <option value="0.5">≤ 50% of orders</option><option value="0.4">≤ 40% of orders</option>
+              <option value="0.3">≤ 30% of orders</option><option value="0.2">≤ 20% of orders</option>
+            </select></label>
+          <label>Reason codes (TreeSHAP)
+            <select name="explain">
+              <option value="always">always — demo</option>
+              <option value="auto">auto — only when frictioned (production)</option>
+            </select></label>
+        </div>
         <div class="row3 checks">
           <label class="check"><input name="coupon_applied" type="checkbox"> Coupon applied</label>
           <label class="check"><input name="is_new_customer" type="checkbox"> First order (new customer)</label>
@@ -180,6 +193,19 @@
       <div class="card-head"><h2>Conformal certainty on test orders</h2><span class="muted" id="certSub"></span></div>
       <div id="certTable"></div>
       <div class="kv" id="latencyKv"></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Friction budget frontier</h2><span class="muted" id="frontierSub"></span></div>
+      <p class="muted small">Each point is the full resolver with a Lagrangian shadow price λ added to every non-ALLOW action. λ is chosen on the validation split for the merchant's budget and applied unchanged on test. The floor is the conformally certified-RTO share, which is frictioned regardless of λ.</p>
+      <div class="chart" id="frontierChart"></div>
+      <details class="table-view"><summary>Table view</summary><div id="frontierTable"></div></details>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Model selection: weight temperature γ</h2><span class="muted" id="gammaSub"></span></div>
+      <p class="muted small">w = cost<sup>γ</sup>. γ = 0 is the unweighted accuracy model, γ = 1 full rupee weights. Early stopping on cost-weighted validation loss; the served model is the candidate with the highest resolver P&amp;L on the <em>validation</em> split, never on test. Test numbers are reported for all candidates so the choice can be audited.</p>
+      <div id="gammaTable"></div>
     </div>
   </div>
 </main>

@@ -41,6 +41,7 @@ class TransactionContext:
     # Optional merchant overrides (per-request), default to Economics values
     logistics_loss: Optional[float] = None
     holding_cost: Optional[float] = None
+    friction_shadow_price: Optional[float] = None   # lambda_f override; None -> Economics.friction_shadow_price
 
     # ------------------------------------------------------------------ costs
     @property
@@ -100,12 +101,28 @@ class TransactionContext:
 
     # -------------------------------------------------------------- threshold
     @property
+    def shadow_price(self) -> float:
+        """lambda_f: rupees charged to every non-ALLOW action.
+
+        It is the Lagrange multiplier of a friction budget ("at most X% of
+        orders may be frictioned"): minimising E[cost] + lambda_f * 1[friction]
+        for the smallest lambda_f that meets the budget is the constrained
+        optimum. 0 means pure expected-cost minimisation.
+        """
+        v = self.friction_shadow_price if self.friction_shadow_price is not None else self.econ.friction_shadow_price
+        return max(0.0, float(v))
+
+    @property
     def tau_star(self) -> float:
-        """Instance-dependent optimal threshold tau*(x) = C_FP / (C_FN + C_FP)."""
+        """Instance-dependent optimal threshold tau*(x) = (C_FP + lambda_f) / (C_FN + C_FP).
+
+        With no friction budget (lambda_f = 0) this is the textbook cost ratio;
+        a shadow price raises the point at which a block becomes worth it.
+        """
         denom = self.cost_fn + self.cost_fp
         if denom <= 0:
             return 0.5
-        return float(self.cost_fp / denom)
+        return float(min(1.0, (self.cost_fp + self.shadow_price) / denom))
 
     @property
     def tau_soft(self) -> float:
@@ -117,9 +134,11 @@ class TransactionContext:
 
         This is always below tau_star: a refundable deposit is cheap to ask
         for, so it becomes worth asking for long before a hard block would.
+        A friction shadow price lambda_f enters the numerator (the step-up
+        must now also pay for its share of the budget).
         """
         e = self.econ
-        num = e.stepup_abandon_rate * self.cost_fp + e.stepup_friction_cost * (1 - e.stepup_abandon_rate)
+        num = e.stepup_abandon_rate * self.cost_fp + e.stepup_friction_cost * (1 - e.stepup_abandon_rate) + self.shadow_price
         den = self.cost_fn * (1 - self.stepup_rto_residual) + e.stepup_abandon_rate * self.cost_fp \
             - e.stepup_friction_cost * e.stepup_abandon_rate
         if den <= 0:
@@ -179,4 +198,5 @@ class TransactionContext:
             "addr_defect": round(self.addr_defect, 3),
             "address_attribution": round(self.address_attribution, 3),
             "stepup_rto_residual_eff": round(self.stepup_rto_residual, 3),
+            "friction_shadow_price": round(self.shadow_price, 2),
         }

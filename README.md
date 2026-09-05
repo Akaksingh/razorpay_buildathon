@@ -40,16 +40,17 @@ orders** of a 60,000-order synthetic Indian D2C world; 815 of them RTO (21.1 %).
 
 | Component | Concrete result |
 |---|---|
-| Cost-sensitive LightGBM RTO scorer, ONNX-exported (`02_train.py`) | AUC **0.756** · PR-AUC **0.542** · Brier 0.131 · ECE **0.011** after isotonic recalibration (0.042 raw) |
-| Unweighted baseline on the same features (for comparison) | AUC 0.771 · PR-AUC 0.549 — better rank accuracy, **₹84,595 less margin** protected |
+| LightGBM RTO scorer, weight-temperature sweep γ ∈ {0, 0.5, 1}, served γ = 0, ONNX-exported (`02_train.py`) | AUC **0.771** · PR-AUC **0.549** · Brier 0.129 · ECE **0.018** after isotonic recalibration (0.024 raw) |
+| Rupee-weighted objectives (γ = 0.5, γ = 1.0): trained, measured, *not* served | AUC 0.764 / 0.756 · **₹5,192 / ₹8,104 less margin** on test than γ = 0 · the choice was made on the validation split |
 | ONNX Runtime serving | max \|Δp\| vs native booster **2.2 × 10⁻⁷** over 2,000 rows · 0.13 ms per inference |
-| Mondrian (class-conditional) conformal sets, α = 0.10 | test coverage **91.7 % / 92.9 %** (target ≥ 90 %) · certified-low orders RTO at **8.1 %**, certified-high at **58.5 %** |
-| Three-action expected-cost resolver (τ*(x), τ_soft, ₹49 step-up) | **+₹1,80,376 (+42 %)** net margin vs no engine · **+₹84,595** vs the accuracy model at 0.5 · **614 of 815 RTOs prevented (75 %)** |
+| Mondrian (class-conditional) conformal sets, α = 0.10 | test coverage **89.9 % / 89.0 %** against a 90 % target (sampling noise on 3,868 orders; the guarantee is in expectation over calibration draws) · certified-low orders RTO at **7.2 %**, certified-high at **54.4 %** |
+| Three-action expected-cost resolver (τ*(x), τ_soft, ₹49 step-up) | **+₹1,88,480 (+44 %)** net margin vs no engine · **+₹92,699** vs the accuracy model at 0.5 · **+₹74,123** vs the best tuned global cut-off · **621 of 815 RTOs prevented (76 %)** |
+| Friction budget: Lagrangian shadow price λ on every non-ALLOW action | budget ≤ 30 % → λ = ₹40 chosen on validation → **24.7 % frictioned, +₹1,34,907** on test · at the floor (17.5 %, only conformally certified RTOs) still **+₹1,15,719**, above the best binary policy, which frictions 32 % |
 | Syndicate graph observer (device / address / VPA rings) | phone-level **recall 98.7 %** (1,065 of 1,079 burner phones) · precision 87.2 % · order-level precision 93.8 % / recall 92.4 % · flagged orders RTO at **82.8 %** vs 13.8 % unflagged |
 | Visa CE 3.0 dispute compiler | deterministic 120–365-day window + two-element hash match · SHA-256 evidence packet, no LLM |
-| FastAPI risk gateway | in-process **p50 2.88 ms / p99 3.86 ms** · HTTP p99 6.48 ms · **0 of 3,000** calls breached the 25 ms budget |
+| FastAPI risk gateway (`explain=auto`: TreeSHAP only when friction is applied) | in-process **p50 2.81 ms / p99 4.13 ms**, mean **2.34 ms** vs 3.42 ms with every order explained (−32 % CPU per request) · HTTP p99 7.51 ms · **0 of 3,000** calls breached the 25 ms budget in either mode |
 | Console UI: checkout simulator, merchant P&L console, ring visualizer, dispute view | rendered in headless Chrome, 0 JS errors |
-| Test suite | **32 / 32** passing (`pytest tests`) |
+| Test suite | **38 / 38** passing (`pytest tests`) |
 
 ### Classification accuracy, stated plainly
 
@@ -58,16 +59,16 @@ which is exactly why the project is judged in rupees, not accuracy. The classica
 
 | Model · threshold | Accuracy | Precision (RTO) | Recall (RTO) | F1 | Specificity |
 |---|---:|---:|---:|---:|---:|
-| **ChakraShield · 0.50** | **83.0 %** | **73.1 %** | 30.3 % | 0.428 | **97.0 %** |
-| ChakraShield · 0.30 (F1-optimal cut-off) | 80.4 % | 54.0 % | 47.2 % | **0.504** | 89.3 % |
-| ChakraShield · 0.22 (global-cost-optimal cut-off) | 75.9 % | 44.3 % | 56.1 % | 0.495 | 81.2 % |
-| Baseline (unweighted) · 0.50 | 83.0 % | 67.8 % | 36.4 % | 0.474 | 95.4 % |
+| **Served scorer (γ = 0) · 0.50** | **83.0 %** | 67.8 % | **36.4 %** | 0.474 | 95.4 % |
+| Served scorer · 0.30 (F1-optimal cut-off) | 80.5 % | 54.5 % | 45.3 % | 0.495 | 89.9 % |
+| Served scorer · 0.22 (global-cost-optimal cut-off) | 73.9 % | 42.2 % | 64.5 % | **0.510** | 76.4 % |
+| Rupee-weighted γ = 1 · 0.50 (trained, not served) | 83.0 % | **73.1 %** | 30.3 % | 0.428 | **97.0 %** |
 
-At the conventional 0.5 cut-off the cost-sensitive model is **more precise (73.1 % vs 67.8 %)** and blocks fewer
-good buyers (91 vs 141 false positives) at the price of recall — it is trained to be *sure* before it frictions
-a customer, because a false block on a high-CAC buyer costs more than one shipped RTO. In production the engine
-uses no single cut-off at all: it decides per order with τ*(x) and the conformal set, which is where the
-+₹1,80,376 in the results table below comes from.
+The rupee-weighted model is more precise at 0.5 (73.1 % vs 67.8 %) but ranks worse overall (AUC 0.756 vs
+0.771), and once probabilities are recalibrated and the instance costs enter at decision time through τ*(x),
+that extra precision buys nothing — it loses ₹8,104 on the test split. In production the engine uses no
+single cut-off at all: it decides per order with τ*(x) and the conformal set, which is where the +₹1,88,480
+in the results table below comes from.
 
 ## Why this is not another RTO classifier
 
@@ -105,10 +106,19 @@ C(x) = { y : s(x,y) ≤ q_y }    ⇒    P(y ∈ C(x) | y=c) ≥ 1−α   for eac
 The four outcomes are all actionable. An **empty** set — neither label conforms — is the signature of an
 input outside the calibrated support, i.e. a fresh syndicate pattern; ChakraShield steps up rather than guess.
 
-**4. Cost-sensitive learning, then honest calibration.** The booster is trained on instance-weighted
-log-loss (w = C_FN(x) for RTO rows, C_FP(x) for delivered rows) so capacity goes where money is. Weighting
-distorts probability scale, so the model is isotonically recalibrated on a disjoint chronological split
-*before* it meets τ*. ECE is reported before and after.
+**4. Cost-sensitive learning was tried, measured, and not served.** Three boosters are trained that differ
+only in the weight temperature γ of w = (C_FN(x) for RTO rows, C_FP(x) for delivered rows)^γ, each
+early-stopped on its cost-weighted validation loss and isotonically recalibrated on a disjoint chronological
+split. The one that is served is chosen by the resolver's net P&L on the *validation* split, never on test —
+and it is γ = 0. Rupee weighting trades rank accuracy (AUC 0.771 → 0.756) for a precision the resolver cannot
+use, because instance costs already enter at decision time through τ*(x); on test it loses ₹8,104. The gain in
+this system is the decision layer, not the loss function, and the repo says so with a number.
+
+**Friction is rationed, not just priced.** A merchant who will not friction more than X % of orders gets a
+Lagrangian shadow price λ added to every non-ALLOW action: τ*(x) becomes (C_FP + λ)/(C_FN + C_FP) and τ_soft
+shifts the same way in closed form. λ is chosen on the validation split for the budget and applied unchanged
+on test; the conformally certified-RTO share is the floor, frictioned at any λ. Because STEP_UP and PREPAID
+pay the same λ, raising it can only move a decision toward ALLOW — a property the tests pin down.
 
 **5. Graph-free serving path.** Ring statistics are computed asynchronously (union-find, O(α(n)) per
 update) and published into the feature store; the request path only reads hashes. NetworkX is used for the
@@ -147,41 +157,55 @@ wrong about buyers.
 | `BASE@F1` | 5,32,040 | +1,02,188 | 3191 / 0 / 677 | 117 | 469 |
 | `BASE@GLOBAL_COST` | 5,44,209 | +1,14,357 | 2620 / 0 / 1248 | 274 | 319 |
 | `BASE@TAU*(x)` | 5,29,254 | +99,403 | 3372 / 0 / 496 | 70 | 523 |
-| `CHAKRA@TAU*(x)` | 5,28,032 | +98,181 | 3306 / 0 / 562 | 95 | 521 |
-| **`CHAKRA_FULL`** | **6,10,227** | **+1,80,376 (+42 %)** | 1348 / 1952 / 568 | 270 | 201 |
+| **`CHAKRA_FULL`** | **6,18,332** | **+1,88,480 (+44 %)** | 1640 / 1698 / 530 | 226 | 194 |
+| `CHAKRA_FULL@F≤30%` | 5,64,759 | +1,34,907 | 2913 / 454 / 501 | 108 | 410 |
 | `ORACLE` | 7,51,435 | +3,21,584 | 3053 / 449 / 366 | 0 | 49 |
 
-* The full engine protects **1.9× the margin of the accuracy model** (`BASE@0.5`) and **₹66 k more than the
-  best globally-tuned cut-off**, while shipping *fewer* RTOs (201 vs 319) at the *same* good-buyer loss
-  (270 vs 274). It captures 56 % of the oracle ceiling; the accuracy model captures 30 %.
-* **Sensitivity:** `CHAKRA_FULL` beats the best binary policy in 12 of 15 buyer-behaviour scenarios
+`BASE` and `CHAKRA` share the same booster (γ = 0 won selection), so the whole gap between `BASE@TAU*(x)` and
+`CHAKRA_FULL` is the decision layer: conformal gating plus the three-action resolver.
+
+* The full engine protects **2.0× the margin of the accuracy model** (`BASE@0.5`) and **₹74 k more than the
+  best globally-tuned cut-off**, while shipping *fewer* RTOs (194 vs 319) and losing *fewer* good buyers
+  (226 vs 274). It captures 59 % of the oracle ceiling; the accuracy model captures 30 %.
+* **Friction budget.** The same resolver under a ≤ 30 % friction constraint (λ = ₹40, chosen on validation)
+  frictions 24.7 % of test orders and still protects +₹1,34,907 — more than every binary policy, with 60 %
+  fewer good buyers lost than the best of them. The frontier's floor is 17.5 % (only conformally certified
+  RTOs) at +₹1,15,719, still above `BASE@GLOBAL_COST`, which frictions 32 %.
+* **Sensitivity:** `CHAKRA_FULL` beats the best binary policy in 13 of 15 buyer-behaviour scenarios
   (δ_good ∈ {6, 11, 18, 25, 35 %} × δ_bad ∈ {40, 65, 85 %}); it loses only when ≥ 35 % of *good* buyers
-  abandon a ₹49 prompt **and** most bad buyers do not — the regime where a merchant should not offer step-up at all.
-* **An honest finding:** the textbook hard-block rule `p > τ*(x)` is *not* better than a tuned global cut-off
-  here (+99 k vs +114 k). τ* = C_FP/(C_FN+C_FP) assumes every blocked good buyer is lost; in reality a
-  fraction pays prepaid. The three-action expected-cost resolver models that response explicitly, which is
-  where the gain comes from — τ* survives as the reported ALLOW/BLOCK indifference point, not as the decision rule.
+  abandon a ₹49 prompt **and** most bad buyers do not — the regime where a merchant should set a tight
+  friction budget or not offer step-up at all.
+* **Two honest findings.** (1) The textbook hard-block rule `p > τ*(x)` is *not* better than a tuned global
+  cut-off here (+99 k vs +114 k): τ* assumes every blocked good buyer is lost, while a fraction pays prepaid.
+  The three-action resolver models that response explicitly, which is where the gain comes from; τ* survives
+  as the reported indifference point, not as the decision rule. (2) Rupee-weighted training loses to the
+  unweighted model on validation *and* test (γ = 1: −₹8,104; γ = 0.5: −₹5,192), so the served model is γ = 0.
 * **A deposit buys commitment, not deliverability.** Residual RTO after a paid step-up is
   ρ_eff = ρ + (1−ρ)·a(x) with a(x) = defect² the share of risk attributed to the address; a junk address
   therefore resolves to a prepaid mandate even when p is moderate.
 
-**Model.** Cost-sensitive LightGBM (113 trees, early-stopped): test AUC 0.756 / PR-AUC 0.542 (unweighted
-baseline 0.771 / 0.549 — the weighting deliberately trades rank-AUC for rupee-weighted loss). ECE 0.042 → 0.011
-after isotonic recalibration. ONNX parity vs native booster: max |Δp| = 2.2 × 10⁻⁷ over 2,000 rows.
+**Model.** Served booster γ = 0 (137 trees, early-stopped): test AUC 0.771 / PR-AUC 0.549, ECE 0.024 → 0.018
+after isotonic recalibration. Candidates γ = 0.5 / 1.0: AUC 0.764 / 0.756, ECE 0.015 / 0.011, validation P&L
+₹5,93,057 / ₹5,85,760 against ₹6,02,951 for γ = 0. ONNX parity vs native booster: max |Δp| = 2.8 × 10⁻⁷ over
+2,000 rows.
 
-**Conformal (α = 0.10).** Test coverage 91.7 % (deliverable) / 92.9 % (RTO) — both ≥ 90 %, model-agnostic.
-Certified-low orders RTO at 8.1 %, ambiguous at 15.8 %, certified-high at 58.5 %. Empty-set rate 0 % in
-distribution; it is the drift alarm.
+**Conformal (α = 0.10).** Test coverage 89.9 % (deliverable) / 89.0 % (RTO) against a 90 % target. The
+guarantee holds in expectation over calibration draws; on 3,868 test orders a one-point shortfall is within
+sampling noise (the γ = 1 candidate's sets covered 91.7 % / 92.9 % on the same split). Certified-low orders RTO
+at 7.2 %, ambiguous at 18.4 %, certified-high at 54.4 %. Empty-set rate 0 % in distribution; it is the drift
+alarm.
 
-**Latency** (`04_bench_latency.py`, ONNX Runtime, 1 intra-op thread, in-process store, 3,000 calls):
+**Latency** (`04_bench_latency.py`, ONNX Runtime, 1 intra-op thread, in-process store, 3,000 calls per mode):
 
-| | p50 | p95 | p99 | max |
-|---|---:|---:|---:|---:|
-| in-process pipeline (hydrate → ONNX → conformal → resolve → TreeSHAP) | 2.88 ms | 3.32 ms | 3.86 ms | 13.0 ms |
-| HTTP round-trip (TestClient) | 4.97 ms | 5.53 ms | 6.48 ms | 11.4 ms |
+| | p50 | p95 | p99 | max | mean |
+|---|---:|---:|---:|---:|---:|
+| in-process, `explain=auto` (default: TreeSHAP only when friction is applied — 60.5 % of these orders) | 2.81 ms | 3.70 ms | 4.13 ms | 11.2 ms | **2.34 ms** |
+| in-process, `explain=always` (every response carries reason codes) | 3.40 ms | 4.08 ms | 5.78 ms | 21.6 ms | 3.42 ms |
+| HTTP round-trip (TestClient, `auto`) | 3.96 ms | 5.99 ms | 7.51 ms | 24.5 ms | — |
 
-ONNX inference is 0.13 ms at p50; exact TreeSHAP for reason codes is the largest stage at 1.9 ms. Zero
-breaches of the 25 ms budget.
+ONNX inference is 0.14 ms at p50; exact TreeSHAP is the largest stage at 1.8–2.3 ms, which is why it is
+deferred until the resolver has decided that a defence is needed — an ALLOW carries none. Zero breaches of the
+25 ms budget in either mode; mean CPU per request drops 32 %.
 <!-- RESULTS:END -->
 
 ## Run it
@@ -210,8 +234,13 @@ semantics is used and reported on `/healthz`.
 {"customer_phone":"7012349876","delivery_pin":"845401","shipping_address":"Near Hanuman Temple, Ward 4",
  "cart_gmv":2899,"items_count":2,"device_fingerprint_hash":"fp_…","payment_method":"COD",
  "payment_switch_from":"CARD_FAILED","acquisition_channel":"META_ADS","hour_of_day":23,
- "is_new_customer":true,"merchant_margin":0.18,"cac":540}
+ "is_new_customer":true,"merchant_margin":0.18,"cac":540,
+ "friction_budget":0.30}
 ```
+
+Optional: `friction_shadow_price` (₹ per frictioned order — the Lagrange multiplier directly) or
+`friction_budget` (max share of orders frictioned, mapped to a shadow price through the validation frontier).
+Query `?explain=auto|always|never`: `auto` (default) runs TreeSHAP only when the decision applies friction.
 
 Response (abridged):
 
@@ -222,6 +251,7 @@ Response (abridged):
  "expected_costs":{"ALLOW_COD":152.3,"STEP_UP_DEPOSIT":61.8,"FORCE_PREPAID":209.4},
  "reason_codes":[{"code":"RSK_ADDR_DEFECT","shap":0.91,"direction":"RISK_UP","human":"Address structurally incomplete (defect 0.65)"},
                  {"code":"RSK_PIN_TIER","shap":0.44,"direction":"RISK_UP","human":"Tier-4 delivery PIN"}],
+ "explained":true,"friction":{"shadow_price":40,"source":"frontier","budget":0.3,"budget_changed_action":false},
  "latency_ms":{"total":2.9,"budget_ms":25,"within_budget":true},"scorer_backend":"onnxruntime"}
 ```
 
@@ -268,3 +298,6 @@ tests/                      policy math, conformal coverage, features, graph, CE
   sweep shows the ranking under δ_s ∈ [6 %, 35 %].
 * Conformal guarantees assume exchangeability; a regime shift shows up as a rising empty-set rate, which is
   itself a monitoring signal.
+* The served γ and the friction-budget λ are both chosen on the *validation* split, which sits chronologically
+  before the calibration splits; a production system would re-fit them on a rolling window. Test numbers are
+  never used for any choice.

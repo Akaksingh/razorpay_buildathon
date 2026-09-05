@@ -38,6 +38,10 @@ class RiskRequest(BaseModel):
     logistics_loss: Optional[float] = Field(None, ge=0)
     holding_cost: Optional[float] = Field(None, ge=0)
 
+    # friction rationing (optional): a direct shadow price, or a budget mapped through the evaluated frontier
+    friction_shadow_price: Optional[float] = Field(None, ge=0, description="₹ added to every non-ALLOW action (Lagrange multiplier of a friction budget)")
+    friction_budget: Optional[float] = Field(None, ge=0, le=1, description="Max share of orders that may be frictioned; mapped to a shadow price via the validation frontier")
+
     @field_validator("delivery_pin")
     @classmethod
     def _pin_digits(cls, v: str) -> str:
@@ -88,6 +92,9 @@ class RiskResponse(BaseModel):
     latency_ms: dict
     model_version: str
     scorer_backend: str
+    explained: bool = Field(True, description="False when explain=auto skipped TreeSHAP on an ALLOW decision")
+    explain_mode: str = "auto"
+    friction: dict = Field(default_factory=dict, description="shadow_price, source (request|frontier|config), budget, budget_changed_action")
 
 
 class DisputeRequest(BaseModel):

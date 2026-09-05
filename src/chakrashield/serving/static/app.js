@@ -77,12 +77,14 @@
     body.coupon_applied = form.elements.coupon_applied.checked;
     body.is_new_customer = form.elements.is_new_customer.checked;
     if (!body.payment_switch_from) delete body.payment_switch_from;
+    if (!body.friction_budget) delete body.friction_budget; else body.friction_budget = +body.friction_budget;
+    const explain = body.explain || "always"; delete body.explain;
     const commit = form.elements.commit.checked; delete body.commit;
     if (form.dataset.orderId) body.order_id = form.dataset.orderId + "_replay";
     const btn = $("#placeOrder"); btn.disabled = true;
     try {
       const t0 = performance.now();
-      const res = await post(`/v1/risk/evaluate?commit=${commit}`, body);
+      const res = await post(`/v1/risk/evaluate?commit=${commit}&explain=${explain}`, body);
       res._rtt = performance.now() - t0; res._truth = form.dataset.truth; res._cohort = form.dataset.cohort;
       renderDecision(res);
     } catch (err) { alert("Evaluate failed: " + err.message); }
@@ -131,13 +133,16 @@
       return `<div class="reason"><div><div class="code">${esc(c.code)}</div><div class="human">${esc(c.human)}</div></div>
         <div class="bar"><span class="mid"></span><i class="${pos ? "" : "neg"}" style="${pos ? "left:50%" : "right:50%"};width:${w}%;background:var(${pos ? "--div-neg" : "--div-pos"})"></i>
         <b style="${pos ? "left:calc(50% + " + w + "% + 4px)" : "right:calc(50% + " + w + "% + 4px)"}">${c.shap > 0 ? "+" : ""}${c.shap.toFixed(2)}</b></div></div>`;
-    }).join("") : `<span class="muted">No contribution above the reporting floor.</span>`;
+    }).join("") : `<span class="muted">${r.explained === false ? "explain=auto — TreeSHAP skipped for an ALLOW decision (an allow needs no defence); saves ~1.9 ms" : "No contribution above the reporting floor."}</span>`;
 
     // economics / graph / address
     const e = r.economics;
     kv("#econKv", [["GMV (V)", fmtR(e.gmv)], ["margin (M)", pct(e.merchant_margin, 0)], ["CAC", fmtR(e.cac)], ["new customer", e.is_new_customer ? "yes" : "no"],
       ["logistics fwd+rev", fmtR(e.logistics)], ["holding", fmtR(e.holding)], ["C_FN — allow a bad order", fmtR(e.cost_fn)], ["C_FP — friction a good one", fmtR(e.cost_fp)],
-      ["expected saving vs allow", fmtR(r.expected_saving_vs_allow)]]);
+      ["expected saving vs allow", fmtR(r.expected_saving_vs_allow)],
+      ["friction shadow price λ", fmtR(e.friction_shadow_price || 0)],
+      ...(r.friction && r.friction.source === "frontier" ? [["friction budget", `≤ ${pct(r.friction.budget, 0)}`]] : []),
+      ...(r.friction && r.friction.budget_changed_action ? [["budget effect", "changed the action"]] : [])]);
     const g = r.graph;
     kv("#graphKv", [["ring membership", g.is_ring ? "SYNDICATE RING" : (g.ring_size ? "linked cluster" : "none")], ["cluster size", g.ring_size || 0], ["phones in cluster", g.ring_phones || 0],
       ["devices in cluster", g.ring_devices || 0], ["cluster RTO rate", g.ring_size ? pct(g.ring_rto_rate, 0) : "—"], ["max entity degree", g.entity_max_degree],
@@ -267,10 +272,11 @@
       tile("RTOs prevented", inr.format(Math.round(full.rto_prevented_expected)), `of ${inr.format(Math.round(allow.rto_shipped_expected))} that would ship · ${pct(full.rto_prevented_expected / allow.rto_shipped_expected, 0)}`),
       tile("Good buyers lost to friction", inr.format(Math.round(full.good_customers_lost_expected)), `vs ${inr.format(Math.round(base.good_customers_lost_expected))} under BASE@0.5`, full.good_customers_lost_expected < base.good_customers_lost_expected),
       tile("Soft step-up share", pct(full.action_share.STEP_UP_DEPOSIT, 1), `hard block only ${pct(full.action_share.FORCE_PREPAID, 1)}`),
-      tile("Gateway latency p99", lat.inprocess_ms ? lat.inprocess_ms.p99.toFixed(2) + " ms" : "—", lat.inprocess_ms ? `p50 ${lat.inprocess_ms.p50.toFixed(2)} ms · budget ${lat.budget_ms} ms · ${lat.scorer_backend}` : "run 04_bench_latency.py"),
+      tile("Gateway latency p99 (explain=auto)", lat.inprocess_ms ? lat.inprocess_ms.p99.toFixed(2) + " ms" : "—", lat.inprocess_ms ? `p50 ${lat.inprocess_ms.p50.toFixed(2)} ms · always-explain p99 ${lat.inprocess_always_ms ? lat.inprocess_always_ms.p99.toFixed(2) + " ms" : "—"} · budget ${lat.budget_ms} ms` : "run 04_bench_latency.py"),
     ].join("");
     // waterfall
-    const order = ["BASE@0.5", "BASE@F1", "BASE@GLOBAL_COST", "BASE@TAU*(x)", "CHAKRA@TAU*(x)", "CHAKRA_FULL", "ORACLE"];
+    const budgetName = ev.friction_budget ? ev.friction_budget.policy : null;
+    const order = ["BASE@0.5", "BASE@F1", "BASE@GLOBAL_COST", "BASE@TAU*(x)", "CHAKRA@TAU*(x)", "CHAKRA_FULL", budgetName, "ORACLE"].filter(k => k && P[k]);
     const wf = order.map(k => ({ label: k, value: P[k].delta_vs_allow_all, emph: k === "CHAKRA_FULL", muted: k === "ORACLE", color: k === "ORACLE" ? "--de" : undefined }));
     $("#wfSub").textContent = `Δ P&L vs ALLOW_ALL (₹${inr.format(Math.round(allow.pnl_total))}) on ${fmtR(ev.test_gmv)} test GMV`;
     hbars($("#waterfall"), wf, { fmt: fmtR, tipFn: d => `<b>${esc(d.label)}</b>P&L ${fmtR(P[d.label].pnl_total)}<br>Δ vs no engine ${fmtR(d.value)}<br>good lost ${inr.format(Math.round(P[d.label].good_customers_lost_expected))} · RTO shipped ${inr.format(Math.round(P[d.label].rto_shipped_expected))}` });
@@ -289,9 +295,10 @@
       tipFn: (r, c) => { const s = sens.find(x => x.stepup_good_abandon === r && x.stepup_bad_abandon === c); return `<b>δ_good ${pct(r, 0)} · δ_bad ${pct(c, 0)}</b>CHAKRA_FULL ${fmtR(s.CHAKRA_FULL)}<br>best binary ${fmtR(Math.max(s["BASE@GLOBAL_COST"], s["BASE@TAU*(x)"], s["CHAKRA@TAU*(x)"]))}<br>BASE@0.5 ${fmtR(s["BASE@0.5"])} · allow-all ${fmtR(s.ALLOW_ALL)}`; } });
     // calibration + model metrics
     calibration($("#calibChart"), ev.calibration_curve || []);
-    const b = mm.baseline || {}, c = mm.chakra || {}, ct = ev.conformal_test || {};
-    kv("#modelKv", [["AUC baseline → cost-sensitive", `${(b.auc || 0).toFixed(4)} → ${(c.auc || 0).toFixed(4)}`], ["PR-AUC", `${(b.pr_auc || 0).toFixed(4)} → ${(c.pr_auc || 0).toFixed(4)}`],
-      ["ECE raw → isotonic (cost-sensitive)", `${(c.ece_raw || 0).toFixed(4)} → ${(c.ece_calibrated || 0).toFixed(4)}`], ["trees (early-stopped)", `${b.best_iter} / ${c.best_iter}`],
+    const c = mm.chakra || {}, ct = ev.conformal_test || {};
+    const g1 = (ev.candidates || []).find(x => x.gamma === 1) || mm.baseline || {};
+    kv("#modelKv", [[`AUC served (γ=${ev.selected_gamma ?? "?"}) / rupee-weighted γ=1`, `${(c.auc || 0).toFixed(4)} / ${(g1.auc || 0).toFixed(4)}`], ["PR-AUC served / γ=1", `${(c.pr_auc || 0).toFixed(4)} / ${(g1.pr_auc || 0).toFixed(4)}`],
+      ["ECE raw → isotonic (served)", `${(c.ece_raw || 0).toFixed(4)} → ${(c.ece_calibrated || 0).toFixed(4)}`], ["trees served / γ=1 (early-stopped)", `${c.best_iter} / ${g1.best_iter}`],
       ["ONNX parity max |Δp|", mm.onnx ? mm.onnx.parity_max_abs_diff.toExponential(1) : "—"], ["conformal coverage class 0 / 1", `${pct(ct.coverage_class0 || 0)} / ${pct(ct.coverage_class1 || 0)} (target ≥ ${pct(1 - rep.alpha, 0)})`]]);
     // tau hist
     const th = ev.tau_star_hist; columns($("#tauHist"), th.edges, th.counts, { marker: ev.thresholds.global_cost_optimal, markerLabel: `best single cut-off ${ev.thresholds.global_cost_optimal.toFixed(2)}` });
@@ -300,7 +307,49 @@
     table($("#certTable"), [{ h: "conformal outcome", k: "k" }, { h: "orders", num: 1, f: r => inr.format(cert[r.k].n) }, { h: "share", num: 1, f: r => pct(cert[r.k].n / ev.test_orders) }, { h: "actual RTO rate", num: 1, f: r => pct(cert[r.k].rto_rate) }],
       ["CERTIFIED_LOW", "AMBIGUOUS", "CERTIFIED_HIGH", "NOVEL"].map(k => ({ k })));
     if (lat.inprocess_ms) kv("#latencyKv", [["in-process p50 / p95 / p99", `${lat.inprocess_ms.p50.toFixed(2)} / ${lat.inprocess_ms.p95.toFixed(2)} / ${lat.inprocess_ms.p99.toFixed(2)} ms`], ["HTTP p50 / p99 (TestClient)", `${lat.http_ms.p50.toFixed(2)} / ${lat.http_ms.p99.toFixed(2)} ms`],
-      ["ONNX infer p50", `${(lat.stages_ms_p50["score.onnx_infer"] || 0).toFixed(3)} ms`], ["TreeSHAP p50", `${(lat.stages_ms_p50["score.treeshap"] || 0).toFixed(3)} ms`], ["budget breaches", `${lat.budget_breaches_inprocess} / ${lat.n_inprocess}`]]);
+      ["ONNX infer p50", `${(lat.stages_ms_p50["score.onnx_infer"] || 0).toFixed(3)} ms`], ["TreeSHAP p50 (auto / always)", `${(lat.stages_ms_p50["score.treeshap"] || 0).toFixed(3)} / ${((lat.stages_always_ms_p50 || {})["score.treeshap"] || 0).toFixed(3)} ms`],
+      ["explain=always p50 / p99", lat.inprocess_always_ms ? `${lat.inprocess_always_ms.p50.toFixed(2)} / ${lat.inprocess_always_ms.p99.toFixed(2)} ms` : "—"], ["orders explained under auto", lat.explained_share_auto != null ? pct(lat.explained_share_auto) : "—"],
+      ["budget breaches (auto / always)", `${lat.budget_breaches_inprocess} / ${lat.budget_breaches_always ?? "—"} of ${lat.n_inprocess}`]]);
+    // friction budget frontier
+    const fr = ev.friction_frontier || [], fb = ev.friction_budget || {};
+    if (fr.length) {
+      const bestBinary = Math.max(P["BASE@GLOBAL_COST"].delta_vs_allow_all, P["BASE@TAU*(x)"].delta_vs_allow_all, P["CHAKRA@TAU*(x)"].delta_vs_allow_all);
+      const pts = fr.map(f => ({ ...f, y: f.pnl_total - allow.pnl_total }));
+      $("#frontierSub").textContent = `budget ≤ ${pct(fb.budget || 0, 0)} → λ = ₹${fb.lambda} chosen on VALID · test friction share ${pct(fb.test_friction_share || 0)}`;
+      frontierChart($("#frontierChart"), pts, { refY: bestBinary, refLabel: "best binary-threshold policy", isBudget: p => p.lambda === fb.lambda,
+        tipFn: p => `<b>λ = ₹${p.lambda}</b>friction share ${pct(p.friction_share)}<br>Δ P&L ${fmtR(p.y)}<br>RTO shipped ${inr.format(Math.round(p.rto_shipped))} · good lost ${inr.format(Math.round(p.good_lost))}<br>allow ${p.actions.ALLOW_COD} · step-up ${p.actions.STEP_UP_DEPOSIT} · prepaid ${p.actions.FORCE_PREPAID}` });
+      table($("#frontierTable"), [{ h: "λ (₹ per frictioned order)", k: "lambda" }, { h: "friction share", num: 1, f: r => pct(r.friction_share) }, { h: "Δ P&L vs no engine", num: 1, f: r => fmtR(r.y) },
+        { h: "RTO shipped", num: 1, f: r => inr.format(Math.round(r.rto_shipped)) }, { h: "good lost", num: 1, f: r => inr.format(Math.round(r.good_lost)) }], pts);
+    }
+    // weight-temperature candidates
+    const cands = ev.candidates || [];
+    if (cands.length) {
+      $("#gammaSub").textContent = `served γ = ${ev.selected_gamma} · chosen by resolver P&L on VALID`;
+      table($("#gammaTable"), [{ h: "γ", f: r => r.gamma.toFixed(1) + (r.selected ? " · served" : "") }, { h: "trees", num: 1, k: "best_iter" }, { h: "AUC", num: 1, f: r => r.auc.toFixed(4) },
+        { h: "PR-AUC", num: 1, f: r => r.pr_auc.toFixed(4) }, { h: "ECE", num: 1, f: r => r.ece_calibrated.toFixed(4) }, { h: "VALID P&L", num: 1, f: r => fmtR(r.valid_pnl_full) },
+        { h: "TEST Δ vs no engine", num: 1, f: r => fmtR(r.test_delta_vs_allow) }], cands);
+    }
+  }
+  // Frontier: Δ P&L (y) against share of orders frictioned (x); one line, labelled points, reference rule.
+  function frontierChart(el, rows, o = {}) {
+    const W = widthOf(el), H = 280, padL = 78, padR = 24, padT = 18, padB = 42;
+    const pts = rows.slice().sort((a, b) => a.friction_share - b.friction_share);
+    const ys = pts.map(p => p.y).concat(o.refY != null ? [o.refY] : []);
+    const ymin = Math.min(0, ...ys), ymax = Math.max(1, ...ys) * 1.1;
+    const sx = v => padL + v * (W - padL - padR), sy = v => padT + (1 - (v - ymin) / (ymax - ymin || 1)) * (H - padT - padB);
+    let s = `<svg viewBox="0 0 ${W} ${H}">`;
+    niceTicks(ymax, 4).forEach(t => { s += `<line class="grid" x1="${padL}" x2="${W - padR}" y1="${sy(t)}" y2="${sy(t)}"/><text x="${padL - 6}" y="${sy(t) + 4}" text-anchor="end">${fmtR(t)}</text>`; });
+    [0, .25, .5, .75, 1].forEach(t => { s += `<text x="${sx(t)}" y="${H - padB + 16}" text-anchor="${t === 1 ? "end" : t === 0 ? "start" : "middle"}">${pct(t, 0)}</text>`; });
+    if (o.refY != null) s += `<line x1="${padL}" x2="${W - padR}" y1="${sy(o.refY)}" y2="${sy(o.refY)}" stroke="var(--axis)" stroke-dasharray="4 3"/><text x="${W - padR}" y="${sy(o.refY) - 5}" text-anchor="end">${esc(o.refLabel || "")} ${fmtR(o.refY)}</text>`;
+    s += `<polyline fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round" points="${pts.map(p => sx(p.friction_share) + "," + sy(p.y)).join(" ")}"/>`;
+    pts.forEach((p, i) => {
+      const hi = o.isBudget && o.isBudget(p), base = p.lambda === 0;
+      s += `<g data-i="${i}"><circle cx="${sx(p.friction_share)}" cy="${sy(p.y)}" r="${hi || base ? 6 : 4}" fill="${hi ? "var(--warning)" : "var(--s1)"}" stroke="var(--surface)" stroke-width="2"/><circle class="hit" cx="${sx(p.friction_share)}" cy="${sy(p.y)}" r="14"/></g>`;
+      if (hi || base) s += `<text x="${sx(p.friction_share) + (base ? -8 : 10)}" y="${sy(p.y) + (base ? -10 : 22)}" text-anchor="${base ? "end" : "start"}" style="font-weight:500">${base ? "no budget (λ=0)" : `budget point λ=₹${p.lambda}`}</text>`;
+    });
+    s += `<text x="${(padL + W - padR) / 2}" y="${H - 4}" text-anchor="middle">share of orders frictioned →</text><text x="${padL + 6}" y="${padT + 4}">↑ Δ P&amp;L vs no engine</text></svg>`;
+    el.innerHTML = s;
+    if (o.tipFn) $$("g[data-i]", el).forEach(g => { g.addEventListener("mousemove", e => showTip(e, o.tipFn(pts[+g.dataset.i]))); g.addEventListener("mouseleave", hideTip); });
   }
   const tile = (l, v, d, up, hero) => `<div class="tile ${hero ? "hero" : ""}"><div class="l">${esc(l)}</div><div class="v">${esc(v)}</div><div class="d ${up ? "up" : ""}">${esc(d)}</div></div>`;
 

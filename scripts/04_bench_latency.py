@@ -1,11 +1,13 @@
-"""Latency benchmark: in-process pipeline and end-to-end HTTP.
+"""Latency benchmark: in-process pipeline (both explain modes) and end-to-end HTTP.
+
+explain=auto   production default: TreeSHAP only when the decision applies friction
+explain=always every response carries reason codes (what the demo console uses)
 
 Reports p50 / p95 / p99 for each stage so a regression is attributable.
 """
 from __future__ import annotations
 
 import json
-import random
 import statistics
 import sys
 import time
@@ -24,6 +26,26 @@ def pct(xs, q):
     return float(np.percentile(xs, q))
 
 
+def summary(xs):
+    return {"p50": pct(xs, 50), "p95": pct(xs, 95), "p99": pct(xs, 99), "max": float(max(xs)), "mean": float(statistics.mean(xs))}
+
+
+def run_inprocess(reqs, explain: str):
+    stage: dict[str, list[float]] = {}
+    total: list[float] = []
+    explained = 0
+    for req in reqs:
+        t0 = time.perf_counter()
+        resp = evaluate_pipeline(req, commit=False, explain=explain)
+        total.append((time.perf_counter() - t0) * 1e3)
+        explained += int(resp["explained"])
+        for k, v in resp["latency_ms"].items():
+            if k in ("budget_ms", "within_budget"):   # not stage timings
+                continue
+            stage.setdefault(k, []).append(float(v))
+    return total, stage, explained
+
+
 def main(n: int = 3000) -> None:
     from fastapi.testclient import TestClient
 
@@ -33,16 +55,8 @@ def main(n: int = 3000) -> None:
         rows = cod.sample(n=n, random_state=1).to_dict("records")
         reqs = [build_request_from_row(r) for r in rows]
 
-        stage: dict[str, list[float]] = {}
-        total: list[float] = []
-        for req in reqs:
-            t0 = time.perf_counter()
-            resp = evaluate_pipeline(req, commit=False)
-            total.append((time.perf_counter() - t0) * 1e3)
-            for k, v in resp["latency_ms"].items():
-                if k in ("budget_ms", "within_budget"):   # not stage timings
-                    continue
-                stage.setdefault(k, []).append(float(v))
+        auto_total, auto_stage, auto_explained = run_inprocess(reqs, "auto")
+        always_total, always_stage, _ = run_inprocess(reqs, "always")
 
         http: list[float] = []
         for req in reqs[:1000]:
@@ -54,12 +68,16 @@ def main(n: int = 3000) -> None:
 
     out = {
         "n_inprocess": n, "n_http": 1000, "budget_ms": LATENCY_BUDGET_MS, "scorer_backend": state.scorer.backend,
-        "store_backend": state.store.backend,
-        "inprocess_ms": {"p50": pct(total, 50), "p95": pct(total, 95), "p99": pct(total, 99), "max": max(total), "mean": statistics.mean(total)},
-        "http_ms": {"p50": pct(http, 50), "p95": pct(http, 95), "p99": pct(http, 99), "max": max(http)},
-        "stages_ms_p50": {k: pct(v, 50) for k, v in stage.items()},
-        "stages_ms_p99": {k: pct(v, 99) for k, v in stage.items()},
-        "budget_breaches_inprocess": int(sum(1 for t in total if t > LATENCY_BUDGET_MS)),
+        "store_backend": state.store.backend, "explain_mode_default": "auto",
+        "inprocess_ms": summary(auto_total),                 # production default (explain=auto)
+        "inprocess_always_ms": summary(always_total),        # every response explained
+        "explained_share_auto": auto_explained / n,
+        "http_ms": {k: v for k, v in summary(http).items() if k != "mean"},
+        "stages_ms_p50": {k: pct(v, 50) for k, v in auto_stage.items()},
+        "stages_ms_p99": {k: pct(v, 99) for k, v in auto_stage.items()},
+        "stages_always_ms_p50": {k: pct(v, 50) for k, v in always_stage.items()},
+        "budget_breaches_inprocess": int(sum(1 for t in auto_total if t > LATENCY_BUDGET_MS)),
+        "budget_breaches_always": int(sum(1 for t in always_total if t > LATENCY_BUDGET_MS)),
     }
     (REPORT_DIR / "latency.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(json.dumps(out, indent=2))

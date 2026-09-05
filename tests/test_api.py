@@ -59,3 +59,28 @@ def test_graph_endpoints(client):
     if rings["rings"]:
         sg = client.get(f"/v1/graph/subgraph?seed={rings['rings'][0]['ring_id']}").json()
         assert sg["nodes"] and sg["edges"]
+
+
+def test_explain_auto_skips_shap_on_allow(client):
+    scs = client.get("/v1/scenarios").json()
+    allow = [s for s in scs if s["tag"] == "frictionless"][0]
+    a = client.post("/v1/risk/evaluate?commit=false&explain=auto", json=allow["req"]).json()
+    assert a["decision"] == "ALLOW_COD" and a["explained"] is False and a["reason_codes"] == []
+    assert a["latency_ms"]["score.treeshap"] == 0.0
+    b = client.post("/v1/risk/evaluate?commit=false&explain=always", json=allow["req"]).json()
+    assert b["explained"] is True and len(b["reason_codes"]) > 0
+    hi = [s for s in scs if s["tag"] == "prepaid"][0]
+    c = client.post("/v1/risk/evaluate?commit=false&explain=auto", json=hi["req"]).json()
+    assert c["decision"] != "ALLOW_COD" and c["explained"] is True and len(c["reason_codes"]) > 0
+    assert client.post("/v1/risk/evaluate?commit=false&explain=sometimes", json=hi["req"]).status_code == 422
+
+
+def test_friction_shadow_price_and_budget(client):
+    sc = [s for s in client.get("/v1/scenarios").json() if s["tag"] == "step-up"][0]
+    base = client.post("/v1/risk/evaluate?commit=false", json=sc["req"]).json()
+    assert base["friction"]["shadow_price"] == 0.0 and base["friction"]["source"] == "config"
+    priced = client.post("/v1/risk/evaluate?commit=false", json={**sc["req"], "friction_shadow_price": 250.0}).json()
+    assert priced["friction"]["shadow_price"] == 250.0 and priced["friction"]["source"] == "request"
+    assert priced["tau_star"] > base["tau_star"] and priced["tau_soft"] > base["tau_soft"]
+    budget = client.post("/v1/risk/evaluate?commit=false", json={**sc["req"], "friction_budget": 0.3}).json()
+    assert budget["friction"]["budget"] == 0.3 and budget["friction"]["source"] in ("frontier", "no_frontier")

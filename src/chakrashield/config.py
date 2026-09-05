@@ -65,6 +65,12 @@ class Economics:
     prepaid_rto_unit_cost: float = 60.0  # refund + logistics on a prepaid return
     stepup_friction_cost: float = 6.0  # UPI collect MDR + support contacts
 
+    # --- friction budget --------------------------------------------------
+    #: lambda_f: rupees charged to every non-ALLOW action. The Lagrange multiplier
+    #: of a merchant's "at most X% of orders may be frictioned" constraint. 0 = pure
+    #: expected-cost minimisation. Per-request override via RiskRequest.
+    friction_shadow_price: float = 0.0
+
     def to_dict(self) -> dict:
         return asdict(self)
 

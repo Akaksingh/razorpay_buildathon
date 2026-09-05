@@ -77,3 +77,38 @@ def test_decision_serialises():
     d = DynamicRiskResolver.resolve_action(ctx(), [0, 1]).as_dict()
     for k in ("action", "conformal_set", "certainty", "p_loss", "tau_star", "tau_soft", "expected_costs", "rationale", "ux"):
         assert k in d
+
+
+def test_friction_shadow_price_never_adds_friction():
+    """Raising lambda_f can only move a decision toward ALLOW: it is the Lagrangian of a friction budget."""
+    from chakrashield.policy.resolver import ACTION_UX
+    for p in (0.15, 0.3, 0.45, 0.6, 0.8):
+        prev = None
+        for lam in (0.0, 10.0, 40.0, 150.0, 1000.0):
+            d = DynamicRiskResolver.resolve_action(ctx(p=p), [0, 1], friction_shadow_price=lam)
+            f = ACTION_UX[d.action]["friction"]
+            assert prev is None or f <= prev
+            assert d.shadow_price == lam
+            prev = f
+        assert d.action == ALLOW          # at a prohibitive price the ambiguous order is allowed
+
+
+def test_shadow_price_raises_both_indifference_points():
+    a = ctx(p=0.3)
+    b = TransactionContext(gmv=1500.0, merchant_margin=0.15, cac=400.0, p_loss=0.3, is_new_customer=True,
+                           weight_grams=450.0, econ=Economics(), friction_shadow_price=60.0)
+    assert b.tau_star > a.tau_star and b.tau_soft > a.tau_soft
+    assert b.tau_star == pytest.approx((a.cost_fp + 60.0) / (a.cost_fn + a.cost_fp))
+
+
+def test_certified_high_is_frictioned_regardless_of_price():
+    d = DynamicRiskResolver.resolve_action(ctx(p=0.8), [1], friction_shadow_price=1e6)
+    assert d.action in (STEP_UP, PREPAID)
+
+
+def test_budget_changed_action_flag():
+    p = 0.35
+    free = DynamicRiskResolver.resolve_action(ctx(p=p), [0, 1])
+    assert free.action == STEP_UP and free.budget_changed_action is False
+    priced = DynamicRiskResolver.resolve_action(ctx(p=p), [0, 1], friction_shadow_price=1000.0)
+    assert priced.action == ALLOW and priced.budget_changed_action is True and "Friction budget" in priced.rationale
