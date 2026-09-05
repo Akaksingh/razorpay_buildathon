@@ -1,0 +1,40 @@
+# ChakraShield gateway + Redis feature store.
+#
+#   docker compose up --build        # http://127.0.0.1:8080  (first start generates a 12k-order world)
+#   CHAKRA_EPSILON=0.02 docker compose up
+#
+# The world lives in the chakra-data volume, so it survives restarts and rebuilds;
+# `docker compose down -v` throws it away and the next start regenerates it.
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CHAKRA_EPSILON: ${CHAKRA_EPSILON:-0.05}
+      CHAKRA_WORLD_ORDERS: ${CHAKRA_WORLD_ORDERS:-12000}
+      CHAKRA_WORLD_CUSTOMERS: ${CHAKRA_WORLD_CUSTOMERS:-4000}
+      CHAKRA_WORLD_RINGS: ${CHAKRA_WORLD_RINGS:-12}
+    volumes:
+      - chakra-data:/app/artifacts/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  chakra-data:
+  redis-data:

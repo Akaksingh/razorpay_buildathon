@@ -1,0 +1,26 @@
+# Build context for the gateway image: code, committed models and reports only.
+.git
+.github
+.gitignore
+.gitattributes
+.dockerignore
+Dockerfile
+docker-compose.yml
+README.md
+run.ps1
+tests/
+
+# regenerated inside the container (or mounted as a volume)
+artifacts/data/
+
+# caches, environments, editors
+**/__pycache__/
+**/*.py[cod]
+**/*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

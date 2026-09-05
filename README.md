@@ -1,5 +1,7 @@
 # ChakraShield
 
+[![ci](https://github.com/Akaksingh/razorpay_buildathon/actions/workflows/ci.yml/badge.svg)](https://github.com/Akaksingh/razorpay_buildathon/actions/workflows/ci.yml)
+
 **An in-line dynamic checkout intervenor and subgraph abuse sentinel for cash-on-delivery risk — built to
 survive a live payments environment, not just a demo.**
 
@@ -304,6 +306,24 @@ Trained models and reports are committed under `artifacts/`; the replay pickles 
 `01_generate_data.py` (about 90 s) once after cloning before `serve.py` — `run.ps1` does this for you. Set
 `REDIS_URL` to use Redis for the feature store and drift windows; otherwise an in-process store with identical
 semantics is used and reported on `/healthz`. `CHAKRA_EPSILON` sets the control band (default 0.05).
+
+### Run with Docker
+
+```bash
+docker compose up --build            # gateway on http://127.0.0.1:8080 + Redis feature store
+CHAKRA_EPSILON=0.02 docker compose up
+docker compose down -v               # also discards the generated world
+```
+
+The image (`python:3.12-slim`, no torch) carries the code and the committed models and reports; it never
+retrains, because the served model's feature list must match the code it shipped with. The replay world is
+not in the image: on first start with an empty `chakra-data` volume the entrypoint generates a 12k-order
+world (`CHAKRA_WORLD_ORDERS` / `_CUSTOMERS` / `_RINGS` size it) and then execs `scripts/serve.py --host
+0.0.0.0`. The volume also keeps the decision ledger and the learned-behaviour snapshot across restarts.
+With `REDIS_URL` set the feature store starts empty and fills as orders flow; the in-process store
+warm-starts from `store.pkl` instead. CI (`.github/workflows/ci.yml`) regenerates the default 60k-order world (same
+seed as the committed artifacts), trains on it and runs the suite on Python 3.12, and in a parallel job builds the image and checks `/healthz`
+plus one scored scenario from an empty volume.
 
 ## API
 

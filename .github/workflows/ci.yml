@@ -1,0 +1,82 @@
+# Continuous integration: the full pipeline the tests depend on, on a clean machine.
+#
+# `test` regenerates the default world and trains on it so tests/test_api.py runs against
+# artifacts that are consistent with the checked-out code (the committed models are
+# consistent with main, not necessarily with a feature branch that changes FEATURE_NAMES).
+# `image` proves the Dockerfile builds and the container serves /healthz from an empty
+# data volume, which is the path a fresh deployment takes.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONUTF8: "1"
+      CHAKRA_ARTIFACTS: ${{ github.workspace }}/ci-artifacts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Generate the default world
+        # Same seed and size as the committed artifacts, so the API tests see the same model behaviour
+        # they were written against; a smaller world trains a weaker model and the scenario tests fail.
+        run: python scripts/01_generate_data.py
+
+      - name: Train candidates, calibrate, conformalise, export ONNX
+        run: python scripts/02_train.py
+
+      - name: Run tests
+        run: python -m pytest tests -q
+
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t chakrashield:ci .
+
+      - name: Start container on an empty data volume
+        run: >
+          docker run -d --name chakra -p 8080:8080
+          -e CHAKRA_WORLD_ORDERS=3000 -e CHAKRA_WORLD_CUSTOMERS=1000 -e CHAKRA_WORLD_RINGS=4
+          chakrashield:ci
+
+      - name: Wait for /healthz
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8080/healthz > /tmp/healthz.json; then
+              cat /tmp/healthz.json
+              python3 -c "import json; h = json.load(open('/tmp/healthz.json')); assert h['ok'], h"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "gateway did not become healthy"; docker logs chakra; exit 1
+
+      - name: Score a demo scenario
+        run: |
+          req=$(curl -fsS http://127.0.0.1:8080/v1/scenarios | python3 -c "import json, sys; print(json.dumps(json.load(sys.stdin)[0]['req']))")
+          curl -fsS -X POST "http://127.0.0.1:8080/v1/risk/evaluate?commit=false" -H "content-type: application/json" -d "$req"
+
+      - name: Container logs
+        if: always()
+        run: docker logs chakra || true
