@@ -1,0 +1,64 @@
+{
+  "addr_merge_ceiling": 6,
+  "shared_degree_ceiling": 50,
+  "variants": {
+    "naive": {
+      "stats": {
+        "nodes": 91166,
+        "components": 13588,
+        "rings": 48,
+        "ring_phones": 1189,
+        "largest_component": 253,
+        "shared_entities": 81,
+        "non_bridging_addresses": 199,
+        "guard": false,
+        "orders_ingested": 60000
+      },
+      "addr_merge_ceiling": 6,
+      "phones": 16972,
+      "ring_phones_true": 1124,
+      "precision": 0.9192598822539949,
+      "recall": 0.9724199288256228,
+      "tp": 1093,
+      "fp": 96,
+      "fn": 31,
+      "legit_residents": 581,
+      "residents_condemned": 25,
+      "residents_condemned_share": 0.043029259896729774,
+      "legit_phones_condemned": 96,
+      "seconds": 6.4
+    },
+    "guarded": {
+      "stats": {
+        "nodes": 91166,
+        "components": 38092,
+        "rings": 60,
+        "ring_phones": 1168,
+        "largest_component": 106,
+        "shared_entities": 81,
+        "non_bridging_addresses": 199,
+        "guard": true,
+        "orders_ingested": 60000
+      },
+      "addr_merge_ceiling": 6,
+      "phones": 16972,
+      "ring_phones_true": 1124,
+      "precision": 0.9486301369863014,
+      "recall": 0.9857651245551602,
+      "tp": 1108,
+      "fp": 60,
+      "fn": 16,
+      "legit_residents": 581,
+      "residents_condemned": 7,
+      "residents_condemned_share": 0.012048192771084338,
+      "legit_phones_condemned": 60,
+      "seconds": 8.4
+    }
+  },
+  "delta": {
+    "legit_phones_spared": 36,
+    "residents_spared": 18,
+    "recall_change": 0.013345195729537407,
+    "largest_component_ratio": 2.3867924528301887
+  }
+}

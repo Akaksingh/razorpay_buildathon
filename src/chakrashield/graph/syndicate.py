@@ -15,12 +15,17 @@ ring's RTO rate. So edges are typed:
 * HARD identifiers (phone, device, vpa, card) are transitive merge edges.
 * SOFT identifiers (ip) never merge. They are kept as bipartite properties:
   adjacency for the console and degree for features, no transitivity.
-* addr is semi-hard: it merges until it looks *public* -- ADDR_MERGE_CEILING
-  distinct phones -- after which it is marked SHARED and stops bridging.
+* addr is semi-hard: it merges only while fewer than ADDR_MERGE_CEILING
+  distinct phones have used it (a household), then stops bridging. Rings
+  are still caught through the devices and VPAs they share, and through the
+  address velocity features; what stops is strangers inheriting a ring.
 
-Any non-hard node whose degree exceeds SHARED_DEGREE_CEILING is likewise
-flagged SHARED. The flag is published to the feature store as
-``entity_shared`` so the model can learn that a public address is not a ring.
+An address used by ADDR_PUBLIC_CEILING phones, or any non-hard node whose
+degree exceeds SHARED_DEGREE_CEILING, is flagged PUBLIC/SHARED. The flag is
+published to the feature store as ``entity_shared`` so the model can learn
+that a hostel is not a ring. Both ceilings are measured, not guessed:
+scripts/07_graph_guard.py sweeps them against ring recall and the number of
+legitimate residents condemned.
 
 Ring status needs corroboration: a phone/device ratio (hard evidence), or an
 address ratio *with* a high observed RTO rate. A hostel with a normal return
@@ -40,7 +45,8 @@ from dataclasses import dataclass
 KINDS = ("phone", "device", "addr", "vpa", "card", "ip")
 HARD_KINDS = frozenset({"phone", "device", "vpa", "card"})
 SOFT_KINDS = frozenset({"ip"})
-ADDR_MERGE_CEILING = 25        # distinct phones at one address before it is public (hostel, office, PG)
+ADDR_MERGE_CEILING = 6         # distinct phones at one address before it stops bridging (swept in 07_graph_guard.py)
+ADDR_PUBLIC_CEILING = 25       # distinct phones before an address is flagged PUBLIC/SHARED (hostel, office, PG)
 SHARED_DEGREE_CEILING = 50     # any non-hard node above this degree is flagged shared
 RING_MIN_PHONES = 3            # fewer than this is a household, not a ring
 RING_PHONE_DEVICE_RATIO = 2.5  # phones per device (or per address) above which we call it a ring
@@ -91,7 +97,8 @@ class SyndicateGraph:
         self._adj: dict[str, set[str]] = defaultdict(set)
         self._kind: dict[str, str] = {}
         self._phone_deg: dict[str, int] = defaultdict(int)   # addr node -> distinct phone neighbours
-        self._shared: set[str] = set()
+        self._shared: set[str] = set()                        # PUBLIC/SHARED entities (feature + console)
+        self._nobridge: set[str] = set()                      # addresses past the merge ceiling
         self.guard = guard
         self._lock = threading.RLock()
         self._store = store
@@ -111,6 +118,7 @@ class SyndicateGraph:
         self._adj = defaultdict(set, d.get("_adj", {}))
         self._phone_deg = defaultdict(int, d.get("_phone_deg", {}))
         self._shared = set(d.get("_shared", ()))
+        self._nobridge = set(d.get("_nobridge", ()))
         self.guard = d.get("guard", True)
         self._lock = threading.RLock()
         self._store = None
@@ -180,7 +188,7 @@ class SyndicateGraph:
         if k in HARD_KINDS:
             return True
         if k == "addr":
-            return node not in self._shared
+            return node not in self._nobridge
         return False                      # soft identifiers never merge
 
     # ---------------------------------------------------------------- reads
@@ -244,12 +252,15 @@ class SyndicateGraph:
                         self._phone_deg[a] += 1
                     elif kb == "addr" and ka == "phone":
                         self._phone_deg[b] += 1
-            # shared-entity guard: a public address / high-degree soft node stops bridging
+            # component-collapse guard: an address past the merge ceiling stops bridging; a public
+            # address or a high-degree soft node is flagged SHARED for the feature and the console
             for n in nodes:
                 k = self._kind[n]
                 if k in HARD_KINDS:
                     continue
-                if (k == "addr" and self._phone_deg[n] >= ADDR_MERGE_CEILING) or len(self._adj[n]) >= SHARED_DEGREE_CEILING:
+                if k == "addr" and self._phone_deg[n] >= ADDR_MERGE_CEILING:
+                    self._nobridge.add(n)
+                if (k == "addr" and self._phone_deg[n] >= ADDR_PUBLIC_CEILING) or len(self._adj[n]) >= SHARED_DEGREE_CEILING:
                     self._shared.add(n)
             # transitive merge only through merge-eligible nodes
             merge = [n for n in nodes if self._merges(n)]
@@ -359,6 +370,7 @@ class SyndicateGraph:
                 "ring_phones": sum(s.phones for s in comps if s.is_ring),
                 "largest_component": max((s.size for s in comps), default=0),
                 "shared_entities": len(self._shared),
+                "non_bridging_addresses": len(self._nobridge),
                 "guard": self.guard,
                 "orders_ingested": len(self._order_nodes),
             }
