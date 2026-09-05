@@ -16,3 +16,4 @@ artifacts/data/*.pkl
 Thumbs.db
 .vscode/
 .idea/
+artifacts/data/*.jsonl
