@@ -1,0 +1,66 @@
+{
+  "columns": {
+    "order_id": "Order ID",
+    "ts": "Order Date",
+    "outcome_ts": "Delivery Date",
+    "customer_phone": "Customer Mobile",
+    "customer_email": "Customer Email",
+    "device_fingerprint": "Device ID",
+    "ip": "Client IP",
+    "vpa": "UPI ID",
+    "card_token": "Card Token",
+    "shipping_address": "Ship Address",
+    "delivery_pin": "Ship Pincode",
+    "cart_gmv": "Order Amount",
+    "items_count": "Qty",
+    "weight_grams": "Weight (g)",
+    "payment_method": "Payment Mode",
+    "payment_switch_from": "Failed Payment Mode",
+    "acquisition_channel": "UTM Source",
+    "coupon_applied": "Coupon Code",
+    "checkout_seconds": "Checkout Duration",
+    "status": "Status"
+  },
+  "status": {
+    "rto": [
+      "RTO",
+      "Returned to Sender",
+      "Rejected by Buyer",
+      "Undelivered",
+      "Return to Origin"
+    ],
+    "delivered": [
+      "Delivered",
+      "Shipped - Delivered to Buyer",
+      "Completed"
+    ],
+    "drop": [
+      "Cancelled",
+      "Pending",
+      "Shipped"
+    ]
+  },
+  "channel_aliases": {
+    "facebook": "META_ADS",
+    "instagram": "META_ADS",
+    "google": "GOOGLE_ADS",
+    "affiliate": "AFFILIATE",
+    "influencer": "INFLUENCER",
+    "whatsapp": "WHATSAPP",
+    "amazon": "MARKETPLACE",
+    "flipkart": "MARKETPLACE",
+    "direct": "DIRECT",
+    "organic": "ORGANIC"
+  },
+  "date_format": null,
+  "defaults": {
+    "items_count": 1,
+    "weight_grams": 450.0,
+    "acquisition_channel": "ORGANIC",
+    "coupon_applied": false,
+    "checkout_seconds": 90.0,
+    "merchant_margin": 0.18,
+    "cac": 300.0,
+    "outcome_lag_days": 6.0
+  }
+}
