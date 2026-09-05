@@ -153,12 +153,45 @@
     kv("#addrKv", [["defect score", a.defect_score.toFixed(2)], ["house / flat number", a.has_house_no ? "present" : "missing"], ["street anchor", a.has_street_anchor ? "present" : "missing"],
       ["landmark-only", a.landmark_only ? "yes" : "no"], ["vague-only", a.vague_only ? "yes" : "no"], ["junk tokens", a.has_junk ? "yes" : "no"], ["state vs PIN", a.state_mismatch ? "MISMATCH" : "consistent"], ["tokens", a.tokens]]);
 
+    // break-even elasticity in alpha_drop (client re-renders from the closed-form coefficients)
+    if (r.elasticity) {
+      state.elasticity = r.elasticity;
+      const sl = $("#alphaSlider"); sl.value = Math.round(100 * r.elasticity.alpha_assumed);
+      renderElasticity(+sl.value / 100);
+    }
     // latency stages
     const L = r.latency_ms; const stages = [["hydrate: hash", L["hydrate.hash"]], ["hydrate: address", L["hydrate.address"]], ["hydrate: velocity", L["hydrate.velocity"]], ["hydrate: graph", L["hydrate.graph"]],
       ["hydrate: vectorize", L["hydrate.vectorize"]], ["score: ONNX infer", L["score.onnx_infer"]], ["score: isotonic+conformal", L["score.calibrate_conformal"]], ["score: TreeSHAP", L["score.treeshap"]], ["resolve + reason codes", L.resolve_explain]];
     $("#latencyBudgetText").textContent = `${L.total.toFixed(2)} ms of ${L.budget_ms} ms — ${L.within_budget ? "within budget" : "BREACH"} · ${r.scorer_backend}`;
     hbars($("#latencyChart"), stages.map(([label, value]) => ({ label, value: value || 0 })), { fmt: v => v.toFixed(3) + " ms", max: Math.max(1, ...stages.map(s => s[1] || 0)) });
     $("#rawJson").textContent = JSON.stringify(r, null, 2);
+  }
+  $("#alphaSlider").addEventListener("input", e => renderElasticity(+e.target.value / 100));
+  function renderElasticity(alpha) {
+    const E = state.elasticity; if (!E) return;
+    $("#alphaVal").textContent = pct(alpha, 0);
+    const stepup = a => E.margin - (E.intercept + E.slope * a) - E.shadow_price;
+    const crit = E.alpha_crit, assumed = E.alpha_assumed;
+    $("#elastSub").textContent = crit == null ? "step-up never loses to the alternatives in this range" :
+      `α* = ${pct(crit, 0)} (binds against ${E.binding === "ALLOW_COD" ? "allow" : "prepaid"}) · assumed ${pct(assumed, 0)} · headroom ${E.headroom >= 0 ? "+" : ""}${pct(E.headroom, 0)} · slope ${fmtR(E.rupees_per_point)} per point`;
+    const el = $("#elastChart"), W = widthOf(el), H = 220, padL = 64, padR = 20, padT = 16, padB = 40, a0 = 0.05, a1 = 0.60;
+    const ys = [stepup(a0), stepup(a1), E.profit_allow, E.profit_prepaid];
+    const ymin = Math.min(...ys) - 20, ymax = Math.max(...ys) + 20;
+    const sx = a => padL + (a - a0) / (a1 - a0) * (W - padL - padR), sy = v => padT + (1 - (v - ymin) / (ymax - ymin || 1)) * (H - padT - padB);
+    let s = `<svg viewBox="0 0 ${W} ${H}">`;
+    niceTicks(ymax - ymin, 4).map(t => t + ymin).forEach(t => { s += `<line class="grid" x1="${padL}" x2="${W - padR}" y1="${sy(t)}" y2="${sy(t)}"/><text x="${padL - 6}" y="${sy(t) + 4}" text-anchor="end">${fmtR(t)}</text>`; });
+    [0.05, 0.2, 0.4, 0.6].forEach(a => { s += `<text x="${sx(a)}" y="${H - padB + 16}" text-anchor="${a === a1 ? "end" : a === a0 ? "start" : "middle"}">${pct(a, 0)}</text>`; });
+    s += `<line x1="${padL}" x2="${W - padR}" y1="${sy(E.profit_allow)}" y2="${sy(E.profit_allow)}" stroke="var(--s1)" stroke-width="2" stroke-dasharray="6 4"/><text x="${W - padR}" y="${sy(E.profit_allow) - 5}" text-anchor="end">allow COD ${fmtR(E.profit_allow)}</text>`;
+    s += `<line x1="${padL}" x2="${W - padR}" y1="${sy(E.profit_prepaid)}" y2="${sy(E.profit_prepaid)}" stroke="var(--s3)" stroke-width="2" stroke-dasharray="6 4"/><text x="${W - padR}" y="${sy(E.profit_prepaid) - 5}" text-anchor="end">prepaid only ${fmtR(E.profit_prepaid)}</text>`;
+    s += `<line x1="${sx(a0)}" y1="${sy(stepup(a0))}" x2="${sx(a1)}" y2="${sy(stepup(a1))}" stroke="var(--s2)" stroke-width="2.5"/>`;
+    if (crit != null && crit >= a0 && crit <= a1) s += `<circle cx="${sx(crit)}" cy="${sy(stepup(crit))}" r="6" fill="var(--serious)" stroke="var(--surface)" stroke-width="2"/><text x="${sx(crit)}" y="${sy(stepup(crit)) + 20}" text-anchor="middle" style="font-weight:500">α* ${pct(crit, 0)}</text>`;
+    s += `<line x1="${sx(assumed)}" x2="${sx(assumed)}" y1="${padT}" y2="${H - padB}" stroke="var(--axis)" stroke-dasharray="3 3"/><text x="${sx(assumed) + 4}" y="${padT + 10}">assumed ${pct(assumed, 0)}</text>`;
+    s += `<line x1="${sx(alpha)}" x2="${sx(alpha)}" y1="${padT}" y2="${H - padB}" stroke="var(--ink)" stroke-width="1.5"/><circle cx="${sx(alpha)}" cy="${sy(stepup(alpha))}" r="5" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"/>`;
+    s += `<text x="${(padL + W - padR) / 2}" y="${H - 4}" text-anchor="middle">α_drop: share of good buyers who abandon at the ₹49 prompt →</text><text x="${padL + 6}" y="${H - padB - 6}">↑ expected profit on this order</text></svg>`;
+    el.innerHTML = s;
+    const su = stepup(alpha), best = Math.max(su, E.profit_allow, E.profit_prepaid);
+    const verdict = su >= best - 1e-9 ? "the ₹49 step-up is still the best action" : (E.profit_allow >= E.profit_prepaid ? `allowing COD outright beats the deposit by ${fmtR(E.profit_allow - su)}` : `a prepaid mandate beats the deposit by ${fmtR(E.profit_prepaid - su)}`);
+    $("#elastText").textContent = `At α_drop = ${pct(alpha, 0)}: E[profit] step-up ${fmtR(su)} · allow ${fmtR(E.profit_allow)} · prepaid ${fmtR(E.profit_prepaid)} — ${verdict}. Every extra point of abandonment costs ${fmtR(E.rupees_per_point)} on this order.`;
   }
   function buyerUx(r) {
     if (r.decision === "ALLOW_COD") return `<span class="phone">buyer sees</span><span>Pay on delivery · <b>${fmtR(r.economics.gmv)}</b></span><span class="upi" style="background:var(--good)">Place order</span>`;

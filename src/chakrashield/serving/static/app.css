@@ -170,3 +170,9 @@ details.raw { margin-top: 12px; } details.raw pre { margin-top: 8px; max-height:
 .crit i.ok { background: var(--good); } .crit i.fail { background: var(--critical); }
 .txn { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: 12.5px; }
 .txn .el { display: inline-block; background: var(--wash); border-radius: 4px; padding: 1px 6px; margin-right: 4px; font: 11px ui-monospace, Menlo, Consolas, monospace; }
+
+/* break-even elasticity slider */
+.slider-row{display:flex;align-items:center;gap:12px;margin:6px 0 4px}
+.slider-row label{display:flex;align-items:center;gap:10px;flex:1;font-size:12px;color:var(--ink-2)}
+.slider-row input[type=range]{flex:1;accent-color:var(--s2)}
+.slider-row b{min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
