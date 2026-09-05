@@ -24,7 +24,7 @@
       },
       "orders_cod": 12842,
       "rto_rate": 0.2508954991434356,
-      "seconds": 25.5,
+      "seconds": 21.5,
       "auc": 0.8087179196816069,
       "ece": 0.01260333493440782,
       "coverage_before": {
@@ -47,7 +47,7 @@
         "NOVEL": 0.0
       },
       "monitor_final": {
-        "status": "WARN",
+        "status": "OK",
         "rolling_share": {
           "CERTIFIED_LOW": 0.2645122681029324,
           "AMBIGUOUS": 0.5912627169359664,
@@ -55,22 +55,13 @@
           "NOVEL": 0.0
         },
         "score_psi": 0.0718,
-        "alerts": [
-          {
-            "code": "MODEL_EPISTEMIC_DRIFT",
-            "severity": "warning",
-            "value": 0.5913,
-            "threshold": 0.5468,
-            "z": 5.16,
-            "message": "Ambiguous-set share 59.1% vs calibration 54.7% (z = +5.2). The model is less certain about live traffic than it was calibrated to be."
-          }
-        ]
+        "alerts": []
       },
-      "first_alert_after_orders": 600,
+      "first_alert_after_orders": 300,
       "timeline": [
         {
           "orders": 300,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
             "MODEL_EPISTEMIC_DRIFT",
             "MODEL_SCORE_PSI"
@@ -282,7 +273,8 @@
           "orders": 4500,
           "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.1561764705882353,
@@ -294,9 +286,9 @@
         },
         {
           "orders": 4800,
-          "status": "ALERT",
+          "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.15529411764705883,
@@ -308,9 +300,9 @@
         },
         {
           "orders": 5100,
-          "status": "ALERT",
+          "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.15970588235294117,
@@ -322,9 +314,9 @@
         },
         {
           "orders": 5400,
-          "status": "ALERT",
+          "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.16264705882352942,
@@ -336,9 +328,9 @@
         },
         {
           "orders": 5700,
-          "status": "ALERT",
+          "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.16205882352941176,
@@ -352,7 +344,7 @@
           "orders": 6000,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.1673529411764706,
@@ -366,7 +358,7 @@
           "orders": 6300,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.16911764705882354,
@@ -380,7 +372,7 @@
           "orders": 6600,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.17352941176470588,
@@ -394,7 +386,7 @@
           "orders": 6900,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.175,
@@ -408,7 +400,7 @@
           "orders": 7200,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.17676470588235293,
@@ -422,7 +414,7 @@
           "orders": 7500,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.18088235294117647,
@@ -436,7 +428,7 @@
           "orders": 7800,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.18676470588235294,
@@ -450,7 +442,7 @@
           "orders": 8100,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.19411764705882353,
@@ -464,7 +456,7 @@
           "orders": 8400,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.19617647058823529,
@@ -478,7 +470,7 @@
           "orders": 8700,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.19941176470588234,
@@ -492,7 +484,7 @@
           "orders": 9000,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.20676470588235293,
@@ -506,7 +498,7 @@
           "orders": 9300,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.21588235294117647,
@@ -520,7 +512,7 @@
           "orders": 9600,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.22205882352941175,
@@ -532,10 +524,8 @@
         },
         {
           "orders": 9900,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.22823529411764706,
             "AMBIGUOUS": 0.5964705882352941,
@@ -546,10 +536,8 @@
         },
         {
           "orders": 10200,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.2338235294117647,
             "AMBIGUOUS": 0.5944117647058823,
@@ -560,10 +548,8 @@
         },
         {
           "orders": 10500,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.23470588235294118,
             "AMBIGUOUS": 0.5979411764705882,
@@ -574,10 +560,8 @@
         },
         {
           "orders": 10800,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.24558823529411763,
             "AMBIGUOUS": 0.5955882352941176,
@@ -588,10 +572,8 @@
         },
         {
           "orders": 11100,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.25029411764705883,
             "AMBIGUOUS": 0.596764705882353,
@@ -602,10 +584,8 @@
         },
         {
           "orders": 11400,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.2485294117647059,
             "AMBIGUOUS": 0.6055882352941176,
@@ -616,10 +596,8 @@
         },
         {
           "orders": 11700,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.25441176470588234,
             "AMBIGUOUS": 0.6011764705882353,
@@ -630,10 +608,8 @@
         },
         {
           "orders": 12000,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.2626470588235294,
             "AMBIGUOUS": 0.5970588235294118,
@@ -644,10 +620,8 @@
         },
         {
           "orders": 12300,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.2691176470588235,
             "AMBIGUOUS": 0.5911764705882353,
@@ -658,10 +632,8 @@
         },
         {
           "orders": 12600,
-          "status": "WARN",
-          "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
-          ],
+          "status": "OK",
+          "alerts": [],
           "share": {
             "CERTIFIED_LOW": 0.27,
             "AMBIGUOUS": 0.5864705882352941,
@@ -681,7 +653,7 @@
       },
       "orders_cod": 13201,
       "rto_rate": 0.42193773199000073,
-      "seconds": 25.8,
+      "seconds": 19.8,
       "auc": 0.8212671925226098,
       "ece": 0.09958723587545444,
       "coverage_before": {
@@ -714,12 +686,11 @@
         "score_psi": 0.182,
         "alerts": [
           {
-            "code": "MODEL_EPISTEMIC_DRIFT",
+            "code": "MODEL_SCORE_PSI",
             "severity": "warning",
-            "value": 0.5928,
-            "threshold": 0.5468,
-            "z": 5.38,
-            "message": "Ambiguous-set share 59.3% vs calibration 54.7% (z = +5.4). The model is less certain about live traffic than it was calibrated to be."
+            "value": 0.182,
+            "threshold": 0.1,
+            "message": "PSI of calibrated P(RTO) vs the calibration histogram is 0.18 (> 0.1)."
           }
         ]
       },
@@ -865,6 +836,7 @@
           "status": "ALERT",
           "alerts": [
             "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -880,6 +852,7 @@
           "status": "ALERT",
           "alerts": [
             "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -894,7 +867,7 @@
           "orders": 3600,
           "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -907,9 +880,9 @@
         },
         {
           "orders": 3900,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -922,9 +895,9 @@
         },
         {
           "orders": 4200,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -937,9 +910,9 @@
         },
         {
           "orders": 4500,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -952,8 +925,9 @@
         },
         {
           "orders": 4800,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -966,8 +940,9 @@
         },
         {
           "orders": 5100,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -980,8 +955,9 @@
         },
         {
           "orders": 5400,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -994,8 +970,9 @@
         },
         {
           "orders": 5700,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1008,8 +985,9 @@
         },
         {
           "orders": 6000,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1022,8 +1000,9 @@
         },
         {
           "orders": 6300,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1036,8 +1015,9 @@
         },
         {
           "orders": 6600,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1050,7 +1030,7 @@
         },
         {
           "orders": 6900,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
@@ -1065,7 +1045,7 @@
         },
         {
           "orders": 7200,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
@@ -1080,7 +1060,7 @@
         },
         {
           "orders": 7500,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
@@ -1095,7 +1075,7 @@
         },
         {
           "orders": 7800,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
@@ -1110,7 +1090,7 @@
         },
         {
           "orders": 8100,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
@@ -1125,7 +1105,7 @@
         },
         {
           "orders": 8400,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
@@ -1140,7 +1120,7 @@
         },
         {
           "orders": 8700,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
@@ -1155,9 +1135,8 @@
         },
         {
           "orders": 9000,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT",
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
@@ -1171,9 +1150,8 @@
         },
         {
           "orders": 9300,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT",
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
@@ -1187,9 +1165,8 @@
         },
         {
           "orders": 9600,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT",
             "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
@@ -1203,9 +1180,9 @@
         },
         {
           "orders": 9900,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1218,8 +1195,9 @@
         },
         {
           "orders": 10200,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1232,8 +1210,9 @@
         },
         {
           "orders": 10500,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1246,8 +1225,9 @@
         },
         {
           "orders": 10800,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1260,8 +1240,9 @@
         },
         {
           "orders": 11100,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1274,8 +1255,9 @@
         },
         {
           "orders": 11400,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1288,8 +1270,9 @@
         },
         {
           "orders": 11700,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1302,8 +1285,9 @@
         },
         {
           "orders": 12000,
-          "status": "WARN",
+          "status": "ALERT",
           "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
             "MODEL_SCORE_PSI"
           ],
           "share": {
@@ -1316,8 +1300,11 @@
         },
         {
           "orders": 12300,
-          "status": "OK",
-          "alerts": [],
+          "status": "WARN",
+          "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
           "share": {
             "CERTIFIED_LOW": 0.1638235294117647,
             "AMBIGUOUS": 0.5741176470588235,
@@ -1330,7 +1317,7 @@
           "orders": 12600,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.16205882352941176,
@@ -1344,7 +1331,7 @@
           "orders": 12900,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.16705882352941176,
@@ -1358,7 +1345,7 @@
           "orders": 13200,
           "status": "WARN",
           "alerts": [
-            "MODEL_EPISTEMIC_DRIFT"
+            "MODEL_SCORE_PSI"
           ],
           "share": {
             "CERTIFIED_LOW": 0.17323529411764707,

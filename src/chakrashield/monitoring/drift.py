@@ -79,8 +79,9 @@ class ConformalDriftMonitor:
     keep: int = 12                         # one rolling hour
     empty_threshold: float = 0.03
     z_threshold: float = 4.0
-    mix_ratio: float = 2.0
-    psi_threshold: float = 0.25
+    ambiguity_floor: float = 0.08          # points of ambiguous share that must move before z alone can alarm
+    mix_ratio: float = 1.5
+    psi_threshold: float = 0.10            # PSI convention: 0.10 moderate (warning), 0.25 major (critical)
     min_n: int = 50
     clock: object = field(default=time.time)
 
@@ -125,8 +126,8 @@ class ConformalDriftMonitor:
             "rolling_share": share, "score_psi": round(score_psi, 4), "alerts": alerts,
             "baseline": {"share": self.baseline.share, "n": self.baseline.n, "q0": self.baseline.q0, "q1": self.baseline.q1,
                          "empty_sets_possible": self.baseline.empty_sets_possible},
-            "thresholds": {"empty": self.empty_threshold, "z": self.z_threshold, "mix_ratio": self.mix_ratio,
-                           "psi": self.psi_threshold, "min_n": self.min_n},
+            "thresholds": {"empty": self.empty_threshold, "z": self.z_threshold, "ambiguity_floor": self.ambiguity_floor,
+                           "mix_ratio": self.mix_ratio, "psi": self.psi_threshold, "min_n": self.min_n},
             "windows": [{k: v for k, v in w.items() if k != "hist"} for w in wins],
             "live_hist": live_hist,
         }
@@ -144,7 +145,7 @@ class ConformalDriftMonitor:
         amb0 = self.baseline.share.get("AMBIGUOUS", 0.5)
         sd = math.sqrt(max(amb0 * (1 - amb0), 1e-6) / n)
         z = (share["AMBIGUOUS"] - amb0) / sd
-        if abs(z) > self.z_threshold:
+        if abs(z) > self.z_threshold and abs(share["AMBIGUOUS"] - amb0) > self.ambiguity_floor:
             alerts.append({"code": "MODEL_EPISTEMIC_DRIFT", "severity": "critical" if abs(z) > 2 * self.z_threshold else "warning",
                            "value": round(share["AMBIGUOUS"], 4), "threshold": round(amb0, 4), "z": round(z, 2),
                            "message": f"Ambiguous-set share {share['AMBIGUOUS']:.1%} vs calibration {amb0:.1%} (z = {z:+.1f}). "
@@ -156,7 +157,7 @@ class ConformalDriftMonitor:
                            "message": f"Certified-RTO share {share['CERTIFIED_HIGH']:.1%} is {share['CERTIFIED_HIGH'] / hi0:.1f}x its baseline "
                                       f"({hi0:.1%}): a burst of high-risk traffic (festival sale, new ring)."})
         if score_psi > self.psi_threshold:
-            alerts.append({"code": "MODEL_SCORE_PSI", "severity": "critical" if score_psi > 2 * self.psi_threshold else "warning",
+            alerts.append({"code": "MODEL_SCORE_PSI", "severity": "critical" if score_psi > 2.5 * self.psi_threshold else "warning",
                            "value": round(score_psi, 4), "threshold": self.psi_threshold,
                            "message": f"PSI of calibrated P(RTO) vs the calibration histogram is {score_psi:.2f} (> {self.psi_threshold})."})
         return alerts
