@@ -28,7 +28,7 @@ FEATURE_NAMES: tuple[str, ...] = (
     "addr_distinct_phones", "addr_rto_rate",
     "pay_switch_from_failed", "is_cod", "channel_risk", "coupon_applied", "checkout_seconds_log",
     "hour_sin", "hour_cos",
-    "ring_size_log", "ring_rto_rate", "ring_phones", "ring_is_ring", "entity_max_degree",
+    "ring_size_log", "ring_rto_rate", "ring_phones", "ring_is_ring", "entity_max_degree", "entity_shared",
     "gmv_vs_pin_median",
 )
 N_FEATURES = len(FEATURE_NAMES)
@@ -87,6 +87,7 @@ def build_features(
         "ring_phones": float(graph.get("ring_phones", 0) or 0),
         "ring_is_ring": 1.0 if graph.get("is_ring") else 0.0,
         "entity_max_degree": float(graph.get("entity_max_degree", 0) or 0),
+        "entity_shared": 1.0 if graph.get("entity_shared") else 0.0,
         "gmv_vs_pin_median": float(gmv) / max(50.0, float(velocity.pin_gmv_median_proxy)),
     }
     assert tuple(f.keys()) == FEATURE_NAMES, "feature order drift"
@@ -101,13 +102,14 @@ def graph_features_from_store(store, entities: dict[str, str]) -> dict:
     """Read ring stats published by the graph worker. Serving never touches the graph."""
     best = {"ring_size": 0, "ring_phones": 0, "ring_rto_rate": 0.0, "is_ring": False, "ring_id": None,
             "ring_orders": 0, "ring_devices": 0}
-    max_deg = 0
+    max_deg, shared = 0, 0
     for kind, h in entities.items():
         if not h:
             continue
         g = store.hgetall(f"graph:{kind}:{h}")
         if not g:
             continue
+        shared = max(shared, int(g.get("shared", 0)))
         size = int(g.get("ring_size", 0))
         rto, dl = float(g.get("ring_rto", 0)), float(g.get("ring_delivered", 0))
         rate = rto / (rto + dl) if (rto + dl) else 0.0
@@ -119,6 +121,7 @@ def graph_features_from_store(store, entities: dict[str, str]) -> dict:
     if best["ring_size"] <= 1:
         best.update({"ring_size": 0, "ring_phones": 0, "ring_rto_rate": 0.0, "is_ring": False, "ring_id": None})
     best["entity_max_degree"] = max_deg
+    best["entity_shared"] = bool(shared)
     return best
 
 

@@ -42,3 +42,48 @@ def test_subgraph_and_snapshot(tmp_path):
     g2 = SyndicateGraph.load(tmp_path / "g.pkl", store=MemoryStore())
     assert g2.stats() == g.stats()
     g2.ingest("later", {"phone": "b9", "device": "dev", "addr": "drop"})   # lock re-created, still mutable
+
+
+def test_soft_identifiers_never_merge():
+    """Two strangers behind one NAT share an IP; that must not put them in one component."""
+    s = MemoryStore()
+    g = SyndicateGraph(store=s)
+    g.ingest("a", {"phone": "pa", "device": "da", "addr": "aa", "ip": "nat"})
+    g.ingest("b", {"phone": "pb", "device": "db", "addr": "ab", "ip": "nat"})
+    assert g.lookup("phone", "pa").ring_id != g.lookup("phone", "pb").ring_id
+    assert g.lookup("ip", "nat").size == 1                      # the IP is a singleton property node
+    assert g.degree("ip", "nat") == 6                            # ... but keeps bipartite adjacency
+    feats = graph_features_from_store(s, {"phone": "pc", "device": "dc", "addr": "ac", "ip": "nat"})
+    assert feats["ring_size"] == 0 and not feats["is_ring"]
+
+
+def test_public_address_stops_bridging_and_is_never_a_ring():
+    """A hostel: 30 residents, own phones and devices, normal deliveries."""
+    from chakrashield.graph.syndicate import ADDR_MERGE_CEILING
+
+    def build(guard: bool):
+        s = MemoryStore()
+        g = SyndicateGraph(store=s, guard=guard)
+        for i in range(30):
+            g.ingest(f"h{i}", {"phone": f"res{i}", "device": f"own{i}", "addr": "hostel"})
+            g.outcome(f"h{i}", rto=False)
+        # a syndicate (two handsets, one payout VPA) whose members once had a parcel sent to the hostel
+        for i in range(8):
+            g.ingest(f"r{i}", {"phone": f"burner{i}", "device": f"ringdev{i % 2}", "addr": "hostel", "vpa": "payout"})
+            g.outcome(f"r{i}", rto=True)
+        return s, g
+
+    s, g = build(guard=True)
+    assert g.is_shared("addr", "hostel") and g.stats()["shared_entities"] == 1
+    hostel_component = g.lookup("phone", "res0")
+    assert not hostel_component.is_ring and hostel_component.phones <= ADDR_MERGE_CEILING
+    assert g.lookup("phone", "res29").ring_id != hostel_component.ring_id   # arrived after the ceiling: not bridged
+    ring = g.lookup("phone", "burner0")
+    assert ring.is_ring and ring.phones == 8 and ring.ring_id != hostel_component.ring_id
+    resident = graph_features_from_store(s, {"phone": "res5", "device": "own5", "addr": "hostel"})
+    assert not resident["is_ring"] and resident["entity_shared"] and resident["ring_rto_rate"] == 0.0
+
+    s2, g2 = build(guard=False)                                  # the naive graph: everyone is one component
+    naive = g2.lookup("phone", "res0")
+    assert naive.phones == 38 and naive.ring_id == g2.lookup("phone", "burner0").ring_id
+    assert g2.stats()["largest_component"] > g.stats()["largest_component"]

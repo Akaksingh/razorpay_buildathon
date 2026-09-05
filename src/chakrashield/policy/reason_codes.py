@@ -44,6 +44,7 @@ _CODE = {
     "ring_phones": ("RSK_RING_PHONES", lambda v, f: f"{int(v)} phones in linked cluster"),
     "ring_is_ring": ("RSK_SYNDICATE_SUBGRAPH", lambda v, f: "Matches syndicate subgraph signature"),
     "entity_max_degree": ("RSK_GRAPH_DEGREE", lambda v, f: f"Entity degree {int(v)} in graph"),
+    "entity_shared": ("RSK_SHARED_ENTITY", lambda v, f: "Public/shared entity (hostel, office, PG) — not a ring"),
     "is_cod": ("RSK_COD", lambda v, f: "Cash on delivery"),
     "weight_grams": ("RSK_PARCEL_WEIGHT", lambda v, f: f"Parcel {v:.0f} g"),
     "phone_orders_total_log": ("RSK_PHONE_TENURE", lambda v, f: f"{int(np.expm1(v))} prior orders on phone"),

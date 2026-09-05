@@ -146,6 +146,7 @@
     const g = r.graph;
     kv("#graphKv", [["ring membership", g.is_ring ? "SYNDICATE RING" : (g.ring_size ? "linked cluster" : "none")], ["cluster size", g.ring_size || 0], ["phones in cluster", g.ring_phones || 0],
       ["devices in cluster", g.ring_devices || 0], ["cluster RTO rate", g.ring_size ? pct(g.ring_rto_rate, 0) : "—"], ["max entity degree", g.entity_max_degree],
+      ["public / shared entity", g.entity_shared ? "YES — merge guard active" : "no"],
       ["phones on this device", r.velocity.device_distinct_phones], ["phones at this address", r.velocity.addr_distinct_phones]]);
     const vr = $("#viewRing"); vr.hidden = !g.ring_id; vr.onclick = () => { showView("graph"); loadGraph().then(() => drawSubgraph(g.ring_id)); };
     const a = r.address;
