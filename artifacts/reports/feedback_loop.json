@@ -1,0 +1,491 @@
+{
+  "warm_frac": 0.4,
+  "n_cycles": 4,
+  "window_frac": 0.3,
+  "boundary": 0.5,
+  "sweep": [
+    {
+      "epsilon": 0.02,
+      "cap": 50.0,
+      "final_cycle": {
+        "naive": {
+          "auc": 0.7905685641343132,
+          "ece": 0.02894313128786636,
+          "boundary_gap": 0.09311939884999576,
+          "boundary_ece": 0.10652884778651564,
+          "pnl": 913067.5251690749,
+          "training_rto_rate": 0.1351590106007067
+        },
+        "ipw": {
+          "auc": 0.7001792635808537,
+          "ece": 0.06227469193187655,
+          "boundary_gap": 0.135577386146004,
+          "boundary_ece": 0.21487371373834882,
+          "pnl": 833451.1990204374,
+          "training_rto_rate": 0.2625928984310487
+        },
+        "oracle": {
+          "auc": 0.8069294337991737,
+          "ece": 0.030897198854192152,
+          "boundary_gap": 0.05470971812027425,
+          "boundary_ece": 0.08219801414494425,
+          "pnl": 909990.7842614499,
+          "training_rto_rate": 0.29938935236948483
+        }
+      },
+      "worst_cycle": {
+        "naive": {
+          "max_abs_boundary_gap": 0.5853047920887376,
+          "max_ece": 0.17267098522196705,
+          "min_auc": 0.7730973870491061
+        },
+        "ipw": {
+          "max_abs_boundary_gap": 0.135577386146004,
+          "max_ece": 0.0768942747389894,
+          "min_auc": 0.7001792635808537
+        },
+        "oracle": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.030897198854192152,
+          "min_auc": 0.7730973870491061
+        }
+      },
+      "cumulative_pnl": {
+        "naive": 3463536.0437084497,
+        "ipw": 3417352.1980315126,
+        "oracle": 3508012.3932816996
+      },
+      "ipw_minus_naive_cumulative": -46183.84567693714,
+      "oracle_minus_naive_cumulative": 44476.34957324993,
+      "gap_recovered_share": -1.0383911026887462,
+      "exploration_cost_rupees": 26203.016791125006,
+      "control_orders": 314
+    },
+    {
+      "epsilon": 0.02,
+      "cap": 20.0,
+      "final_cycle": {
+        "naive": {
+          "auc": 0.7905685641343132,
+          "ece": 0.02894313128786636,
+          "boundary_gap": 0.09311939884999576,
+          "boundary_ece": 0.10652884778651564,
+          "pnl": 913067.5251690749,
+          "training_rto_rate": 0.1351590106007067
+        },
+        "ipw": {
+          "auc": 0.7422178654712077,
+          "ece": 0.08255857587675938,
+          "boundary_gap": 0.05914371425770015,
+          "boundary_ece": 0.11234417757105952,
+          "pnl": 848819.4595416249,
+          "training_rto_rate": 0.21972049689440995
+        },
+        "oracle": {
+          "auc": 0.8069294337991737,
+          "ece": 0.030897198854192152,
+          "boundary_gap": 0.05470971812027425,
+          "boundary_ece": 0.08219801414494425,
+          "pnl": 909990.7842614499,
+          "training_rto_rate": 0.29938935236948483
+        }
+      },
+      "worst_cycle": {
+        "naive": {
+          "max_abs_boundary_gap": 0.5853047920887376,
+          "max_ece": 0.17267098522196705,
+          "min_auc": 0.7730973870491061
+        },
+        "ipw": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.08255857587675938,
+          "min_auc": 0.7422178654712077
+        },
+        "oracle": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.030897198854192152,
+          "min_auc": 0.7730973870491061
+        }
+      },
+      "cumulative_pnl": {
+        "naive": 3463536.0437084497,
+        "ipw": 3440285.6818676246,
+        "oracle": 3508012.3932816996
+      },
+      "ipw_minus_naive_cumulative": -23250.361840825062,
+      "oracle_minus_naive_cumulative": 44476.34957324993,
+      "gap_recovered_share": -0.5227578716309235,
+      "exploration_cost_rupees": 27487.939975250014,
+      "control_orders": 281
+    },
+    {
+      "epsilon": 0.05,
+      "cap": 20.0,
+      "final_cycle": {
+        "naive": {
+          "auc": 0.7905685641343132,
+          "ece": 0.02894313128786636,
+          "boundary_gap": 0.09311939884999576,
+          "boundary_ece": 0.10652884778651564,
+          "pnl": 913067.5251690749,
+          "training_rto_rate": 0.1351590106007067
+        },
+        "ipw": {
+          "auc": 0.7598835119928132,
+          "ece": 0.05722677447799889,
+          "boundary_gap": 0.11363685706858717,
+          "boundary_ece": 0.21354706566560838,
+          "pnl": 891198.851513075,
+          "training_rto_rate": 0.2820836489102079
+        },
+        "oracle": {
+          "auc": 0.8069294337991737,
+          "ece": 0.030897198854192152,
+          "boundary_gap": 0.05470971812027425,
+          "boundary_ece": 0.08219801414494425,
+          "pnl": 909990.7842614499,
+          "training_rto_rate": 0.29938935236948483
+        }
+      },
+      "worst_cycle": {
+        "naive": {
+          "max_abs_boundary_gap": 0.5853047920887376,
+          "max_ece": 0.17267098522196705,
+          "min_auc": 0.7730973870491061
+        },
+        "ipw": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.06049407269481251,
+          "min_auc": 0.7598835119928132
+        },
+        "oracle": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.030897198854192152,
+          "min_auc": 0.7730973870491061
+        }
+      },
+      "cumulative_pnl": {
+        "naive": 3463536.0437084497,
+        "ipw": 3423864.80450875,
+        "oracle": 3508012.3932816996
+      },
+      "ipw_minus_naive_cumulative": -39671.239199699834,
+      "oracle_minus_naive_cumulative": 44476.34957324993,
+      "gap_recovered_share": -0.8919625729257218,
+      "exploration_cost_rupees": 72867.58172720001,
+      "control_orders": 756
+    },
+    {
+      "epsilon": 0.1,
+      "cap": 10.0,
+      "final_cycle": {
+        "naive": {
+          "auc": 0.7905685641343132,
+          "ece": 0.02894313128786636,
+          "boundary_gap": 0.09311939884999576,
+          "boundary_ece": 0.10652884778651564,
+          "pnl": 913067.5251690749,
+          "training_rto_rate": 0.1351590106007067
+        },
+        "ipw": {
+          "auc": 0.7853280829101783,
+          "ece": 0.07203183866948097,
+          "boundary_gap": 0.09524061666893135,
+          "boundary_ece": 0.16554697751282055,
+          "pnl": 892344.67196775,
+          "training_rto_rate": 0.2841200297594445
+        },
+        "oracle": {
+          "auc": 0.8069294337991737,
+          "ece": 0.030897198854192152,
+          "boundary_gap": 0.05470971812027425,
+          "boundary_ece": 0.08219801414494425,
+          "pnl": 909990.7842614499,
+          "training_rto_rate": 0.29938935236948483
+        }
+      },
+      "worst_cycle": {
+        "naive": {
+          "max_abs_boundary_gap": 0.5853047920887376,
+          "max_ece": 0.17267098522196705,
+          "min_auc": 0.7730973870491061
+        },
+        "ipw": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.07203183866948097,
+          "min_auc": 0.7730973870491061
+        },
+        "oracle": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.030897198854192152,
+          "min_auc": 0.7730973870491061
+        }
+      },
+      "cumulative_pnl": {
+        "naive": 3463536.0437084497,
+        "ipw": 3348125.482766375,
+        "oracle": 3508012.3932816996
+      },
+      "ipw_minus_naive_cumulative": -115410.56094207475,
+      "oracle_minus_naive_cumulative": 44476.34957324993,
+      "gap_recovered_share": -2.59487485032917,
+      "exploration_cost_rupees": 156706.44485139998,
+      "control_orders": 1447
+    }
+  ],
+  "headline_epsilon": 0.05,
+  "headline_cap": 20.0,
+  "headline": {
+    "epsilon": 0.05,
+    "cap": 20.0,
+    "cycles": [
+      {
+        "cycle": 1,
+        "orders": 5813,
+        "variants": {
+          "naive": {
+            "auc": 0.7730973870491061,
+            "ece": 0.01833693501200027,
+            "boundary_n": 664,
+            "boundary_pred": 0.6494451336683722,
+            "boundary_actual": 0.7771084337349398,
+            "boundary_gap": 0.12766330006656756,
+            "boundary_ece": 0.12815085361356118,
+            "pnl": 911457.3975174499,
+            "friction_share": 0.553930844658524,
+            "training_rows": 11627,
+            "training_rto_rate": 0.28020985636879675,
+            "n_control": 0
+          },
+          "ipw": {
+            "auc": 0.7730973870491061,
+            "ece": 0.01833693501200027,
+            "boundary_n": 664,
+            "boundary_pred": 0.6494451336683722,
+            "boundary_actual": 0.7771084337349398,
+            "boundary_gap": 0.12766330006656756,
+            "boundary_ece": 0.12815085361356118,
+            "pnl": 896166.841866,
+            "friction_share": 0.5276105281266128,
+            "training_rows": 11627,
+            "training_rto_rate": 0.28020985636879675,
+            "n_control": 153
+          },
+          "oracle": {
+            "auc": 0.7730973870491061,
+            "ece": 0.01833693501200027,
+            "boundary_n": 664,
+            "boundary_pred": 0.6494451336683722,
+            "boundary_actual": 0.7771084337349398,
+            "boundary_gap": 0.12766330006656756,
+            "boundary_ece": 0.12815085361356118,
+            "pnl": 911457.3975174499,
+            "friction_share": 0.553930844658524,
+            "training_rows": 11627,
+            "training_rto_rate": 0.28020985636879675,
+            "n_control": 0
+          }
+        }
+      },
+      {
+        "cycle": 2,
+        "orders": 5814,
+        "variants": {
+          "naive": {
+            "auc": 0.8180055850646291,
+            "ece": 0.0424402623575144,
+            "boundary_n": 959,
+            "boundary_pred": 0.8945227159151861,
+            "boundary_actual": 0.848800834202294,
+            "boundary_gap": -0.04572188171289204,
+            "boundary_ece": 0.1565362274389257,
+            "pnl": 859563.6334267999,
+            "friction_share": 0.697798417612659,
+            "training_rows": 8407,
+            "training_rto_rate": 0.23551802069703817,
+            "n_control": 0
+          },
+          "ipw": {
+            "auc": 0.8056099533221017,
+            "ece": 0.023601617840021974,
+            "boundary_n": 959,
+            "boundary_pred": 0.7611069646828663,
+            "boundary_actual": 0.848800834202294,
+            "boundary_gap": 0.0876938695194277,
+            "boundary_ece": 0.1363198517551388,
+            "pnl": 841920.485410925,
+            "friction_share": 0.6575507395940832,
+            "training_rows": 8560,
+            "training_rto_rate": 0.2581320310456091,
+            "n_control": 212
+          },
+          "oracle": {
+            "auc": 0.8255582482969653,
+            "ece": 0.013481736193576564,
+            "boundary_n": 959,
+            "boundary_pred": 0.7984760770299205,
+            "boundary_actual": 0.848800834202294,
+            "boundary_gap": 0.0503247571723735,
+            "boundary_ece": 0.0686672820635792,
+            "pnl": 853913.550908175,
+            "friction_share": 0.6001031991744066,
+            "training_rows": 11627,
+            "training_rto_rate": 0.25733207190160834,
+            "n_control": 0
+          }
+        }
+      },
+      {
+        "cycle": 3,
+        "orders": 5814,
+        "variants": {
+          "naive": {
+            "auc": 0.8141440877066115,
+            "ece": 0.17267098522196705,
+            "boundary_n": 1486,
+            "boundary_pred": 0.28145160091260824,
+            "boundary_actual": 0.8667563930013459,
+            "boundary_gap": 0.5853047920887376,
+            "boundary_ece": 0.5853047920887375,
+            "pnl": 779447.487595125,
+            "friction_share": 0.5233918128654971,
+            "training_rows": 4350,
+            "training_rto_rate": 0.10482758620689656,
+            "n_control": 0
+          },
+          "ipw": {
+            "auc": 0.8315336638177327,
+            "ece": 0.06049407269481251,
+            "boundary_n": 1486,
+            "boundary_pred": 0.8548586841837927,
+            "boundary_actual": 0.8667563930013459,
+            "boundary_gap": 0.011897708817553143,
+            "boundary_ece": 0.08897164853804301,
+            "pnl": 794578.6257187501,
+            "friction_share": 0.8083935328517372,
+            "training_rows": 4737,
+            "training_rto_rate": 0.24151816312542837,
+            "n_control": 250
+          },
+          "oracle": {
+            "auc": 0.8721465169885231,
+            "ece": 0.02034937017968968,
+            "boundary_n": 1486,
+            "boundary_pred": 0.8419761049730947,
+            "boundary_actual": 0.8667563930013459,
+            "boundary_gap": 0.024780288028251163,
+            "boundary_ece": 0.026012014561737993,
+            "pnl": 832650.6605946249,
+            "friction_share": 0.5894392844857241,
+            "training_rows": 11627,
+            "training_rto_rate": 0.24795734067257247,
+            "n_control": 0
+          }
+        }
+      },
+      {
+        "cycle": 4,
+        "orders": 5814,
+        "variants": {
+          "naive": {
+            "auc": 0.7905685641343132,
+            "ece": 0.02894313128786636,
+            "boundary_n": 790,
+            "boundary_pred": 0.7106780695044346,
+            "boundary_actual": 0.8037974683544303,
+            "boundary_gap": 0.09311939884999576,
+            "boundary_ece": 0.10652884778651564,
+            "pnl": 913067.5251690749,
+            "friction_share": 0.6209150326797386,
+            "training_rows": 4528,
+            "training_rto_rate": 0.1351590106007067,
+            "n_control": 0
+          },
+          "ipw": {
+            "auc": 0.7598835119928132,
+            "ece": 0.05722677447799889,
+            "boundary_n": 790,
+            "boundary_pred": 0.6901606112858432,
+            "boundary_actual": 0.8037974683544303,
+            "boundary_gap": 0.11363685706858717,
+            "boundary_ece": 0.21354706566560838,
+            "pnl": 891198.851513075,
+            "friction_share": 0.5381836945304437,
+            "training_rows": 3105,
+            "training_rto_rate": 0.2820836489102079,
+            "n_control": 141
+          },
+          "oracle": {
+            "auc": 0.8069294337991737,
+            "ece": 0.030897198854192152,
+            "boundary_n": 790,
+            "boundary_pred": 0.7490877502341561,
+            "boundary_actual": 0.8037974683544303,
+            "boundary_gap": 0.05470971812027425,
+            "boundary_ece": 0.08219801414494425,
+            "pnl": 909990.7842614499,
+            "friction_share": 0.4654282765737874,
+            "training_rows": 11627,
+            "training_rto_rate": 0.29938935236948483,
+            "n_control": 0
+          }
+        }
+      }
+    ],
+    "summary": {
+      "final_cycle": {
+        "naive": {
+          "auc": 0.7905685641343132,
+          "ece": 0.02894313128786636,
+          "boundary_gap": 0.09311939884999576,
+          "boundary_ece": 0.10652884778651564,
+          "pnl": 913067.5251690749,
+          "training_rto_rate": 0.1351590106007067
+        },
+        "ipw": {
+          "auc": 0.7598835119928132,
+          "ece": 0.05722677447799889,
+          "boundary_gap": 0.11363685706858717,
+          "boundary_ece": 0.21354706566560838,
+          "pnl": 891198.851513075,
+          "training_rto_rate": 0.2820836489102079
+        },
+        "oracle": {
+          "auc": 0.8069294337991737,
+          "ece": 0.030897198854192152,
+          "boundary_gap": 0.05470971812027425,
+          "boundary_ece": 0.08219801414494425,
+          "pnl": 909990.7842614499,
+          "training_rto_rate": 0.29938935236948483
+        }
+      },
+      "worst_cycle": {
+        "naive": {
+          "max_abs_boundary_gap": 0.5853047920887376,
+          "max_ece": 0.17267098522196705,
+          "min_auc": 0.7730973870491061
+        },
+        "ipw": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.06049407269481251,
+          "min_auc": 0.7598835119928132
+        },
+        "oracle": {
+          "max_abs_boundary_gap": 0.12766330006656756,
+          "max_ece": 0.030897198854192152,
+          "min_auc": 0.7730973870491061
+        }
+      },
+      "cumulative_pnl": {
+        "naive": 3463536.0437084497,
+        "ipw": 3423864.80450875,
+        "oracle": 3508012.3932816996
+      },
+      "ipw_minus_naive_cumulative": -39671.239199699834,
+      "oracle_minus_naive_cumulative": 44476.34957324993,
+      "gap_recovered_share": -0.8919625729257218,
+      "exploration_cost_rupees": 72867.58172720001,
+      "control_orders": 756
+    }
+  }
+}
