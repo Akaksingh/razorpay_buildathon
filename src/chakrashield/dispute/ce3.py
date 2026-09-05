@@ -18,6 +18,53 @@ mechanical, which is exactly why we do not put an LLM anywhere near it:
 
 Every input hash and every match is written into the packet and the packet
 is content-addressed (SHA-256) so a network reviewer can re-derive it.
+``render.py`` turns the same dict into a printable document; the JSON here
+stays the contract and the only thing the hash covers.
+
+The Mastercard difference
+-------------------------
+This compiler is Visa-specific by design. Mastercard handles the same
+situation -- a card-not-present "I did not authorise this" claim from a
+cardholder with a real history at the merchant -- differently in ways that
+change what a merchant can automate:
+
+* Vocabulary and flow. Mastercard says chargeback, second presentment,
+  pre-arbitration and arbitration where Visa says dispute, dispute
+  response, pre-arbitration and arbitration. The card-not-present fraud
+  chargeback is Mastercard reason code 4837 (No Cardholder Authorization);
+  Visa's is 10.4.
+* No mechanical liability shift. Visa CE3.0 is a rule: when the six
+  criteria above are met the merchant is not liable, and the issuer's
+  acceptance is not a matter of judgement. Mastercard's chargeback rules
+  for 4837 let the merchant present compelling evidence in the second
+  presentment -- and evidence of earlier undisputed transactions on the
+  same card is a recognised form of it -- but the issuer evaluates that
+  evidence, and a refusal goes to pre-arbitration rather than being
+  blocked by rule. Mastercard's general rules also do not, to our
+  knowledge, fix a 120-365 day window or a two-transaction minimum; the
+  numbers in this module must not be reused for a 4837 response.
+* Data at authorisation, not at dispute time. Mastercard's First-Party
+  Trust programme (announced 2024, first rolled out in the United States)
+  protects merchants from first-party-misuse chargebacks when identity and
+  delivery data elements -- of the same kind CE3.0 matches: device, IP,
+  account and shipping identifiers -- were supplied with the transaction
+  and match the issuer's own view. The consequence for a system like this
+  one is that the ledger must feed the authorisation message, because a
+  packet assembled after the chargeback arrives, which is what CE3.0
+  allows, is too late. The exact data elements, thresholds, effective
+  dates and regions of that programme change by bulletin and are not
+  reproduced here.
+* Pre-dispute channel. Visa's pre-dispute leg of CE3.0 runs through
+  Verifi Order Insight; Mastercard's equivalent is Ethoca Consumer
+  Clarity. Both let the issuer show the cardholder merchant-supplied order
+  detail before a dispute is raised, but the Mastercard channel is not tied
+  to a liability rule the way Order Insight is tied to CE3.0.
+
+Practical upshot: the ledger search in ``compile_ce3`` is still worth running
+for a Mastercard 4837 chargeback, because the prior-transaction evidence is
+persuasive, but the packet must be labelled as compelling evidence for a
+second presentment, not as a CE3.0 liability shift, and the criteria table
+must not be presented as pass/fail against Mastercard rules.
 """
 from __future__ import annotations
 

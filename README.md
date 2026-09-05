@@ -327,6 +327,26 @@ checkout callbacks; closes both learning loops) · `GET /v1/behaviour` · `GET /
 `GET /v1/monitor/drift` · `POST /v1/dispute/ce3-compile` · `GET /v1/dispute/candidates` ·
 `GET /v1/graph/rings` · `GET /v1/graph/subgraph?seed=` · `GET /v1/report` · `GET /healthz` · `GET /` (console).
 
+### CE3.0 packet and the Mastercard difference
+
+`POST /v1/dispute/ce3-compile?format=html` and `GET /v1/dispute/packet/{transaction_id}.html` return the
+same packet as a self-contained printable document (inline CSS, no scripts beyond a print button): header,
+the four criteria as pass/fail, the disputed transaction, each qualifying prior transaction with its matched
+data elements highlighted, the SHA-256 packet hash and a generation timestamp. The document is a view of
+the JSON — every value is copied, nothing recomputed — so the hash on the page is the hash of the JSON
+route, and `render_packet_html` is a pure function of (packet, timestamp). The console's dispute view has
+an "Open printable packet" button for it.
+
+The compiler is Visa-only on purpose. Mastercard's card-not-present fraud chargeback (reason code 4837)
+accepts prior undisputed transactions as compelling evidence in a second presentment, but the issuer weighs
+that evidence and disagreement goes to pre-arbitration; there is no rule-mandated liability shift with a fixed
+120–365 day window and two-transaction minimum, so the pass/fail table above must not be reused for a 4837
+response. Mastercard's First-Party Trust programme (2024, US first) protects merchants when device, IP,
+account and shipping data were supplied at authorisation and match the issuer's view — which means the
+ledger has to feed the authorisation message, not a packet assembled after the chargeback lands. Exact data
+elements, dates and regions for that programme are not reproduced here; see the docstring in
+`src/chakrashield/dispute/ce3.py`.
+
 ## Layout
 
 ```
