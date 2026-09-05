@@ -520,10 +520,18 @@
     if (c.length) { $("#txnId").value = c[0].transaction_id; compile(); }
   }
   $("#compileBtn").addEventListener("click", compile);
+  // The printable document is a GET so it can live in a new tab or a bookmark; it runs the same compiler and
+  // carries the same packet hash as the JSON shown below.
+  function packetUrl(body) {
+    const q = new URLSearchParams({ dispute_reason_code: body.dispute_reason_code }); if (body.dispute_date) q.set("dispute_date", body.dispute_date);
+    return `/v1/dispute/packet/${encodeURIComponent(body.transaction_id)}.html?${q}`;
+  }
+  $("#printBtn").addEventListener("click", () => { const u = $("#printBtn").dataset.url; if (u) window.open(u, "_blank", "noopener"); });
   async function compile() {
     const body = { transaction_id: $("#txnId").value.trim(), dispute_reason_code: "10.4" }; if ($("#disputeDate").value) body.dispute_date = $("#disputeDate").value;
     const r = await post("/v1/dispute/ce3-compile", body);
     $("#packetHash").textContent = r.packet_hash ? "sha256 " + r.packet_hash.slice(0, 16) + "…" : "";
+    $("#printBtn").dataset.url = packetUrl(body); $("#printBtn").hidden = !r.packet_hash;
     const crit = Object.entries(r.criteria || {});
     const ev = r.evidence || {};
     $("#ce3Result").className = ""; $("#ce3Result").innerHTML =

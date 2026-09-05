@@ -53,6 +53,26 @@ def test_ce3_endpoint(client):
     assert out["standard"] == "Visa CE3.0" and "criteria" in out and len(out["packet_hash"]) == 64
 
 
+def test_ce3_printable_packet(client):
+    cands = client.get("/v1/dispute/candidates?n=3").json()
+    if not cands:
+        pytest.skip("no card history in ledger")
+    tid = cands[0]["transaction_id"]
+    body = {"transaction_id": tid, "dispute_date": "2026-01-15"}
+    js = client.post("/v1/dispute/ce3-compile", json=body)
+    assert js.headers["content-type"].startswith("application/json")
+    packet = js.json()
+    r = client.post("/v1/dispute/ce3-compile?format=html", json=body)
+    assert r.status_code == 200 and r.headers["content-type"].startswith("text/html")
+    assert packet["packet_hash"] in r.text and tid in r.text
+    for prior in packet["evidence"]["prior_transactions"]:
+        assert prior["transaction_id"] in r.text
+    g = client.get(f"/v1/dispute/packet/{tid}.html?dispute_date=2026-01-15")
+    assert g.status_code == 200 and g.headers["content-type"].startswith("text/html") and packet["packet_hash"] in g.text
+    assert client.post("/v1/dispute/ce3-compile?format=pdf", json=body).status_code == 422
+    assert client.get(f"/v1/dispute/packet/{tid}.html?dispute_date=15-01-2026").status_code == 422
+
+
 def test_graph_endpoints(client):
     rings = client.get("/v1/graph/rings?top=3").json()
     assert "stats" in rings

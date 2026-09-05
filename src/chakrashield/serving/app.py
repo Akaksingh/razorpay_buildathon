@@ -19,12 +19,13 @@ from typing import Any
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from ..config import (BEHAVIOUR_PATH, CONFORMAL_ALPHA, DATA_DIR, ECONOMICS, EXPLORATION_EPSILON, LATENCY_BUDGET_MS,
                       LEDGER_PATH, MODEL_DIR, REPORT_DIR)
 from ..dispute.ce3 import TransactionLedger, compile_ce3
+from ..dispute.render import render_packet_html
 from ..features.vectorizer import hydrate
 from ..features.velocity import record_order, record_outcome
 from ..graph.syndicate import SyndicateGraph
@@ -324,9 +325,26 @@ async def ledger_stats():
     return {**(state.decisions.stats() if state.decisions else {}), "epsilon": EXPLORATION_EPSILON}
 
 
+def _compile_packet(transaction_id: str, dispute_reason_code: str, dispute_date: str | None) -> dict:
+    try:
+        return compile_ce3(state.ledger, transaction_id, dispute_reason_code, dispute_date)
+    except ValueError as exc:                     # malformed dispute_date
+        raise HTTPException(status_code=422, detail=f"dispute_date must be YYYY-MM-DD: {exc}") from exc
+
+
 @app.post("/v1/dispute/ce3-compile", response_model=DisputeResponse)
-async def ce3_compile(req: DisputeRequest):
-    return compile_ce3(state.ledger, req.transaction_id, req.dispute_reason_code, req.dispute_date)
+async def ce3_compile(req: DisputeRequest, format: str = Query("json", pattern="^(json|html)$")):
+    """Compile the packet. ``format=html`` returns the same packet as a printable document; JSON is unchanged."""
+    packet = _compile_packet(req.transaction_id, req.dispute_reason_code, req.dispute_date)
+    if format == "html":
+        return HTMLResponse(render_packet_html(packet))
+    return packet
+
+
+@app.get("/v1/dispute/packet/{transaction_id}.html", response_class=HTMLResponse)
+async def ce3_packet_html(transaction_id: str, dispute_reason_code: str = "10.4", dispute_date: str | None = None):
+    """Browser link to the printable packet: same compiler and same packet hash as the POST route."""
+    return HTMLResponse(render_packet_html(_compile_packet(transaction_id, dispute_reason_code, dispute_date)))
 
 
 @app.get("/v1/dispute/candidates")
