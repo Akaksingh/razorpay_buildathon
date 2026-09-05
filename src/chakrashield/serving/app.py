@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -40,6 +40,7 @@ from ..policy.resolver import ACTION_UX, ALLOW, PREPAID, STEP_UP, DynamicRiskRes
 from ..runtime.scorer import Scorer
 from ..schemas import DisputeRequest, DisputeResponse, RiskRequest, RiskResponse
 from ..store.feature_store import MemoryStore, get_store
+from .merchants import MerchantConfig, MerchantRegistry, api_key_required
 
 STATIC = Path(__file__).parent / "static"
 
@@ -62,8 +63,10 @@ class State:
     drift: ConformalDriftMonitor | None = None
     extras: dict = field(default_factory=dict)          # graph_guard / domain_shift / behaviour / feedback_loop reports
     extras_mtime: dict = field(default_factory=dict)
+    reports_checked_at: float = 0.0                     # monotonic time of the last on-disk report check
     decisions: DecisionLedger | None = None             # propensity-logged decision ledger
     learner: BehaviourLearner | None = None             # per-segment buyer-response estimates
+    merchants: MerchantRegistry = field(default_factory=MerchantRegistry.builtin)   # config/merchants.json at startup
 
 
 state = State()
@@ -101,6 +104,7 @@ async def lifespan(app: FastAPI):
     state.drift = ConformalDriftMonitor(state.store, DriftBaseline.from_reports(state.report, q0=conf.q0, q1=conf.q1))
     state.decisions = DecisionLedger(LEDGER_PATH)
     state.learner = BehaviourLearner(prior=ECONOMICS).load(BEHAVIOUR_PATH)
+    state.merchants = MerchantRegistry.load()
 
     state.queue = asyncio.Queue(maxsize=10_000)
     state.worker_task = asyncio.create_task(_graph_worker())
@@ -110,7 +114,8 @@ async def lifespan(app: FastAPI):
     for sc in SCENARIOS[:2]:
         evaluate_pipeline(RiskRequest(**sc["req"]), commit=False, explain="always")
     print(f"[chakrashield] ready in {time.time() - t:.1f}s | scorer={state.scorer.backend} store={state.store.backend} "
-          f"graph={state.graph.stats()} ledger={len(state.ledger)}")
+          f"graph={state.graph.stats()} ledger={len(state.ledger)} merchants={len(state.merchants)} "
+          f"api_key_required={api_key_required()}")
     yield
     state.worker_task.cancel()
     if state.learner is not None and state.learner.observations:
@@ -147,35 +152,41 @@ app = FastAPI(title="ChakraShield Risk Gateway", version="1.0.0", lifespan=lifes
 
 
 # --------------------------------------------------------------------------- core pipeline
-def _shadow_price_for(req: RiskRequest) -> tuple[float, str]:
-    """lambda_f for this request: explicit price > budget mapped through the validation frontier > config."""
+def _shadow_price_for(req: RiskRequest, merchant: MerchantConfig) -> tuple[float, str, float | None, str | None]:
+    """(lambda_f, source, budget, budget_source): explicit price > request budget > merchant budget, each
+    budget mapped through the validation frontier > the merchant's configured shadow price."""
     if req.friction_shadow_price is not None:
-        return float(req.friction_shadow_price), "request"
-    if req.friction_budget is not None:
+        return float(req.friction_shadow_price), "request", None, None
+    budget, budget_source = ((req.friction_budget, "request") if req.friction_budget is not None
+                             else (merchant.friction_budget, "merchant") if merchant.friction_budget is not None
+                             else (None, None))
+    if budget is not None:
         _refresh_reports()
         fr = (state.report or {}).get("friction_frontier_valid") or []
         if not fr:
-            return 0.0, "no_frontier"
-        ok = [r for r in fr if r["friction_share"] <= req.friction_budget]
+            return 0.0, "no_frontier", budget, budget_source
+        ok = [r for r in fr if r["friction_share"] <= budget]
         lam = (min(ok, key=lambda r: r["lambda"]) if ok else max(fr, key=lambda r: r["lambda"]))["lambda"]
-        return float(lam), "frontier"
-    return float(ECONOMICS.friction_shadow_price), "config"
+        return float(lam), "frontier", budget, budget_source
+    return float(merchant.economics.friction_shadow_price), "config", None, None
 
 
 def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "auto") -> dict:
     t0 = time.perf_counter()
+    merchant, known = state.merchants.resolve(req.merchant_id)      # one dict lookup; unknown -> demo defaults
+    base = merchant.economics
     hyd = hydrate(req, state.store, now_ts=state.clock_ts)
     t1 = time.perf_counter()
     sc = state.scorer.score(hyd.vector, explain=(explain == "always"))
     t2 = time.perf_counter()
     is_new = req.is_new_customer if req.is_new_customer is not None else hyd.velocity.phone_is_new
-    lam, lam_source = _shadow_price_for(req)
-    # buyer-response parameters: learned per segment where there is data, the configured prior otherwise
+    lam, lam_source, budget, budget_source = _shadow_price_for(req, merchant)
+    # buyer-response parameters: learned per segment where there is data, the merchant's prior otherwise
     seg = segment_key(req.acquisition_channel, int(hyd.features["pin_tier"]), req.cart_gmv)
-    econ, est = state.learner.economics_for(seg, ECONOMICS) if state.learner is not None else (ECONOMICS, None)
+    econ, est = state.learner.economics_for(seg, base) if state.learner is not None else (base, None)
     ctx = TransactionContext(
-        gmv=req.cart_gmv, merchant_margin=req.merchant_margin if req.merchant_margin is not None else ECONOMICS.default_margin,
-        cac=req.cac if req.cac is not None else ECONOMICS.default_cac, p_loss=sc.p_loss, is_new_customer=bool(is_new),
+        gmv=req.cart_gmv, merchant_margin=req.merchant_margin if req.merchant_margin is not None else base.default_margin,
+        cac=req.cac if req.cac is not None else base.default_cac, p_loss=sc.p_loss, is_new_customer=bool(is_new),
         weight_grams=req.weight_grams, addr_defect=hyd.address.defect_score, logistics_loss=req.logistics_loss,
         holding_cost=req.holding_cost, friction_shadow_price=lam, econ=econ,
     )
@@ -186,18 +197,28 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
         except Exception:
             pass
     # epsilon-greedy shadow control band: a deterministic slice of *flagged* live orders ships
-    # frictionless anyway, tagged and propensity-logged, so retraining is not survival-biased
+    # frictionless anyway, tagged and propensity-logged, so retraining is not survival-biased.
+    # A shadow-mode merchant ships *every* order: the served action is ALLOW regardless of the
+    # policy, with propensity 1, so the band is moot and no order is tagged as control.
     oid = req.order_id or (f"live_{int(time.time() * 1000)}" if commit else None)
-    eps = EXPLORATION_EPSILON if commit else 0.0
+    eps = (merchant.epsilon if merchant.epsilon is not None else EXPLORATION_EPSILON) if commit and not merchant.shadow else 0.0
     served, is_control, draw = dec.action, False, None
-    if eps > 0 and dec.action != ALLOW:
+    if merchant.shadow:
+        served = ALLOW
+    elif eps > 0 and dec.action != ALLOW:
         is_control, draw = control_draw(f"{oid}|{hyd.hashes['phone']}", eps)
         if is_control:
             served = ALLOW
-    prop = propensity(dec.action, served, eps)
+    prop = 1.0 if merchant.shadow else propensity(dec.action, served, eps)
     ux = ACTION_UX[served]
-    rationale = (f"CONTROL COHORT (ε={eps:.0%}): resolver chose {dec.action}; served frictionless COD to earn an "
-                 f"unbiased delivery label for retraining. " + dec.rationale) if is_control else dec.rationale
+    if merchant.shadow and dec.action != ALLOW:
+        rationale = (f"SHADOW MODE ({merchant.merchant_id}): resolver chose {dec.action}; served frictionless COD "
+                     f"because the merchant is trialling the engine. " + dec.rationale)
+    elif is_control:
+        rationale = (f"CONTROL COHORT (ε={eps:.0%}): resolver chose {dec.action}; served frictionless COD to earn an "
+                     f"unbiased delivery label for retraining. " + dec.rationale)
+    else:
+        rationale = dec.rationale
     # TreeSHAP is ~2/3 of the request cost. In "auto" mode it runs only when the decision applies
     # friction: an ALLOW needs no defence, a step-up or a block must carry reason codes.
     contribs, bias, shap_ms = sc.contribs, sc.bias, sc.timings_ms.get("treeshap", 0.0)
@@ -219,7 +240,8 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
                                     "policy_action": dec.action, "p_loss": round(sc.p_loss, 5), "segment": seg,
                                     "addr_attr": round(ctx.address_attribution, 4)})
             state.queue.put_nowait({"kind": "log", "rec": {
-                "ts": time.time(), "order_id": oid, "merchant_id": req.merchant_id, "segment": seg, "p_loss": round(sc.p_loss, 5),
+                "ts": time.time(), "order_id": oid, "merchant_id": req.merchant_id, "merchant_config": merchant.merchant_id,
+                "shadow": merchant.shadow, "segment": seg, "p_loss": round(sc.p_loss, 5),
                 "p_raw": round(sc.p_raw, 5), "conformal_set": sc.conformal_set, "certainty": dec.certainty,
                 "policy_action": dec.action, "served_action": served, "is_control_cohort": is_control,
                 "propensity": prop, "epsilon": eps, "draw": draw, "tau_star": round(ctx.tau_star, 5),
@@ -231,10 +253,15 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
             pass
     conformal = {"alpha": CONFORMAL_ALPHA, "prediction_set": sc.conformal_set, "certainty": dec.certainty,
                  "nonconformity": sc.nonconformity, "quantiles": {"q0": state.scorer.conformal.q0, "q1": state.scorer.conformal.q1}}
+    behaviour = est.as_dict() if est else {}
+    if est is not None and est.source == "prior":
+        # the learner is shared across merchants; with no data the prior that was applied is the merchant's own
+        behaviour.update(delta_s=econ.stepup_abandon_rate, rho=econ.stepup_rto_residual, delta_p=econ.prepaid_abandon_rate)
     return {
         "order_id": oid, "decision": served, "policy_action": dec.action, "action_label": ux["label"], "friction_level": ux["friction"],
+        "shadow": merchant.shadow, "merchant": merchant.response_block(req.merchant_id, known),
         "exploration": {"is_control_cohort": is_control, "epsilon": eps, "propensity": prop, "policy_action": dec.action},
-        "behaviour": {**(est.as_dict() if est else {}), "segment": seg, "applied": bool(est and est.source != "prior")},
+        "behaviour": {**behaviour, "segment": seg, "applied": bool(est and est.source != "prior")},
         "p_loss": round(sc.p_loss, 4), "p_raw": round(sc.p_raw, 4), "tau_star": round(ctx.tau_star, 4), "tau_soft": round(ctx.tau_soft, 4),
         "conformal": conformal, "expected_costs": {k: round(v, 2) for k, v in dec.expected_costs.items()},
         "expected_saving_vs_allow": round(dec.expected_saving_vs_allow, 2), "admissible_actions": dec.admissible,
@@ -243,7 +270,7 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
         "rationale": rationale, "latency_ms": latency, "model_version": state.scorer.version,
         "scorer_backend": state.scorer.backend, "explained": contribs is not None, "explain_mode": explain,
         "elasticity": ctx.elasticity(),
-        "friction": {"shadow_price": round(lam, 2), "source": lam_source, "budget": req.friction_budget,
+        "friction": {"shadow_price": round(lam, 2), "source": lam_source, "budget": budget, "budget_source": budget_source,
                      "budget_changed_action": dec.budget_changed_action},
     }
 
@@ -270,9 +297,15 @@ def build_request_from_row(r: dict) -> RiskRequest:
 @app.post("/v1/risk/evaluate", response_model=RiskResponse, response_model_exclude_none=True)
 async def risk_evaluate(req: RiskRequest, commit: bool = Query(True, description="Push to the async graph observer"),
                         explain: str = Query("auto", pattern="^(auto|always|never)$",
-                                             description="auto: TreeSHAP only when the decision applies friction (production default); always; never")):
+                                             description="auto: TreeSHAP only when the decision applies friction (production default); always; never"),
+                        x_api_key: str | None = Header(None, alias="X-API-Key",
+                                                       description="Merchant key; checked only when CHAKRA_REQUIRE_API_KEY=1")):
     if state.scorer is None:
         raise HTTPException(503, "scorer not loaded")
+    if api_key_required():
+        merchant, known = state.merchants.resolve(req.merchant_id)
+        if not state.merchants.authorize(merchant, known, x_api_key):
+            raise HTTPException(401, "invalid or missing X-API-Key for merchant_id" if known else "unknown merchant_id")
     out = evaluate_pipeline(req, commit=commit, explain=explain)
     resp = JSONResponse(content=out)
     resp.headers["X-Chakra-Latency-Ms"] = str(out["latency_ms"]["total"])
@@ -308,6 +341,14 @@ async def risk_outcome(order_id: str, rto: bool,
         state.decisions.log_outcome(order_id, rto, {"served_action": served, "policy_action": meta.get("policy_action"),
                                                     "segment": seg, "stepup_result": stepup_result, "prepaid_result": prepaid_result})
     return {"order_id": order_id, "rto": rto, "shipped": shipped, "learned": learned, "segment": seg}
+
+
+@app.get("/v1/merchants")
+async def merchants():
+    """Configured merchants: economics overrides, friction budget, control band, shadow flag. Never the keys."""
+    return {"merchants": state.merchants.public(), "default_id": state.merchants.default_id,
+            "api_key_required": api_key_required(), "global_epsilon": EXPLORATION_EPSILON,
+            "path": str(state.merchants.path) if state.merchants.path else None}
 
 
 @app.get("/v1/behaviour")
@@ -384,13 +425,26 @@ async def graph_subgraph(seed: str, max_nodes: int = 120):
 EXTRA_REPORTS = ("graph_guard", "domain_shift", "behaviour", "feedback_loop")
 
 
+REPORT_CHECK_INTERVAL_S = 2.0
+
+
 def _refresh_reports() -> None:
-    """Reports are produced by offline scripts that may run after the gateway started."""
+    """Reports are produced by offline scripts that may run after the gateway started.
+
+    Called on the request path whenever a friction budget is mapped through the frontier, so the
+    six stat() calls are throttled to once per REPORT_CHECK_INTERVAL_S and a file is re-parsed
+    only when its mtime moved: a merchant-level budget must not cost every order half a millisecond.
+    """
+    now = time.monotonic()
+    if now - state.reports_checked_at < REPORT_CHECK_INTERVAL_S:
+        return
+    state.reports_checked_at = now
     for name, attr in (("evaluation.json", "report"), ("latency.json", "latency")):
         p = REPORT_DIR / name
-        if p.exists() and (not getattr(state, attr) or p.stat().st_mtime > state.started_at):
+        if p.exists() and (not getattr(state, attr) or p.stat().st_mtime > state.extras_mtime.get(name, state.started_at)):
             try:
                 setattr(state, attr, json.loads(p.read_text(encoding="utf-8")))
+                state.extras_mtime[name] = p.stat().st_mtime
             except json.JSONDecodeError:
                 pass  # being written right now; serve the previous copy
     for name in EXTRA_REPORTS:

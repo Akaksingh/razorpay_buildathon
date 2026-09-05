@@ -347,6 +347,41 @@ ledger has to feed the authorisation message, not a packet assembled after the c
 elements, dates and regions for that programme are not reproduced here; see the docstring in
 `src/chakrashield/dispute/ce3.py`.
 
+### Per-merchant configuration and shadow mode
+
+The resolver prices every decision in the merchant's own rupees, so `merchant_id` selects a config from
+`config/merchants.json` (`CHAKRA_MERCHANTS` overrides the path): any `Economics` field, a default
+`friction_budget`, the control-band `epsilon` (`null` = `CHAKRA_EPSILON`), a `shadow` flag and an optional
+`api_key`. Request-level `merchant_margin`, `cac`, `friction_budget` and `friction_shadow_price` still win over
+the merchant's defaults; the merchant's constants are the *prior* the buyer-response learner shrinks toward,
+and the response's `behaviour` block reports the values that were actually applied. An unknown `merchant_id`
+gets the demo defaults and says so (`merchant.known = false`, `merchant.note`). Resolution is one dict lookup;
+mapping a merchant budget through the validation frontier costs microseconds because the on-disk report check
+behind it is throttled to once per 2 s. `GET /v1/merchants` lists the configs without keys.
+
+Three merchants ship in the file. On the demo "Tier-4, thin address, Meta ad" order (p = 0.315), `demo_merchant`
+has τ* = 0.668 and asks for the ₹49 deposit; `nykaa_style_d2c` (κ = 0.70, δ_s = 0.18, budget ≤ 25 % → λ = ₹60
+from the frontier, ε = 2 %) has τ* = 0.754 and ships it frictionless — a dearer good buyer and a friction budget
+both raise the indifference point — and the address-driven certified-RTO order that `demo_merchant` forces
+prepaid resolves to a deposit for it instead. Same score, different rupees. (The demo scenarios pass
+`merchant_margin` and `cac` explicitly, so what differs between merchants there is κ, δ_s and the budget; a
+request that omits them gets the merchant's `default_margin` / `default_cac`.)
+
+**Shadow mode** (`trial_merchant`, 12 % margin, ₹250 CAC, `shadow: true`): the scorer, conformal gate,
+resolver, learner lookup, drift monitor and propensity ledger run exactly as in production and the response
+carries `policy_action`, τ*, expected costs and reason codes for the action the engine *would* have taken,
+but `decision` is always `ALLOW_COD` with `shadow = true`. A merchant trials the engine with zero customer
+impact, and because every shadow order ships, every one earns an untreated delivery label at propensity 1 —
+the trial doubles as an unbiased calibration set for that merchant's first retraining, and the ledger
+(`GET /v1/ledger/stats` counts `shadow` decisions) can replay the P&L it would have protected. On the six demo
+scenarios the trial merchant's policy frictions four and serves all six frictionless.
+
+**API keys** are enforced only when `CHAKRA_REQUIRE_API_KEY=1` (read at request time), so the demo and the
+tests run without headers. With it on, `POST /v1/risk/evaluate` compares `X-API-Key` against the merchant's key
+in constant time and returns 401 on a missing or wrong key; an unknown `merchant_id` cannot borrow the
+default's key and is also refused. Keys sit in the JSON for the hackathon; a deployment would load them from a
+secret store into the same registry.
+
 ## Layout
 
 ```

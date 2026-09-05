@@ -1,0 +1,35 @@
+{
+  "demo_merchant": {
+    "label": "Demo merchant: the repository defaults (18% margin, Rs.420 CAC, 11% deposit abandonment)",
+    "economics": {},
+    "friction_budget": null,
+    "epsilon": null,
+    "shadow": false,
+    "api_key": "demo-key-2f9c1e"
+  },
+  "nykaa_style_d2c": {
+    "label": "Beauty D2C: high margin, expensive paid-social buyers, less tolerant of a deposit; frictions at most a quarter of orders",
+    "economics": {
+      "default_margin": 0.32,
+      "default_cac": 650.0,
+      "cac_insult_kappa": 0.70,
+      "stepup_abandon_rate": 0.18,
+      "prepaid_abandon_rate": 0.45
+    },
+    "friction_budget": 0.25,
+    "epsilon": 0.02,
+    "shadow": false,
+    "api_key": "nyk-live-7a41b0"
+  },
+  "trial_merchant": {
+    "label": "Trial: thin-margin generalist running the full engine in shadow, every order ships COD",
+    "economics": {
+      "default_margin": 0.12,
+      "default_cac": 250.0
+    },
+    "friction_budget": null,
+    "epsilon": null,
+    "shadow": true,
+    "api_key": "trial-key-c58d3a"
+  }
+}

@@ -23,7 +23,7 @@ class DecisionLedger:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
-        self._counts = {"decisions": 0, "control_cohort": 0, "outcomes": 0, "served": {}}
+        self._counts = {"decisions": 0, "control_cohort": 0, "shadow": 0, "outcomes": 0, "served": {}}
         if self.path.exists():
             self._recount()
 
@@ -40,6 +40,7 @@ class DecisionLedger:
         if rec.get("kind") == "decision":
             c["decisions"] += 1
             c["control_cohort"] += int(bool(rec.get("is_control_cohort")))
+            c["shadow"] += int(bool(rec.get("shadow")))
             c["served"][rec.get("served_action")] = c["served"].get(rec.get("served_action"), 0) + 1
         elif rec.get("kind") == "outcome":
             c["outcomes"] += 1

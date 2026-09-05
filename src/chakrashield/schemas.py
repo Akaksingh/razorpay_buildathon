@@ -70,7 +70,10 @@ class ConformalBand(BaseModel):
 
 class RiskResponse(BaseModel):
     order_id: Optional[str]
-    decision: str
+    decision: str = Field(..., description="Served action; ALLOW_COD for a control-cohort order or a shadow-mode merchant")
+    policy_action: str = Field(..., description="What the resolver chose, before the control band or shadow mode")
+    shadow: bool = Field(False, description="True when the merchant runs in shadow mode: decision is always ALLOW_COD")
+    merchant: dict = Field(default_factory=dict, description="id, known, shadow, economics overrides applied")
     action_label: str
     friction_level: int
     p_loss: float = Field(..., description="Calibrated P(RTO | x)")
