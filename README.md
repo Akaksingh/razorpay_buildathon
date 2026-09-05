@@ -284,6 +284,43 @@ the **ungated** argmin (every set {0,1}, the α → 0 limit) ₹6,43,936.
 
 Report: `artifacts/reports/conformal_variants.json`.
 
+### GraphSAGE ring embeddings (experiment)
+
+`scripts/11_gnn_ring_embeddings.py` asks whether learned graph embeddings beat the typed union-find that
+serves ring statistics today. It builds the entity graph (phones, devices, addresses, VPAs, IPs; edges =
+co-occurrence on an order), gives every node kind, degree, order-count and shrunk RTO-rate features, and trains
+a two-layer mean-aggregation GraphSAGE in plain torch *inductively*: labels and edges from the first 60 % of
+orders by time, scoring of the 653 phones whose first order falls in the last 20 % (110 of them ring phones,
+30.9 % RTO) on the full graph. A logistic regression on the same node features isolates the value of message
+passing.
+
+| Test-era phones (n = 653, 110 ring) | AUC | PR-AUC | precision at union-find's recall (1.000) |
+|---|---:|---:|---:|
+| Typed union-find, served | — | — | **0.991** (1 false positive, 0 hostel residents) |
+| GraphSAGE, inductive | **0.9999** | **0.9998** | 0.991 (1 false positive, 0 residents) |
+| Logistic regression, same node features | 0.747 | 0.534 | 0.173 (526 false positives, 11 residents) |
+
+| Future RTO of test-era phones | AUC | PR-AUC |
+|---|---:|---:|
+| GraphSAGE trained on the RTO label | **0.770** | **0.719** |
+| GraphSAGE ring score reused | 0.750 | 0.713 |
+| Union-find ring flag | 0.750 | 0.633 |
+| Logistic regression | 0.659 | 0.492 |
+
+Message passing is what makes the graph useful (0.747 → 0.9999 AUC over the same features), but on this world
+the served union-find already sits at the same point, so there is nothing left for the GNN to add. The
+stacking check confirms it the hard way: five-fold cross-fitted GNN scores added to the served feature frame
+and retrained with the production LightGBM settings take **67 % of the split gain** and *lower* test AUC
+0.7988 → 0.7903 (PR-AUC 0.618 → 0.607). The score is an end-of-era quantity — the graph it is computed on
+already contains every later order — so the trees learn to lean on it instead of the point-in-time velocity
+features that carry the signal at serving time. A feature has to be computed the way it will be served; the
+graph path already respects that (ring stats are replayed chronologically into the store), and a GNN would
+have to be scored asynchronously per entity as orders arrive and published to the store the same way before it
+could be compared fairly. It does not earn a place in the serving path here. Where it would: real rings whose
+sharing is fuzzier than exact device / address matches (rotating handsets, near-duplicate addresses), which a
+typed union-find cannot merge and a message-passing model can. Runtime 617 s on CPU, 475 s of it the five-fold
+cross-fit; report in `artifacts/reports/gnn_embeddings.json`.
+
 ## Run it
 
 ```powershell
@@ -297,6 +334,9 @@ python scripts/07_graph_guard.py 6 12 25   # naive vs guarded graph, merge-ceili
 python scripts/08_festival_shift.py    # domain shift: what the label-free monitor sees vs what labels confirm
 python scripts/09_feedback_loop.py     # survivorship bias vs ε control band + IPW, band sizing
 python scripts/10_learn_behaviour.py   # prior vs learned vs oracle buyer response, two worlds
+python scripts/11_gnn_ring_embeddings.py   # GraphSAGE vs union-find ring detection, stacking check (~10 min CPU)
+python scripts/12_conformal_variants.py    # conformal alpha x conditioning sweep with resolver P&L
+python scripts/13_load_test.py             # real HTTP throughput and tail latency under concurrency
 python -m pytest tests
 python scripts/serve.py --port 8080    # http://127.0.0.1:8080
 python scripts/ingest_csv.py --csv export.csv --mapping config/merchant_schema.example.json   # real data

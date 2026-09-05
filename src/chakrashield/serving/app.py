@@ -422,7 +422,7 @@ async def graph_subgraph(seed: str, max_nodes: int = 120):
     return state.graph.subgraph(seed, max_nodes=max_nodes)
 
 
-EXTRA_REPORTS = ("graph_guard", "domain_shift", "behaviour", "feedback_loop")
+EXTRA_REPORTS = ("graph_guard", "domain_shift", "behaviour", "feedback_loop", "conformal_variants", "gnn_embeddings")
 
 
 REPORT_CHECK_INTERVAL_S = 2.0

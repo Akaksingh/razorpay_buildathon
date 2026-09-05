@@ -1,0 +1,178 @@
+{
+  "protocol": {
+    "train_era_frac": 0.6,
+    "rto_window_frac": [
+      0.4,
+      0.6
+    ],
+    "test_era_frac": 0.2,
+    "boundaries_day": {
+      "T40": 162.3,
+      "T60": 247.4,
+      "T80": 321.0
+    },
+    "snapshots": {
+      "train": {
+        "nodes": 75321,
+        "edges": 157769,
+        "order_cutoff_day": 247.4,
+        "outcome_cutoff_day": 162.3
+      },
+      "mid": {
+        "nodes": 84543,
+        "edges": 184251,
+        "order_cutoff_day": 321.0,
+        "outcome_cutoff_day": 247.4
+      },
+      "test": {
+        "nodes": 91166,
+        "edges": 205133,
+        "order_cutoff_day": null,
+        "outcome_cutoff_day": 321.0
+      }
+    },
+    "node_features": 14,
+    "config": {
+      "hidden": 32,
+      "dropout": 0.1,
+      "epochs": 200,
+      "lr": 0.01,
+      "weight_decay": 0.0001,
+      "valid_frac": 0.15,
+      "patience": 30,
+      "seed": 7
+    },
+    "folds": 5,
+    "subsampled": false
+  },
+  "training": {
+    "ring": {
+      "seconds": 90.5,
+      "epochs_run": 196,
+      "best_epoch": 165,
+      "best_valid_loss": 0.00536071602255106,
+      "labelled": 15024,
+      "positive_rate": 0.04745740149094781
+    },
+    "rto": {
+      "seconds": 18.1,
+      "epochs_run": 39,
+      "best_epoch": 8,
+      "best_valid_loss": 0.48777592182159424,
+      "labelled": 2234,
+      "positive_rate": 0.229632945389436
+    }
+  },
+  "ring_detection_test_era": {
+    "phones": 653,
+    "ring_phones_true": 110,
+    "legit_residents": 11,
+    "union_find": {
+      "precision": 0.990990990990991,
+      "recall": 1.0,
+      "tp": 110,
+      "fp": 1,
+      "fn": 0,
+      "flagged": 111,
+      "residents_condemned": 0,
+      "auc": 0.9990791896869246,
+      "pr_auc": 0.990990990990991
+    },
+    "gnn": {
+      "auc": 0.9999497739829232,
+      "pr_auc": 0.9997520524543044,
+      "precision_at_uf_recall": 0.990990990990991,
+      "threshold_at_uf_recall": 0.9818315505981445,
+      "recall_at_uf_precision": 1.0,
+      "residents_condemned_at_uf_recall": 0,
+      "fp_at_uf_recall": 1
+    },
+    "logreg": {
+      "auc": 0.7465762598359283,
+      "pr_auc": 0.5339576871714652,
+      "precision_at_uf_recall": 0.17295597484276728,
+      "threshold_at_uf_recall": 0.02453941287702661,
+      "recall_at_uf_precision": 0.11818181818181818,
+      "residents_condemned_at_uf_recall": 11,
+      "fp_at_uf_recall": 526
+    }
+  },
+  "future_rto_test_era": {
+    "phones": 653,
+    "positives": 202,
+    "gnn": {
+      "auc": 0.7702575135562336,
+      "pr_auc": 0.7188517314324858
+    },
+    "logreg": {
+      "auc": 0.6586079339641281,
+      "pr_auc": 0.491740828786849
+    },
+    "gnn_ring_score": {
+      "auc": 0.7497859542051766,
+      "pr_auc": 0.7133017207966765
+    },
+    "union_find_flag": {
+      "auc": 0.7496652104234814,
+      "pr_auc": 0.6324599431508897
+    }
+  },
+  "stacking": {
+    "served_summary": {
+      "auc": 0.7937140469839638,
+      "pr_auc": 0.5948371859447321,
+      "logloss": 0.4047131532526388,
+      "best_iter": 133
+    },
+    "baseline": {
+      "features": 37,
+      "best_iter": 133,
+      "auc": 0.7988426058377626,
+      "pr_auc": 0.6183729351489243,
+      "logloss": 0.4026904363452138,
+      "extra_gain_rank": {},
+      "extra_gain_share": {},
+      "seconds": 1.7
+    },
+    "with_gnn_ring": {
+      "features": 38,
+      "best_iter": 125,
+      "auc": 0.790258559943314,
+      "pr_auc": 0.6065712991030894,
+      "logloss": 0.4075918510774419,
+      "extra_gain_rank": {
+        "gnn_ring_score": 1
+      },
+      "extra_gain_share": {
+        "gnn_ring_score": 0.6669834058095151
+      },
+      "seconds": 1.3,
+      "delta_auc": -0.008584045894448611,
+      "delta_pr_auc": -0.011801636045834951
+    },
+    "with_gnn_ring_rto": {
+      "features": 39,
+      "best_iter": 136,
+      "auc": 0.7903044136332034,
+      "pr_auc": 0.6055690895920529,
+      "logloss": 0.4085829648247405,
+      "extra_gain_rank": {
+        "gnn_ring_score": 1,
+        "gnn_rto_score": 7
+      },
+      "extra_gain_share": {
+        "gnn_ring_score": 0.6246785013208389,
+        "gnn_rto_score": 0.022998583328629515
+      },
+      "seconds": 1.3,
+      "delta_auc": -0.008538192204559203,
+      "delta_pr_auc": -0.012803845556871418
+    },
+    "rows_without_score": {
+      "gnn_ring_score": 0,
+      "gnn_rto_score": 33163
+    },
+    "note": "training-era rows carry out-of-fold scores; mid/test-era rows are scored by the training-era model on that era's end-of-era snapshot (structure not point-in-time, outcomes frozen at the era start)"
+  },
+  "seconds_total": 617.2
+}
