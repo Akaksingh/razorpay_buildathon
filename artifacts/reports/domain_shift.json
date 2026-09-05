@@ -1,0 +1,1374 @@
+{
+  "baseline": {
+    "share": {
+      "CERTIFIED_LOW": 0.28438709677419355,
+      "AMBIGUOUS": 0.5468387096774193,
+      "CERTIFIED_HIGH": 0.1687741935483871,
+      "NOVEL": 0.0
+    },
+    "q0": 0.3146067415730337,
+    "q1": 0.8897911832946636,
+    "empty_sets_possible": false,
+    "test_auc": 0.7937140469839638,
+    "test_ece": 0.014188734004980936,
+    "test_coverage": {
+      "coverage_class0": 0.9179301252471984,
+      "coverage_class1": 0.9179548156956004
+    }
+  },
+  "scenarios": {
+    "control (new seed, same regime)": {
+      "knobs": {
+        "seed": 43,
+        "n_rings": 18
+      },
+      "orders_cod": 12842,
+      "rto_rate": 0.2508954991434356,
+      "seconds": 25.5,
+      "auc": 0.8087179196816069,
+      "ece": 0.01260333493440782,
+      "coverage_before": {
+        "coverage_class0": 0.927962577962578,
+        "coverage_class1": 0.9459962756052142,
+        "frac_ambiguous": 0.6160255411929606,
+        "frac_empty": 0.0
+      },
+      "coverage_after_recalibration": {
+        "coverage_class0": 0.923733804475854,
+        "coverage_class1": 0.864877161055505,
+        "frac_ambiguous": 0.4063403781979978,
+        "frac_empty": 0.0
+      },
+      "ece_after_recalibration": 0.013783196559677366,
+      "certainty_share": {
+        "CERTIFIED_LOW": 0.19989098271297306,
+        "AMBIGUOUS": 0.6160255411929606,
+        "CERTIFIED_HIGH": 0.18408347609406633,
+        "NOVEL": 0.0
+      },
+      "monitor_final": {
+        "status": "WARN",
+        "rolling_share": {
+          "CERTIFIED_LOW": 0.2645122681029324,
+          "AMBIGUOUS": 0.5912627169359664,
+          "CERTIFIED_HIGH": 0.14422501496110113,
+          "NOVEL": 0.0
+        },
+        "score_psi": 0.0718,
+        "alerts": [
+          {
+            "code": "MODEL_EPISTEMIC_DRIFT",
+            "severity": "warning",
+            "value": 0.5913,
+            "threshold": 0.5468,
+            "z": 5.16,
+            "message": "Ambiguous-set share 59.1% vs calibration 54.7% (z = +5.2). The model is less certain about live traffic than it was calibrated to be."
+          }
+        ]
+      },
+      "first_alert_after_orders": 600,
+      "timeline": [
+        {
+          "orders": 300,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11,
+            "AMBIGUOUS": 0.7666666666666667,
+            "CERTIFIED_HIGH": 0.12333333333333334,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4896
+        },
+        {
+          "orders": 600,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11166666666666666,
+            "AMBIGUOUS": 0.7366666666666667,
+            "CERTIFIED_HIGH": 0.15166666666666667,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4805
+        },
+        {
+          "orders": 900,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10888888888888888,
+            "AMBIGUOUS": 0.7255555555555555,
+            "CERTIFIED_HIGH": 0.16555555555555557,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4221
+        },
+        {
+          "orders": 1200,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.12166666666666667,
+            "AMBIGUOUS": 0.7175,
+            "CERTIFIED_HIGH": 0.16083333333333333,
+            "NOVEL": 0.0
+          },
+          "psi": 0.3934
+        },
+        {
+          "orders": 1500,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.12733333333333333,
+            "AMBIGUOUS": 0.706,
+            "CERTIFIED_HIGH": 0.16666666666666666,
+            "NOVEL": 0.0
+          },
+          "psi": 0.379
+        },
+        {
+          "orders": 1800,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1322222222222222,
+            "AMBIGUOUS": 0.7,
+            "CERTIFIED_HIGH": 0.16777777777777778,
+            "NOVEL": 0.0
+          },
+          "psi": 0.3688
+        },
+        {
+          "orders": 2100,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.13238095238095238,
+            "AMBIGUOUS": 0.6952380952380952,
+            "CERTIFIED_HIGH": 0.17238095238095238,
+            "NOVEL": 0.0
+          },
+          "psi": 0.3445
+        },
+        {
+          "orders": 2400,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.13541666666666666,
+            "AMBIGUOUS": 0.6858333333333333,
+            "CERTIFIED_HIGH": 0.17875,
+            "NOVEL": 0.0
+          },
+          "psi": 0.3196
+        },
+        {
+          "orders": 2700,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.13555555555555557,
+            "AMBIGUOUS": 0.6774074074074075,
+            "CERTIFIED_HIGH": 0.18703703703703703,
+            "NOVEL": 0.0
+          },
+          "psi": 0.3074
+        },
+        {
+          "orders": 3000,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.14,
+            "AMBIGUOUS": 0.6693333333333333,
+            "CERTIFIED_HIGH": 0.19066666666666668,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2916
+        },
+        {
+          "orders": 3300,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1393939393939394,
+            "AMBIGUOUS": 0.6678787878787878,
+            "CERTIFIED_HIGH": 0.19272727272727272,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2801
+        },
+        {
+          "orders": 3600,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.14323529411764707,
+            "AMBIGUOUS": 0.6558823529411765,
+            "CERTIFIED_HIGH": 0.20088235294117648,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2769
+        },
+        {
+          "orders": 3900,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.14823529411764705,
+            "AMBIGUOUS": 0.6464705882352941,
+            "CERTIFIED_HIGH": 0.20529411764705882,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2675
+        },
+        {
+          "orders": 4200,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.15205882352941177,
+            "AMBIGUOUS": 0.6405882352941177,
+            "CERTIFIED_HIGH": 0.2073529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2558
+        },
+        {
+          "orders": 4500,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1561764705882353,
+            "AMBIGUOUS": 0.6329411764705882,
+            "CERTIFIED_HIGH": 0.21088235294117647,
+            "NOVEL": 0.0
+          },
+          "psi": 0.238
+        },
+        {
+          "orders": 4800,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.15529411764705883,
+            "AMBIGUOUS": 0.6264705882352941,
+            "CERTIFIED_HIGH": 0.21823529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2304
+        },
+        {
+          "orders": 5100,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.15970588235294117,
+            "AMBIGUOUS": 0.6176470588235294,
+            "CERTIFIED_HIGH": 0.22264705882352942,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2183
+        },
+        {
+          "orders": 5400,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.16264705882352942,
+            "AMBIGUOUS": 0.616764705882353,
+            "CERTIFIED_HIGH": 0.22058823529411764,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2123
+        },
+        {
+          "orders": 5700,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.16205882352941176,
+            "AMBIGUOUS": 0.6155882352941177,
+            "CERTIFIED_HIGH": 0.2223529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2064
+        },
+        {
+          "orders": 6000,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1673529411764706,
+            "AMBIGUOUS": 0.6138235294117647,
+            "CERTIFIED_HIGH": 0.2188235294117647,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2063
+        },
+        {
+          "orders": 6300,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.16911764705882354,
+            "AMBIGUOUS": 0.6138235294117647,
+            "CERTIFIED_HIGH": 0.21705882352941178,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1991
+        },
+        {
+          "orders": 6600,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.17352941176470588,
+            "AMBIGUOUS": 0.6085294117647059,
+            "CERTIFIED_HIGH": 0.21794117647058822,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1923
+        },
+        {
+          "orders": 6900,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.175,
+            "AMBIGUOUS": 0.6085294117647059,
+            "CERTIFIED_HIGH": 0.2164705882352941,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1801
+        },
+        {
+          "orders": 7200,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.17676470588235293,
+            "AMBIGUOUS": 0.6061764705882353,
+            "CERTIFIED_HIGH": 0.21705882352941178,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1767
+        },
+        {
+          "orders": 7500,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.18088235294117647,
+            "AMBIGUOUS": 0.6041176470588235,
+            "CERTIFIED_HIGH": 0.215,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1691
+        },
+        {
+          "orders": 7800,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.18676470588235294,
+            "AMBIGUOUS": 0.5997058823529412,
+            "CERTIFIED_HIGH": 0.21352941176470588,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1588
+        },
+        {
+          "orders": 8100,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.19411764705882353,
+            "AMBIGUOUS": 0.5964705882352941,
+            "CERTIFIED_HIGH": 0.20941176470588235,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1533
+        },
+        {
+          "orders": 8400,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.19617647058823529,
+            "AMBIGUOUS": 0.601764705882353,
+            "CERTIFIED_HIGH": 0.20205882352941176,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1476
+        },
+        {
+          "orders": 8700,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.19941176470588234,
+            "AMBIGUOUS": 0.5988235294117648,
+            "CERTIFIED_HIGH": 0.20176470588235293,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1413
+        },
+        {
+          "orders": 9000,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.20676470588235293,
+            "AMBIGUOUS": 0.5958823529411764,
+            "CERTIFIED_HIGH": 0.1973529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.133
+        },
+        {
+          "orders": 9300,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.21588235294117647,
+            "AMBIGUOUS": 0.5929411764705882,
+            "CERTIFIED_HIGH": 0.19117647058823528,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1184
+        },
+        {
+          "orders": 9600,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.22205882352941175,
+            "AMBIGUOUS": 0.5920588235294117,
+            "CERTIFIED_HIGH": 0.18588235294117647,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1076
+        },
+        {
+          "orders": 9900,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.22823529411764706,
+            "AMBIGUOUS": 0.5964705882352941,
+            "CERTIFIED_HIGH": 0.17529411764705882,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0943
+        },
+        {
+          "orders": 10200,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.2338235294117647,
+            "AMBIGUOUS": 0.5944117647058823,
+            "CERTIFIED_HIGH": 0.17176470588235293,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0861
+        },
+        {
+          "orders": 10500,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.23470588235294118,
+            "AMBIGUOUS": 0.5979411764705882,
+            "CERTIFIED_HIGH": 0.1673529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0801
+        },
+        {
+          "orders": 10800,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.24558823529411763,
+            "AMBIGUOUS": 0.5955882352941176,
+            "CERTIFIED_HIGH": 0.1588235294117647,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0725
+        },
+        {
+          "orders": 11100,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.25029411764705883,
+            "AMBIGUOUS": 0.596764705882353,
+            "CERTIFIED_HIGH": 0.15294117647058825,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0704
+        },
+        {
+          "orders": 11400,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.2485294117647059,
+            "AMBIGUOUS": 0.6055882352941176,
+            "CERTIFIED_HIGH": 0.14588235294117646,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0749
+        },
+        {
+          "orders": 11700,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.25441176470588234,
+            "AMBIGUOUS": 0.6011764705882353,
+            "CERTIFIED_HIGH": 0.14441176470588235,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0727
+        },
+        {
+          "orders": 12000,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.2626470588235294,
+            "AMBIGUOUS": 0.5970588235294118,
+            "CERTIFIED_HIGH": 0.14029411764705882,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0707
+        },
+        {
+          "orders": 12300,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.2691176470588235,
+            "AMBIGUOUS": 0.5911764705882353,
+            "CERTIFIED_HIGH": 0.13970588235294118,
+            "NOVEL": 0.0
+          },
+          "psi": 0.067
+        },
+        {
+          "orders": 12600,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.27,
+            "AMBIGUOUS": 0.5864705882352941,
+            "CERTIFIED_HIGH": 0.14352941176470588,
+            "NOVEL": 0.0
+          },
+          "psi": 0.0684
+        }
+      ]
+    },
+    "festival sale (paid-social surge, 2x rings, +0.6 logit RTO)": {
+      "knobs": {
+        "seed": 43,
+        "impulse_share": 0.3,
+        "n_rings": 36,
+        "rto_logit_shift": 0.6
+      },
+      "orders_cod": 13201,
+      "rto_rate": 0.42193773199000073,
+      "seconds": 25.8,
+      "auc": 0.8212671925226098,
+      "ece": 0.09958723587545444,
+      "coverage_before": {
+        "coverage_class0": 0.9133796356965012,
+        "coverage_class1": 0.9626570915619389,
+        "frac_ambiguous": 0.5717748655404894,
+        "frac_empty": 0.0
+      },
+      "coverage_after_recalibration": {
+        "coverage_class0": 0.9246409252005223,
+        "coverage_class1": 0.9082474226804124,
+        "frac_ambiguous": 0.44497348771777945,
+        "frac_empty": 0.0
+      },
+      "ece_after_recalibration": 0.027215247616627497,
+      "certainty_share": {
+        "CERTIFIED_LOW": 0.13832285432921748,
+        "AMBIGUOUS": 0.5717748655404894,
+        "CERTIFIED_HIGH": 0.2899022801302932,
+        "NOVEL": 0.0
+      },
+      "monitor_final": {
+        "status": "WARN",
+        "rolling_share": {
+          "CERTIFIED_LOW": 0.17318435754189945,
+          "AMBIGUOUS": 0.5927668332843281,
+          "CERTIFIED_HIGH": 0.2340488091737724,
+          "NOVEL": 0.0
+        },
+        "score_psi": 0.182,
+        "alerts": [
+          {
+            "code": "MODEL_EPISTEMIC_DRIFT",
+            "severity": "warning",
+            "value": 0.5928,
+            "threshold": 0.5468,
+            "z": 5.38,
+            "message": "Ambiguous-set share 59.3% vs calibration 54.7% (z = +5.4). The model is less certain about live traffic than it was calibrated to be."
+          }
+        ]
+      },
+      "first_alert_after_orders": 300,
+      "timeline": [
+        {
+          "orders": 300,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.09333333333333334,
+            "AMBIGUOUS": 0.7566666666666667,
+            "CERTIFIED_HIGH": 0.15,
+            "NOVEL": 0.0
+          },
+          "psi": 0.8618
+        },
+        {
+          "orders": 600,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11166666666666666,
+            "AMBIGUOUS": 0.705,
+            "CERTIFIED_HIGH": 0.18333333333333332,
+            "NOVEL": 0.0
+          },
+          "psi": 0.7155
+        },
+        {
+          "orders": 900,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11444444444444445,
+            "AMBIGUOUS": 0.6911111111111111,
+            "CERTIFIED_HIGH": 0.19444444444444445,
+            "NOVEL": 0.0
+          },
+          "psi": 0.5268
+        },
+        {
+          "orders": 1200,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.105,
+            "AMBIGUOUS": 0.69,
+            "CERTIFIED_HIGH": 0.205,
+            "NOVEL": 0.0
+          },
+          "psi": 0.5305
+        },
+        {
+          "orders": 1500,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10666666666666667,
+            "AMBIGUOUS": 0.6833333333333333,
+            "CERTIFIED_HIGH": 0.21,
+            "NOVEL": 0.0
+          },
+          "psi": 0.5376
+        },
+        {
+          "orders": 1800,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.105,
+            "AMBIGUOUS": 0.6766666666666666,
+            "CERTIFIED_HIGH": 0.21833333333333332,
+            "NOVEL": 0.0
+          },
+          "psi": 0.5024
+        },
+        {
+          "orders": 2100,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10523809523809524,
+            "AMBIGUOUS": 0.6614285714285715,
+            "CERTIFIED_HIGH": 0.23333333333333334,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4783
+        },
+        {
+          "orders": 2400,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10541666666666667,
+            "AMBIGUOUS": 0.655,
+            "CERTIFIED_HIGH": 0.23958333333333334,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4667
+        },
+        {
+          "orders": 2700,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10851851851851851,
+            "AMBIGUOUS": 0.6448148148148148,
+            "CERTIFIED_HIGH": 0.24666666666666667,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4287
+        },
+        {
+          "orders": 3000,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10466666666666667,
+            "AMBIGUOUS": 0.6416666666666667,
+            "CERTIFIED_HIGH": 0.25366666666666665,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4309
+        },
+        {
+          "orders": 3300,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10606060606060606,
+            "AMBIGUOUS": 0.6354545454545455,
+            "CERTIFIED_HIGH": 0.2584848484848485,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4104
+        },
+        {
+          "orders": 3600,
+          "status": "ALERT",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10617647058823529,
+            "AMBIGUOUS": 0.6217647058823529,
+            "CERTIFIED_HIGH": 0.27205882352941174,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4157
+        },
+        {
+          "orders": 3900,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10441176470588236,
+            "AMBIGUOUS": 0.6129411764705882,
+            "CERTIFIED_HIGH": 0.2826470588235294,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4317
+        },
+        {
+          "orders": 4200,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10764705882352942,
+            "AMBIGUOUS": 0.5982352941176471,
+            "CERTIFIED_HIGH": 0.29411764705882354,
+            "NOVEL": 0.0
+          },
+          "psi": 0.432
+        },
+        {
+          "orders": 4500,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.10970588235294118,
+            "AMBIGUOUS": 0.5852941176470589,
+            "CERTIFIED_HIGH": 0.305,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4425
+        },
+        {
+          "orders": 4800,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11147058823529411,
+            "AMBIGUOUS": 0.5761764705882353,
+            "CERTIFIED_HIGH": 0.3123529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.44
+        },
+        {
+          "orders": 5100,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11382352941176471,
+            "AMBIGUOUS": 0.5694117647058824,
+            "CERTIFIED_HIGH": 0.31676470588235295,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4319
+        },
+        {
+          "orders": 5400,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11764705882352941,
+            "AMBIGUOUS": 0.5661764705882353,
+            "CERTIFIED_HIGH": 0.3161764705882353,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4137
+        },
+        {
+          "orders": 5700,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11852941176470588,
+            "AMBIGUOUS": 0.5629411764705883,
+            "CERTIFIED_HIGH": 0.3185294117647059,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4206
+        },
+        {
+          "orders": 6000,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11705882352941177,
+            "AMBIGUOUS": 0.5570588235294117,
+            "CERTIFIED_HIGH": 0.32588235294117646,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4281
+        },
+        {
+          "orders": 6300,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.11764705882352941,
+            "AMBIGUOUS": 0.5529411764705883,
+            "CERTIFIED_HIGH": 0.32941176470588235,
+            "NOVEL": 0.0
+          },
+          "psi": 0.439
+        },
+        {
+          "orders": 6600,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.12058823529411765,
+            "AMBIGUOUS": 0.5470588235294118,
+            "CERTIFIED_HIGH": 0.3323529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4445
+        },
+        {
+          "orders": 6900,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.12470588235294118,
+            "AMBIGUOUS": 0.5352941176470588,
+            "CERTIFIED_HIGH": 0.34,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4361
+        },
+        {
+          "orders": 7200,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1285294117647059,
+            "AMBIGUOUS": 0.5302941176470588,
+            "CERTIFIED_HIGH": 0.3411764705882353,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4379
+        },
+        {
+          "orders": 7500,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1288235294117647,
+            "AMBIGUOUS": 0.5335294117647059,
+            "CERTIFIED_HIGH": 0.3376470588235294,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4393
+        },
+        {
+          "orders": 7800,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.12705882352941175,
+            "AMBIGUOUS": 0.5302941176470588,
+            "CERTIFIED_HIGH": 0.3426470588235294,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4449
+        },
+        {
+          "orders": 8100,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.13147058823529412,
+            "AMBIGUOUS": 0.5241176470588236,
+            "CERTIFIED_HIGH": 0.34441176470588236,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4424
+        },
+        {
+          "orders": 8400,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.13411764705882354,
+            "AMBIGUOUS": 0.5211764705882352,
+            "CERTIFIED_HIGH": 0.3447058823529412,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4445
+        },
+        {
+          "orders": 8700,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.13794117647058823,
+            "AMBIGUOUS": 0.5170588235294118,
+            "CERTIFIED_HIGH": 0.345,
+            "NOVEL": 0.0
+          },
+          "psi": 0.448
+        },
+        {
+          "orders": 9000,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1423529411764706,
+            "AMBIGUOUS": 0.5102941176470588,
+            "CERTIFIED_HIGH": 0.3473529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.453
+        },
+        {
+          "orders": 9300,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.14823529411764705,
+            "AMBIGUOUS": 0.5041176470588236,
+            "CERTIFIED_HIGH": 0.3476470588235294,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4471
+        },
+        {
+          "orders": 9600,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_RISK_MIX_SHIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.15088235294117647,
+            "AMBIGUOUS": 0.5073529411764706,
+            "CERTIFIED_HIGH": 0.3417647058823529,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4332
+        },
+        {
+          "orders": 9900,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT",
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1511764705882353,
+            "AMBIGUOUS": 0.5126470588235295,
+            "CERTIFIED_HIGH": 0.3361764705882353,
+            "NOVEL": 0.0
+          },
+          "psi": 0.4213
+        },
+        {
+          "orders": 10200,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.15029411764705883,
+            "AMBIGUOUS": 0.5208823529411765,
+            "CERTIFIED_HIGH": 0.3288235294117647,
+            "NOVEL": 0.0
+          },
+          "psi": 0.42
+        },
+        {
+          "orders": 10500,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1526470588235294,
+            "AMBIGUOUS": 0.5291176470588236,
+            "CERTIFIED_HIGH": 0.31823529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.3875
+        },
+        {
+          "orders": 10800,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1511764705882353,
+            "AMBIGUOUS": 0.5347058823529411,
+            "CERTIFIED_HIGH": 0.31411764705882356,
+            "NOVEL": 0.0
+          },
+          "psi": 0.367
+        },
+        {
+          "orders": 11100,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.1561764705882353,
+            "AMBIGUOUS": 0.5370588235294118,
+            "CERTIFIED_HIGH": 0.30676470588235294,
+            "NOVEL": 0.0
+          },
+          "psi": 0.3478
+        },
+        {
+          "orders": 11400,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.16,
+            "AMBIGUOUS": 0.5426470588235294,
+            "CERTIFIED_HIGH": 0.2973529411764706,
+            "NOVEL": 0.0
+          },
+          "psi": 0.3277
+        },
+        {
+          "orders": 11700,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.16088235294117648,
+            "AMBIGUOUS": 0.5541176470588235,
+            "CERTIFIED_HIGH": 0.285,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2988
+        },
+        {
+          "orders": 12000,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_SCORE_PSI"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.16441176470588234,
+            "AMBIGUOUS": 0.5623529411764706,
+            "CERTIFIED_HIGH": 0.2732352941176471,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2663
+        },
+        {
+          "orders": 12300,
+          "status": "OK",
+          "alerts": [],
+          "share": {
+            "CERTIFIED_LOW": 0.1638235294117647,
+            "AMBIGUOUS": 0.5741176470588235,
+            "CERTIFIED_HIGH": 0.2620588235294118,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2428
+        },
+        {
+          "orders": 12600,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.16205882352941176,
+            "AMBIGUOUS": 0.5885294117647059,
+            "CERTIFIED_HIGH": 0.24941176470588236,
+            "NOVEL": 0.0
+          },
+          "psi": 0.2252
+        },
+        {
+          "orders": 12900,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.16705882352941176,
+            "AMBIGUOUS": 0.5935294117647059,
+            "CERTIFIED_HIGH": 0.23941176470588235,
+            "NOVEL": 0.0
+          },
+          "psi": 0.208
+        },
+        {
+          "orders": 13200,
+          "status": "WARN",
+          "alerts": [
+            "MODEL_EPISTEMIC_DRIFT"
+          ],
+          "share": {
+            "CERTIFIED_LOW": 0.17323529411764707,
+            "AMBIGUOUS": 0.5929411764705882,
+            "CERTIFIED_HIGH": 0.2338235294117647,
+            "NOVEL": 0.0
+          },
+          "psi": 0.1817
+        }
+      ]
+    }
+  }
+}

@@ -40,9 +40,10 @@ from chakrashield.monitoring.drift import CERTAINTIES, ConformalDriftMonitor, Dr
 from chakrashield.runtime.scorer import Scorer
 from chakrashield.store.feature_store import MemoryStore
 
+# ring count scales with the population (45 rings per 18,000 customers in the training world)
 SCENARIOS = {
-    "control (new seed, same regime)": dict(seed=43),
-    "festival sale (paid-social surge, more rings, +0.6 logit RTO)": dict(seed=43, impulse_share=0.30, n_rings=80, rto_logit_shift=0.6),
+    "control (new seed, same regime)": dict(seed=43, n_rings=18),
+    "festival sale (paid-social surge, 2x rings, +0.6 logit RTO)": dict(seed=43, impulse_share=0.30, n_rings=36, rto_logit_shift=0.6),
 }
 CERT_OF = {(0,): "CERTIFIED_LOW", (1,): "CERTIFIED_HIGH", (0, 1): "AMBIGUOUS", (): "NOVEL"}
 
