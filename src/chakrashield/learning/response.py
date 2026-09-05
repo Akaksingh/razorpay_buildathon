@@ -20,6 +20,10 @@ payers is E[rto_i | paid, p_i] = rho * w_i with
     w_i = p_i (1 - delta_bad) / [(1 - p_i)(1 - delta_s) + p_i (1 - delta_bad)]
 
 (the posterior share of bad buyers among payers), again ridge least squares.
+The resolver adds the address-driven residual on top of rho (rho_eff = rho +
+(1 - rho) a(x)), so the estimator inverts the same form: the target is
+rto - w a(x) on the regressor w (1 - a(x)), otherwise undeliverable-address
+returns would be booked against the deposit's power to commit a buyer.
 Estimates shrink two levels: segment -> global -> prior, so a thin segment
 borrows strength and a new merchant starts exactly at the configured prior.
 """
@@ -70,10 +74,10 @@ class _Accum:
         self.t1 += a * q
         self.t2 += a * p
 
-    def add_paid(self, w: float, rto: float) -> None:
+    def add_paid(self, x: float, target: float) -> None:
         self.n_paid += 1
-        self.ww += w * w
-        self.wr += w * rto
+        self.ww += x * x
+        self.wr += x * target
 
     def add_prepaid(self, p: float, a: float) -> None:
         q = 1.0 - p
@@ -120,9 +124,9 @@ class BehaviourEstimate:
 @dataclass
 class BehaviourLearner:
     prior: Economics
-    kappa_global: float = 150.0
-    kappa_segment: float = 40.0
-    kappa_rho: float = 30.0
+    kappa_global: float = 60.0
+    kappa_segment: float = 15.0
+    kappa_rho: float = 20.0
     min_n_segment: int = 25
     min_n_global: int = 30
     segments: dict[str, _Accum] = field(default_factory=dict)
@@ -142,8 +146,11 @@ class BehaviourLearner:
         return self.segments.setdefault(segment, _Accum())
 
     # ---------------------------------------------------------- observations
-    def observe_stepup(self, segment: str, p: float, abandoned: bool, rto: bool | None = None) -> None:
-        """A step-up was served: the buyer abandoned, or paid and then delivered / refused."""
+    def observe_stepup(self, segment: str, p: float, abandoned: bool, rto: bool | None = None, addr_attr: float = 0.0) -> None:
+        """A step-up was served: the buyer abandoned, or paid and then delivered / refused.
+
+        addr_attr is the order's address attribution a(x) (share of its risk no deposit can fix).
+        """
         p = float(min(0.999, max(0.001, p)))
         a = 1.0 if abandoned else 0.0
         for acc in (self._seg(segment), self.glob):
@@ -151,8 +158,10 @@ class BehaviourLearner:
         if not abandoned and rto is not None:
             ds, db = self.prior_stepup                      # posterior bad-share among payers, at the prior
             w = p * (1 - db) / ((1 - p) * (1 - ds) + p * (1 - db))
+            ax = float(min(1.0, max(0.0, addr_attr)))
+            x, target = w * (1.0 - ax), (1.0 if rto else 0.0) - w * ax     # E[rto | paid] = w a + rho w (1 - a)
             for acc in (self._seg(segment), self.glob):
-                acc.add_paid(w, 1.0 if rto else 0.0)
+                acc.add_paid(x, target)
         self.observations += 1
 
     def observe_prepaid(self, segment: str, p: float, abandoned: bool) -> None:

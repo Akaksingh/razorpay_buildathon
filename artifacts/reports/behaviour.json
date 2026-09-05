@@ -1,0 +1,3244 @@
+{
+  "scenarios": {
+    "prior_right_on_average": {
+      "summary": {
+        "label": "prior_right_on_average",
+        "base_mult": 1.0,
+        "orders": 7751,
+        "pnl": {
+          "prior": 1190862.8535922642,
+          "learned": 1190641.6405158876,
+          "oracle": 1199156.8833418253
+        },
+        "actions": {
+          "prior": {
+            "ALLOW_COD": 3206,
+            "STEP_UP_DEPOSIT": 3005,
+            "FORCE_PREPAID": 1540
+          },
+          "learned": {
+            "ALLOW_COD": 3147,
+            "STEP_UP_DEPOSIT": 3052,
+            "FORCE_PREPAID": 1552
+          },
+          "oracle": {
+            "ALLOW_COD": 3447,
+            "STEP_UP_DEPOSIT": 2719,
+            "FORCE_PREPAID": 1585
+          }
+        },
+        "learned_minus_prior": -221.21307637658902,
+        "oracle_minus_prior": 8294.029749561101,
+        "recovered_share": -0.02667136278216208,
+        "segments_learned": 27,
+        "segments_seen": 36,
+        "observations": 4601,
+        "mean_abs_err_delta_s_learned": 0.046933333333333334,
+        "mean_abs_err_delta_s_prior": 0.04981481481481481
+      },
+      "segments": [
+        {
+          "segment": "ORGANIC|T1|mid",
+          "orders": 733,
+          "delta_s": 0.0218,
+          "delta_bad": 0.6133,
+          "rho": 0.1192,
+          "delta_p": 0.3563,
+          "n_stepup": 264,
+          "n_paid": 234,
+          "n_prepaid": 25,
+          "source": "segment",
+          "true_delta_s": 0.066,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.228,
+          "abs_err_delta_s": 0.0442,
+          "prior_err_delta_s": 0.044
+        },
+        {
+          "segment": "ORGANIC|T2|mid",
+          "orders": 555,
+          "delta_s": 0.1105,
+          "delta_bad": 0.6354,
+          "rho": 0.121,
+          "delta_p": 0.2802,
+          "n_stepup": 212,
+          "n_paid": 171,
+          "n_prepaid": 60,
+          "source": "segment",
+          "true_delta_s": 0.076,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.238,
+          "abs_err_delta_s": 0.0345,
+          "prior_err_delta_s": 0.034
+        },
+        {
+          "segment": "SOCIAL|T1|mid",
+          "orders": 551,
+          "delta_s": 0.1293,
+          "delta_bad": 0.6851,
+          "rho": 0.122,
+          "delta_p": 0.5073,
+          "n_stepup": 116,
+          "n_paid": 82,
+          "n_prepaid": 111,
+          "source": "segment",
+          "true_delta_s": 0.165,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.57,
+          "abs_err_delta_s": 0.0357,
+          "prior_err_delta_s": 0.055
+        },
+        {
+          "segment": "SOCIAL|T2|mid",
+          "orders": 496,
+          "delta_s": 0.1172,
+          "delta_bad": 0.6544,
+          "rho": 0.113,
+          "delta_p": 0.4644,
+          "n_stepup": 150,
+          "n_paid": 113,
+          "n_prepaid": 200,
+          "source": "segment",
+          "true_delta_s": 0.175,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.58,
+          "abs_err_delta_s": 0.0578,
+          "prior_err_delta_s": 0.065
+        },
+        {
+          "segment": "SEARCH|T1|mid",
+          "orders": 494,
+          "delta_s": 0.0412,
+          "delta_bad": 0.6821,
+          "rho": 0.1098,
+          "delta_p": 0.3288,
+          "n_stepup": 203,
+          "n_paid": 170,
+          "n_prepaid": 41,
+          "source": "segment",
+          "true_delta_s": 0.099,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.342,
+          "abs_err_delta_s": 0.0578,
+          "prior_err_delta_s": 0.011
+        },
+        {
+          "segment": "ORGANIC|T2|low",
+          "orders": 432,
+          "delta_s": 0.0704,
+          "delta_bad": 0.6573,
+          "rho": 0.1183,
+          "delta_p": 0.2646,
+          "n_stepup": 144,
+          "n_paid": 123,
+          "n_prepaid": 35,
+          "source": "segment",
+          "true_delta_s": 0.056,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.238,
+          "abs_err_delta_s": 0.0144,
+          "prior_err_delta_s": 0.054
+        },
+        {
+          "segment": "ORGANIC|T1|low",
+          "orders": 358,
+          "delta_s": 0.0307,
+          "delta_bad": 0.6554,
+          "rho": 0.122,
+          "delta_p": 0.3485,
+          "n_stepup": 121,
+          "n_paid": 107,
+          "n_prepaid": 15,
+          "source": "segment",
+          "true_delta_s": 0.046,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.228,
+          "abs_err_delta_s": 0.0153,
+          "prior_err_delta_s": 0.064
+        },
+        {
+          "segment": "SOCIAL|T2|low",
+          "orders": 322,
+          "delta_s": 0.1125,
+          "delta_bad": 0.6759,
+          "rho": 0.1337,
+          "delta_p": 0.4745,
+          "n_stepup": 153,
+          "n_paid": 120,
+          "n_prepaid": 70,
+          "source": "segment",
+          "true_delta_s": 0.155,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.58,
+          "abs_err_delta_s": 0.0425,
+          "prior_err_delta_s": 0.045
+        },
+        {
+          "segment": "SEARCH|T2|mid",
+          "orders": 322,
+          "delta_s": 0.1509,
+          "delta_bad": 0.6782,
+          "rho": 0.1271,
+          "delta_p": 0.3844,
+          "n_stepup": 52,
+          "n_paid": 37,
+          "n_prepaid": 55,
+          "source": "segment",
+          "true_delta_s": 0.109,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.352,
+          "abs_err_delta_s": 0.0419,
+          "prior_err_delta_s": 0.001
+        },
+        {
+          "segment": "SEARCH|T2|low",
+          "orders": 289,
+          "delta_s": 0.1547,
+          "delta_bad": 0.7017,
+          "rho": 0.1204,
+          "delta_p": 0.2984,
+          "n_stepup": 103,
+          "n_paid": 78,
+          "n_prepaid": 39,
+          "source": "segment",
+          "true_delta_s": 0.089,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.352,
+          "abs_err_delta_s": 0.0657,
+          "prior_err_delta_s": 0.021
+        },
+        {
+          "segment": "SOCIAL|T1|low",
+          "orders": 252,
+          "delta_s": 0.0711,
+          "delta_bad": 0.6724,
+          "rho": 0.1242,
+          "delta_p": 0.4639,
+          "n_stepup": 108,
+          "n_paid": 89,
+          "n_prepaid": 37,
+          "source": "segment",
+          "true_delta_s": 0.145,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.57,
+          "abs_err_delta_s": 0.0739,
+          "prior_err_delta_s": 0.035
+        },
+        {
+          "segment": "ORGANIC|T3|low",
+          "orders": 244,
+          "delta_s": 0.0962,
+          "delta_bad": 0.6518,
+          "rho": 0.1211,
+          "delta_p": 0.3834,
+          "n_stepup": 158,
+          "n_paid": 130,
+          "n_prepaid": 62,
+          "source": "segment",
+          "true_delta_s": 0.086,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.268,
+          "abs_err_delta_s": 0.0102,
+          "prior_err_delta_s": 0.024
+        },
+        {
+          "segment": "ORGANIC|T4|low",
+          "orders": 235,
+          "delta_s": 0.1141,
+          "delta_bad": 0.695,
+          "rho": 0.1193,
+          "delta_p": 0.3789,
+          "n_stepup": 163,
+          "n_paid": 130,
+          "n_prepaid": 68,
+          "source": "segment",
+          "true_delta_s": 0.126,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.308,
+          "abs_err_delta_s": 0.0119,
+          "prior_err_delta_s": 0.016
+        },
+        {
+          "segment": "SEARCH|T1|low",
+          "orders": 234,
+          "delta_s": 0.0747,
+          "delta_bad": 0.6853,
+          "rho": 0.1186,
+          "delta_p": 0.3887,
+          "n_stepup": 96,
+          "n_paid": 80,
+          "n_prepaid": 12,
+          "source": "segment",
+          "true_delta_s": 0.079,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.342,
+          "abs_err_delta_s": 0.0043,
+          "prior_err_delta_s": 0.031
+        },
+        {
+          "segment": "SOCIAL|T1|high",
+          "orders": 207,
+          "delta_s": 0.1209,
+          "delta_bad": 0.7288,
+          "rho": 0.1181,
+          "delta_p": 0.406,
+          "n_stepup": 69,
+          "n_paid": 46,
+          "n_prepaid": 67,
+          "source": "segment",
+          "true_delta_s": 0.205,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.57,
+          "abs_err_delta_s": 0.0841,
+          "prior_err_delta_s": 0.095
+        },
+        {
+          "segment": "SOCIAL|T4|low",
+          "orders": 199,
+          "delta_s": 0.0874,
+          "delta_bad": 0.7133,
+          "rho": 0.1287,
+          "delta_p": 0.492,
+          "n_stepup": 123,
+          "n_paid": 93,
+          "n_prepaid": 76,
+          "source": "segment",
+          "true_delta_s": 0.225,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.65,
+          "abs_err_delta_s": 0.1376,
+          "prior_err_delta_s": 0.115
+        },
+        {
+          "segment": "SOCIAL|T3|low",
+          "orders": 191,
+          "delta_s": 0.1245,
+          "delta_bad": 0.6917,
+          "rho": 0.147,
+          "delta_p": 0.3929,
+          "n_stepup": 112,
+          "n_paid": 84,
+          "n_prepaid": 77,
+          "source": "segment",
+          "true_delta_s": 0.185,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.61,
+          "abs_err_delta_s": 0.0605,
+          "prior_err_delta_s": 0.075
+        },
+        {
+          "segment": "ORGANIC|T1|high",
+          "orders": 181,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 23,
+          "n_paid": 14,
+          "n_prepaid": 8,
+          "source": "global",
+          "true_delta_s": 0.106,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.228,
+          "abs_err_delta_s": 0.0102,
+          "prior_err_delta_s": 0.004
+        },
+        {
+          "segment": "SOCIAL|T3|mid",
+          "orders": 165,
+          "delta_s": 0.1477,
+          "delta_bad": 0.6698,
+          "rho": 0.1404,
+          "delta_p": 0.4432,
+          "n_stepup": 61,
+          "n_paid": 43,
+          "n_prepaid": 96,
+          "source": "segment",
+          "true_delta_s": 0.205,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.61,
+          "abs_err_delta_s": 0.0573,
+          "prior_err_delta_s": 0.095
+        },
+        {
+          "segment": "ORGANIC|T3|mid",
+          "orders": 155,
+          "delta_s": 0.05,
+          "delta_bad": 0.6943,
+          "rho": 0.1206,
+          "delta_p": 0.341,
+          "n_stepup": 105,
+          "n_paid": 88,
+          "n_prepaid": 29,
+          "source": "segment",
+          "true_delta_s": 0.106,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.268,
+          "abs_err_delta_s": 0.056,
+          "prior_err_delta_s": 0.004
+        },
+        {
+          "segment": "SEARCH|T3|low",
+          "orders": 150,
+          "delta_s": 0.1191,
+          "delta_bad": 0.669,
+          "rho": 0.1229,
+          "delta_p": 0.4128,
+          "n_stepup": 90,
+          "n_paid": 71,
+          "n_prepaid": 49,
+          "source": "segment",
+          "true_delta_s": 0.119,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.382,
+          "abs_err_delta_s": 0.0001,
+          "prior_err_delta_s": 0.009
+        },
+        {
+          "segment": "SEARCH|T1|high",
+          "orders": 144,
+          "delta_s": 0.1001,
+          "delta_bad": 0.6453,
+          "rho": 0.1174,
+          "delta_p": 0.395,
+          "n_stepup": 32,
+          "n_paid": 24,
+          "n_prepaid": 17,
+          "source": "segment",
+          "true_delta_s": 0.139,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.342,
+          "abs_err_delta_s": 0.0389,
+          "prior_err_delta_s": 0.029
+        },
+        {
+          "segment": "SEARCH|T4|low",
+          "orders": 139,
+          "delta_s": 0.1005,
+          "delta_bad": 0.7279,
+          "rho": 0.1174,
+          "delta_p": 0.5257,
+          "n_stepup": 111,
+          "n_paid": 86,
+          "n_prepaid": 28,
+          "source": "segment",
+          "true_delta_s": 0.159,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.422,
+          "abs_err_delta_s": 0.0585,
+          "prior_err_delta_s": 0.049
+        },
+        {
+          "segment": "SOCIAL|T2|high",
+          "orders": 120,
+          "delta_s": 0.0804,
+          "delta_bad": 0.7415,
+          "rho": 0.1206,
+          "delta_p": 0.3609,
+          "n_stepup": 30,
+          "n_paid": 21,
+          "n_prepaid": 81,
+          "source": "segment",
+          "true_delta_s": 0.215,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.58,
+          "abs_err_delta_s": 0.1346,
+          "prior_err_delta_s": 0.105
+        },
+        {
+          "segment": "SEARCH|T3|mid",
+          "orders": 117,
+          "delta_s": 0.1782,
+          "delta_bad": 0.7075,
+          "rho": 0.1237,
+          "delta_p": 0.4036,
+          "n_stepup": 51,
+          "n_paid": 35,
+          "n_prepaid": 42,
+          "source": "segment",
+          "true_delta_s": 0.139,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.382,
+          "abs_err_delta_s": 0.0392,
+          "prior_err_delta_s": 0.029
+        },
+        {
+          "segment": "ORGANIC|T2|high",
+          "orders": 87,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 17,
+          "n_paid": 15,
+          "n_prepaid": 14,
+          "source": "global",
+          "true_delta_s": 0.116,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.238,
+          "abs_err_delta_s": 0.0202,
+          "prior_err_delta_s": 0.006
+        },
+        {
+          "segment": "ORGANIC|T4|mid",
+          "orders": 82,
+          "delta_s": 0.1221,
+          "delta_bad": 0.6989,
+          "rho": 0.1303,
+          "delta_p": 0.3626,
+          "n_stepup": 64,
+          "n_paid": 49,
+          "n_prepaid": 12,
+          "source": "segment",
+          "true_delta_s": 0.146,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.308,
+          "abs_err_delta_s": 0.0239,
+          "prior_err_delta_s": 0.036
+        },
+        {
+          "segment": "SOCIAL|T4|mid",
+          "orders": 80,
+          "delta_s": 0.1821,
+          "delta_bad": 0.7168,
+          "rho": 0.128,
+          "delta_p": 0.4364,
+          "n_stepup": 41,
+          "n_paid": 26,
+          "n_prepaid": 36,
+          "source": "segment",
+          "true_delta_s": 0.245,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.65,
+          "abs_err_delta_s": 0.0629,
+          "prior_err_delta_s": 0.135
+        },
+        {
+          "segment": "SEARCH|T2|high",
+          "orders": 69,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 11,
+          "n_paid": 6,
+          "n_prepaid": 23,
+          "source": "global",
+          "true_delta_s": 0.149,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.352,
+          "abs_err_delta_s": 0.0532,
+          "prior_err_delta_s": 0.039
+        },
+        {
+          "segment": "SEARCH|T4|mid",
+          "orders": 66,
+          "delta_s": 0.1825,
+          "delta_bad": 0.7084,
+          "rho": 0.1207,
+          "delta_p": 0.4435,
+          "n_stepup": 38,
+          "n_paid": 25,
+          "n_prepaid": 22,
+          "source": "segment",
+          "true_delta_s": 0.179,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.422,
+          "abs_err_delta_s": 0.0035,
+          "prior_err_delta_s": 0.069
+        },
+        {
+          "segment": "SOCIAL|T3|high",
+          "orders": 30,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 7,
+          "n_paid": 5,
+          "n_prepaid": 22,
+          "source": "global",
+          "true_delta_s": 0.245,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.61,
+          "abs_err_delta_s": 0.1492,
+          "prior_err_delta_s": 0.135
+        },
+        {
+          "segment": "SEARCH|T3|high",
+          "orders": 17,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 9,
+          "n_paid": 7,
+          "n_prepaid": 7,
+          "source": "global",
+          "true_delta_s": 0.179,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.382,
+          "abs_err_delta_s": 0.0832,
+          "prior_err_delta_s": 0.069
+        },
+        {
+          "segment": "ORGANIC|T3|high",
+          "orders": 15,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 8,
+          "n_paid": 4,
+          "n_prepaid": 3,
+          "source": "global",
+          "true_delta_s": 0.146,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.268,
+          "abs_err_delta_s": 0.0502,
+          "prior_err_delta_s": 0.036
+        },
+        {
+          "segment": "SEARCH|T4|high",
+          "orders": 10,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 2,
+          "n_paid": 1,
+          "n_prepaid": 6,
+          "source": "global",
+          "true_delta_s": 0.219,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.422,
+          "abs_err_delta_s": 0.1232,
+          "prior_err_delta_s": 0.109
+        },
+        {
+          "segment": "ORGANIC|T4|high",
+          "orders": 6,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 4,
+          "n_paid": 3,
+          "n_prepaid": 2,
+          "source": "global",
+          "true_delta_s": 0.186,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.308,
+          "abs_err_delta_s": 0.0902,
+          "prior_err_delta_s": 0.076
+        },
+        {
+          "segment": "SOCIAL|T4|high",
+          "orders": 4,
+          "delta_s": 0.0958,
+          "delta_bad": 0.6828,
+          "rho": 0.1231,
+          "delta_p": 0.3932,
+          "n_stepup": 1,
+          "n_paid": 0,
+          "n_prepaid": 2,
+          "source": "global",
+          "true_delta_s": 0.285,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.65,
+          "abs_err_delta_s": 0.1892,
+          "prior_err_delta_s": 0.175
+        }
+      ],
+      "trajectory": [
+        {
+          "orders": 250,
+          "pnl": {
+            "prior": 35029.289191687494,
+            "learned": 35029.289191687494,
+            "oracle": 36041.85566343749
+          },
+          "estimates": {
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.076,
+              "source": "prior"
+            },
+            "SEARCH|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.099,
+              "source": "prior"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.165,
+              "source": "prior"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.17500000000000002,
+              "source": "prior"
+            }
+          }
+        },
+        {
+          "orders": 500,
+          "pnl": {
+            "prior": 74736.72317331251,
+            "learned": 74736.72317331251,
+            "oracle": 75236.47807756254
+          },
+          "estimates": {
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.165,
+              "source": "prior"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.076,
+              "source": "prior"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.17500000000000002,
+              "source": "prior"
+            },
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.066,
+              "source": "prior"
+            }
+          }
+        },
+        {
+          "orders": 750,
+          "pnl": {
+            "prior": 111073.49930525004,
+            "learned": 111073.49930525004,
+            "oracle": 111908.81379268756
+          },
+          "estimates": {
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.165,
+              "source": "prior"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.076,
+              "source": "prior"
+            },
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.066,
+              "source": "prior"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.17500000000000002,
+              "source": "prior"
+            }
+          }
+        },
+        {
+          "orders": 1000,
+          "pnl": {
+            "prior": 147477.27912024996,
+            "learned": 147687.05812024995,
+            "oracle": 150299.75393018746
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.1050619530287221,
+              "truth": 0.066,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.1050619530287221,
+              "truth": 0.17500000000000002,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.1050619530287221,
+              "truth": 0.165,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.1050619530287221,
+              "truth": 0.076,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 1250,
+          "pnl": {
+            "prior": 184342.64845749998,
+            "learned": 184340.37378874997,
+            "oracle": 187738.29133843753
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.12079921660296941,
+              "truth": 0.066,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.12079921660296941,
+              "truth": 0.17500000000000002,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.12079921660296941,
+              "truth": 0.165,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.12079921660296941,
+              "truth": 0.076,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 1500,
+          "pnl": {
+            "prior": 221710.38828687483,
+            "learned": 221514.61056812486,
+            "oracle": 225657.63540531244
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.11646350121790622,
+              "truth": 0.066,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11646350121790622,
+              "truth": 0.17500000000000002,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11646350121790622,
+              "truth": 0.076,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.11646350121790622,
+              "truth": 0.165,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 1750,
+          "pnl": {
+            "prior": 257921.40948331234,
+            "learned": 257599.23816456235,
+            "oracle": 262575.61807474995
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.11269382848374195,
+              "truth": 0.066,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11269382848374195,
+              "truth": 0.17500000000000002,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11269382848374195,
+              "truth": 0.076,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.11269382848374195,
+              "truth": 0.165,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 2000,
+          "pnl": {
+            "prior": 295060.9406159375,
+            "learned": 295108.30250393745,
+            "oracle": 300096.0278600001
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.11064234678075752,
+              "truth": 0.066,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.13035976358662804,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.05565725384515393,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2116954127167935,
+              "truth": 0.165,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 2250,
+          "pnl": {
+            "prior": 331305.7041865621,
+            "learned": 331466.9970359372,
+            "oracle": 336618.00528449984
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.020305325729301823,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.1056086084416598,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2105077519081566,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.04254457049302363,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 2500,
+          "pnl": {
+            "prior": 367191.55163851177,
+            "learned": 366037.4073858869,
+            "oracle": 373345.95180851204
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.02590203407922463,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.10449195577328774,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.20921460459927188,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.026433031232230158,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 2750,
+          "pnl": {
+            "prior": 399388.03530263656,
+            "learned": 399675.2319293868,
+            "oracle": 406869.938491012
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.01803249962766674,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.20276697244516742,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11292932048457795,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.028752085080850125,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 3000,
+          "pnl": {
+            "prior": 428950.2360460117,
+            "learned": 429601.93076901196,
+            "oracle": 435294.22783588717
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.031905284098840726,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.17582766379183157,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11764351417625579,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.030011885044314807,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 3250,
+          "pnl": {
+            "prior": 466364.47137288656,
+            "learned": 466983.82106501184,
+            "oracle": 473809.8734717619
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.019402633835647765,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.1919912811847613,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.12215241671268345,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.021353323451890057,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 3500,
+          "pnl": {
+            "prior": 503685.7466857617,
+            "learned": 503603.1979473869,
+            "oracle": 510193.9195303869
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.017468678643368714,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.18201688433925858,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11563740352313513,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.027942986689967687,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 3750,
+          "pnl": {
+            "prior": 540707.1026231372,
+            "learned": 540489.592573637,
+            "oracle": 546894.0603966998
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.009318026793716115,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.12021370596566035,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.16508508117959617,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.03595581283459803,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 4000,
+          "pnl": {
+            "prior": 578499.7961525742,
+            "learned": 578564.0792689489,
+            "oracle": 585870.0932671372
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.03135434993511774,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11392492414228345,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.16405202945840489,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.026908905218407594,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 4250,
+          "pnl": {
+            "prior": 615890.1737988241,
+            "learned": 615342.6367026984,
+            "oracle": 622655.8331508865
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.036624508732116444,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.12223375897403517,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.14929330713932093,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.02024935594775379,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 4500,
+          "pnl": {
+            "prior": 655222.2484877616,
+            "learned": 653777.4073645736,
+            "oracle": 662059.2806800115
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.04706798708965812,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.12195650027267507,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.16729663724444155,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.032096004260812445,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 4750,
+          "pnl": {
+            "prior": 695553.9650682614,
+            "learned": 692998.9421910727,
+            "oracle": 701690.4169630107
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.037763805284028173,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.15474213411855067,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.10690628188370399,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.030048135887277123,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 5000,
+          "pnl": {
+            "prior": 733367.6787408249,
+            "learned": 730989.986230886,
+            "oracle": 739850.092253324
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.05124939597947668,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.1486857248908149,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.09946710282958546,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.025453659793975802,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 5250,
+          "pnl": {
+            "prior": 779679.4283836376,
+            "learned": 777354.4583986986,
+            "oracle": 784792.1444100742
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.04463729184103426,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.14654537876825477,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.10079707605015967,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.04054791936618729,
+              "truth": 0.076,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 5500,
+          "pnl": {
+            "prior": 826347.4460385124,
+            "learned": 822970.5493285736,
+            "oracle": 830569.3222524492
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.053932152921958146,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.16806254389542782,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.05364489489575419,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.090661206997263,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 5750,
+          "pnl": {
+            "prior": 866092.5658778875,
+            "learned": 863239.257697949,
+            "oracle": 870911.5846971998
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.04279595919371096,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.05974861528100453,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.1717168809261657,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.07952496176381778,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 6000,
+          "pnl": {
+            "prior": 907103.2352411371,
+            "learned": 904094.238786198,
+            "oracle": 912985.2676166991
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.0366888261625071,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.06012002250347986,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.1606999721853973,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.10045863938066188,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 6250,
+          "pnl": {
+            "prior": 948092.7364157619,
+            "learned": 945013.7079304474,
+            "oracle": 954382.7611678235
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.03512866599950706,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.0767624055201595,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.15748613123567226,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.09789478206265295,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 6500,
+          "pnl": {
+            "prior": 988443.301298949,
+            "learned": 986062.4995270096,
+            "oracle": 995764.2874043857
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.030908820840710997,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.07531205157198792,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.1590550484833819,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11165004440902351,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 6750,
+          "pnl": {
+            "prior": 1028827.0874253862,
+            "learned": 1026559.1650105722,
+            "oracle": 1037638.7881243856
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.032748875895327434,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.07454508980446183,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.16249477756833833,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11250891790657086,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 7000,
+          "pnl": {
+            "prior": 1070332.847285262,
+            "learned": 1067105.459349948,
+            "oracle": 1077880.7414634489
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.026776446574388036,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.08025366916824778,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.15162687578002035,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11195095859419951,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 7250,
+          "pnl": {
+            "prior": 1108652.1212665134,
+            "learned": 1107589.5532686997,
+            "oracle": 1117575.0889193253
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.02235659532670711,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.07775532185181692,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.13277841017007927,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.12478014811001854,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 7500,
+          "pnl": {
+            "prior": 1146561.344179264,
+            "learned": 1145841.853334138,
+            "oracle": 1155074.7185945753
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.015257239411949949,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.08698987137219893,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.13511195576055313,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.12020545791993685,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 7750,
+          "pnl": {
+            "prior": 1190826.2985442642,
+            "learned": 1190605.0854678876,
+            "oracle": 1199120.3282938253
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.021826120984653592,
+              "truth": 0.066,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11048838533310545,
+              "truth": 0.076,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.12925745389310536,
+              "truth": 0.165,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11717058593198439,
+              "truth": 0.17500000000000002,
+              "source": "segment"
+            }
+          }
+        }
+      ]
+    },
+    "prior_wrong_by_2x": {
+      "summary": {
+        "label": "prior_wrong_by_2x",
+        "base_mult": 2.2,
+        "orders": 7751,
+        "pnl": {
+          "prior": 1072856.39687626,
+          "learned": 1089901.0044152597,
+          "oracle": 1100304.8854268847
+        },
+        "actions": {
+          "prior": {
+            "ALLOW_COD": 3206,
+            "STEP_UP_DEPOSIT": 3005,
+            "FORCE_PREPAID": 1540
+          },
+          "learned": {
+            "ALLOW_COD": 4424,
+            "STEP_UP_DEPOSIT": 1814,
+            "FORCE_PREPAID": 1513
+          },
+          "oracle": {
+            "ALLOW_COD": 4848,
+            "STEP_UP_DEPOSIT": 1602,
+            "FORCE_PREPAID": 1301
+          }
+        },
+        "learned_minus_prior": 17044.607538999757,
+        "oracle_minus_prior": 27448.48855062481,
+        "recovered_share": 0.6209670710124318,
+        "segments_learned": 25,
+        "segments_seen": 36,
+        "observations": 3324,
+        "mean_abs_err_delta_s_learned": 0.055752,
+        "mean_abs_err_delta_s_prior": 0.16004000000000002
+      },
+      "segments": [
+        {
+          "segment": "ORGANIC|T1|mid",
+          "orders": 733,
+          "delta_s": 0.0742,
+          "delta_bad": 0.6716,
+          "rho": 0.1438,
+          "delta_p": 0.4614,
+          "n_stepup": 161,
+          "n_paid": 134,
+          "n_prepaid": 24,
+          "source": "segment",
+          "true_delta_s": 0.1452,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.5016,
+          "abs_err_delta_s": 0.071,
+          "prior_err_delta_s": 0.0352
+        },
+        {
+          "segment": "ORGANIC|T2|mid",
+          "orders": 555,
+          "delta_s": 0.1422,
+          "delta_bad": 0.6742,
+          "rho": 0.1478,
+          "delta_p": 0.5135,
+          "n_stepup": 107,
+          "n_paid": 82,
+          "n_prepaid": 57,
+          "source": "segment",
+          "true_delta_s": 0.1552,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.5116,
+          "abs_err_delta_s": 0.013,
+          "prior_err_delta_s": 0.0452
+        },
+        {
+          "segment": "SOCIAL|T1|mid",
+          "orders": 551,
+          "delta_s": 0.2973,
+          "delta_bad": 0.7248,
+          "rho": 0.1498,
+          "delta_p": 0.5764,
+          "n_stepup": 64,
+          "n_paid": 35,
+          "n_prepaid": 112,
+          "source": "segment",
+          "true_delta_s": 0.363,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.0657,
+          "prior_err_delta_s": 0.253
+        },
+        {
+          "segment": "SOCIAL|T2|mid",
+          "orders": 496,
+          "delta_s": 0.2859,
+          "delta_bad": 0.759,
+          "rho": 0.1617,
+          "delta_p": 0.6514,
+          "n_stepup": 61,
+          "n_paid": 33,
+          "n_prepaid": 203,
+          "source": "segment",
+          "true_delta_s": 0.373,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.0871,
+          "prior_err_delta_s": 0.263
+        },
+        {
+          "segment": "SEARCH|T1|mid",
+          "orders": 494,
+          "delta_s": 0.1972,
+          "delta_bad": 0.6981,
+          "rho": 0.1467,
+          "delta_p": 0.6009,
+          "n_stepup": 55,
+          "n_paid": 37,
+          "n_prepaid": 42,
+          "source": "segment",
+          "true_delta_s": 0.2178,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.7524,
+          "abs_err_delta_s": 0.0206,
+          "prior_err_delta_s": 0.1078
+        },
+        {
+          "segment": "ORGANIC|T2|low",
+          "orders": 432,
+          "delta_s": 0.1357,
+          "delta_bad": 0.6602,
+          "rho": 0.1551,
+          "delta_p": 0.6091,
+          "n_stepup": 129,
+          "n_paid": 103,
+          "n_prepaid": 22,
+          "source": "segment",
+          "true_delta_s": 0.1352,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.5116,
+          "abs_err_delta_s": 0.0005,
+          "prior_err_delta_s": 0.0252
+        },
+        {
+          "segment": "ORGANIC|T1|low",
+          "orders": 358,
+          "delta_s": 0.0735,
+          "delta_bad": 0.6953,
+          "rho": 0.1479,
+          "delta_p": 0.6213,
+          "n_stepup": 112,
+          "n_paid": 95,
+          "n_prepaid": 13,
+          "source": "segment",
+          "true_delta_s": 0.1252,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.5016,
+          "abs_err_delta_s": 0.0517,
+          "prior_err_delta_s": 0.0152
+        },
+        {
+          "segment": "SOCIAL|T2|low",
+          "orders": 322,
+          "delta_s": 0.3537,
+          "delta_bad": 0.7915,
+          "rho": 0.1518,
+          "delta_p": 0.6362,
+          "n_stepup": 47,
+          "n_paid": 22,
+          "n_prepaid": 74,
+          "source": "segment",
+          "true_delta_s": 0.353,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.0007,
+          "prior_err_delta_s": 0.243
+        },
+        {
+          "segment": "SEARCH|T2|mid",
+          "orders": 322,
+          "delta_s": 0.2551,
+          "delta_bad": 0.7453,
+          "rho": 0.1472,
+          "delta_p": 0.5985,
+          "n_stepup": 33,
+          "n_paid": 19,
+          "n_prepaid": 49,
+          "source": "segment",
+          "true_delta_s": 0.2278,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.7624,
+          "abs_err_delta_s": 0.0273,
+          "prior_err_delta_s": 0.1178
+        },
+        {
+          "segment": "SEARCH|T2|low",
+          "orders": 289,
+          "delta_s": 0.195,
+          "delta_bad": 0.7218,
+          "rho": 0.1494,
+          "delta_p": 0.4914,
+          "n_stepup": 62,
+          "n_paid": 45,
+          "n_prepaid": 36,
+          "source": "segment",
+          "true_delta_s": 0.2078,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.7624,
+          "abs_err_delta_s": 0.0128,
+          "prior_err_delta_s": 0.0978
+        },
+        {
+          "segment": "SOCIAL|T1|low",
+          "orders": 252,
+          "delta_s": 0.2908,
+          "delta_bad": 0.757,
+          "rho": 0.1534,
+          "delta_p": 0.642,
+          "n_stepup": 45,
+          "n_paid": 25,
+          "n_prepaid": 34,
+          "source": "segment",
+          "true_delta_s": 0.343,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.0522,
+          "prior_err_delta_s": 0.233
+        },
+        {
+          "segment": "ORGANIC|T3|low",
+          "orders": 244,
+          "delta_s": 0.181,
+          "delta_bad": 0.6921,
+          "rho": 0.1497,
+          "delta_p": 0.5061,
+          "n_stepup": 146,
+          "n_paid": 109,
+          "n_prepaid": 63,
+          "source": "segment",
+          "true_delta_s": 0.1652,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.5416,
+          "abs_err_delta_s": 0.0158,
+          "prior_err_delta_s": 0.0552
+        },
+        {
+          "segment": "ORGANIC|T4|low",
+          "orders": 235,
+          "delta_s": 0.2196,
+          "delta_bad": 0.725,
+          "rho": 0.1515,
+          "delta_p": 0.6369,
+          "n_stepup": 159,
+          "n_paid": 111,
+          "n_prepaid": 54,
+          "source": "segment",
+          "true_delta_s": 0.2052,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.5816,
+          "abs_err_delta_s": 0.0144,
+          "prior_err_delta_s": 0.0952
+        },
+        {
+          "segment": "SEARCH|T1|low",
+          "orders": 234,
+          "delta_s": 0.306,
+          "delta_bad": 0.7905,
+          "rho": 0.1509,
+          "delta_p": 0.6294,
+          "n_stepup": 31,
+          "n_paid": 16,
+          "n_prepaid": 12,
+          "source": "segment",
+          "true_delta_s": 0.1978,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.7524,
+          "abs_err_delta_s": 0.1082,
+          "prior_err_delta_s": 0.0878
+        },
+        {
+          "segment": "SOCIAL|T1|high",
+          "orders": 207,
+          "delta_s": 0.2766,
+          "delta_bad": 0.7632,
+          "rho": 0.1471,
+          "delta_p": 0.6043,
+          "n_stepup": 33,
+          "n_paid": 16,
+          "n_prepaid": 70,
+          "source": "segment",
+          "true_delta_s": 0.403,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.1264,
+          "prior_err_delta_s": 0.293
+        },
+        {
+          "segment": "SOCIAL|T4|low",
+          "orders": 199,
+          "delta_s": 0.3458,
+          "delta_bad": 0.8322,
+          "rho": 0.1616,
+          "delta_p": 0.7242,
+          "n_stepup": 94,
+          "n_paid": 46,
+          "n_prepaid": 80,
+          "source": "segment",
+          "true_delta_s": 0.423,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.0772,
+          "prior_err_delta_s": 0.313
+        },
+        {
+          "segment": "SOCIAL|T3|low",
+          "orders": 191,
+          "delta_s": 0.3247,
+          "delta_bad": 0.756,
+          "rho": 0.1531,
+          "delta_p": 0.6219,
+          "n_stepup": 67,
+          "n_paid": 36,
+          "n_prepaid": 78,
+          "source": "segment",
+          "true_delta_s": 0.383,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.0583,
+          "prior_err_delta_s": 0.273
+        },
+        {
+          "segment": "ORGANIC|T1|high",
+          "orders": 181,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 4,
+          "n_paid": 1,
+          "n_prepaid": 8,
+          "source": "global",
+          "true_delta_s": 0.1852,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.5016,
+          "abs_err_delta_s": 0.0176,
+          "prior_err_delta_s": 0.0752
+        },
+        {
+          "segment": "SOCIAL|T3|mid",
+          "orders": 165,
+          "delta_s": 0.258,
+          "delta_bad": 0.7253,
+          "rho": 0.1735,
+          "delta_p": 0.6096,
+          "n_stepup": 40,
+          "n_paid": 23,
+          "n_prepaid": 95,
+          "source": "segment",
+          "true_delta_s": 0.403,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.145,
+          "prior_err_delta_s": 0.293
+        },
+        {
+          "segment": "ORGANIC|T3|mid",
+          "orders": 155,
+          "delta_s": 0.1534,
+          "delta_bad": 0.7255,
+          "rho": 0.1512,
+          "delta_p": 0.5868,
+          "n_stepup": 57,
+          "n_paid": 42,
+          "n_prepaid": 28,
+          "source": "segment",
+          "true_delta_s": 0.1852,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.5416,
+          "abs_err_delta_s": 0.0318,
+          "prior_err_delta_s": 0.0752
+        },
+        {
+          "segment": "SEARCH|T3|low",
+          "orders": 150,
+          "delta_s": 0.2423,
+          "delta_bad": 0.7233,
+          "rho": 0.1482,
+          "delta_p": 0.7386,
+          "n_stepup": 55,
+          "n_paid": 36,
+          "n_prepaid": 47,
+          "source": "segment",
+          "true_delta_s": 0.2378,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.7924,
+          "abs_err_delta_s": 0.0045,
+          "prior_err_delta_s": 0.1278
+        },
+        {
+          "segment": "SEARCH|T1|high",
+          "orders": 144,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 11,
+          "n_paid": 6,
+          "n_prepaid": 18,
+          "source": "global",
+          "true_delta_s": 0.2578,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.7524,
+          "abs_err_delta_s": 0.055,
+          "prior_err_delta_s": 0.1478
+        },
+        {
+          "segment": "SEARCH|T4|low",
+          "orders": 139,
+          "delta_s": 0.2222,
+          "delta_bad": 0.6823,
+          "rho": 0.1572,
+          "delta_p": 0.5601,
+          "n_stepup": 87,
+          "n_paid": 60,
+          "n_prepaid": 30,
+          "source": "segment",
+          "true_delta_s": 0.2778,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.0556,
+          "prior_err_delta_s": 0.1678
+        },
+        {
+          "segment": "SOCIAL|T2|high",
+          "orders": 120,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 11,
+          "n_paid": 5,
+          "n_prepaid": 79,
+          "source": "global",
+          "true_delta_s": 0.413,
+          "true_delta_bad": 0.58,
+          "true_rho": 0.1,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.2102,
+          "prior_err_delta_s": 0.303
+        },
+        {
+          "segment": "SEARCH|T3|mid",
+          "orders": 117,
+          "delta_s": 0.1906,
+          "delta_bad": 0.7518,
+          "rho": 0.1529,
+          "delta_p": 0.5026,
+          "n_stepup": 27,
+          "n_paid": 18,
+          "n_prepaid": 40,
+          "source": "segment",
+          "true_delta_s": 0.2578,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.7924,
+          "abs_err_delta_s": 0.0672,
+          "prior_err_delta_s": 0.1478
+        },
+        {
+          "segment": "ORGANIC|T2|high",
+          "orders": 87,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 4,
+          "n_paid": 4,
+          "n_prepaid": 13,
+          "source": "global",
+          "true_delta_s": 0.1952,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.5116,
+          "abs_err_delta_s": 0.0076,
+          "prior_err_delta_s": 0.0852
+        },
+        {
+          "segment": "ORGANIC|T4|mid",
+          "orders": 82,
+          "delta_s": 0.2287,
+          "delta_bad": 0.7182,
+          "rho": 0.1586,
+          "delta_p": 0.6006,
+          "n_stepup": 31,
+          "n_paid": 20,
+          "n_prepaid": 10,
+          "source": "segment",
+          "true_delta_s": 0.2252,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.5816,
+          "abs_err_delta_s": 0.0035,
+          "prior_err_delta_s": 0.1152
+        },
+        {
+          "segment": "SOCIAL|T4|mid",
+          "orders": 80,
+          "delta_s": 0.2445,
+          "delta_bad": 0.7532,
+          "rho": 0.1487,
+          "delta_p": 0.6155,
+          "n_stepup": 33,
+          "n_paid": 19,
+          "n_prepaid": 34,
+          "source": "segment",
+          "true_delta_s": 0.443,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.1985,
+          "prior_err_delta_s": 0.333
+        },
+        {
+          "segment": "SEARCH|T2|high",
+          "orders": 69,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 8,
+          "n_paid": 3,
+          "n_prepaid": 23,
+          "source": "global",
+          "true_delta_s": 0.2678,
+          "true_delta_bad": 0.65,
+          "true_rho": 0.1,
+          "true_delta_p": 0.7624,
+          "abs_err_delta_s": 0.065,
+          "prior_err_delta_s": 0.1578
+        },
+        {
+          "segment": "SEARCH|T4|mid",
+          "orders": 66,
+          "delta_s": 0.213,
+          "delta_bad": 0.7527,
+          "rho": 0.15,
+          "delta_p": 0.6071,
+          "n_stepup": 27,
+          "n_paid": 17,
+          "n_prepaid": 21,
+          "source": "segment",
+          "true_delta_s": 0.2978,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.0848,
+          "prior_err_delta_s": 0.1878
+        },
+        {
+          "segment": "SOCIAL|T3|high",
+          "orders": 30,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 5,
+          "n_paid": 4,
+          "n_prepaid": 21,
+          "source": "global",
+          "true_delta_s": 0.443,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.2402,
+          "prior_err_delta_s": 0.333
+        },
+        {
+          "segment": "SEARCH|T3|high",
+          "orders": 17,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 2,
+          "n_paid": 1,
+          "n_prepaid": 7,
+          "source": "global",
+          "true_delta_s": 0.2978,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.7924,
+          "abs_err_delta_s": 0.095,
+          "prior_err_delta_s": 0.1878
+        },
+        {
+          "segment": "ORGANIC|T3|high",
+          "orders": 15,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 2,
+          "n_paid": 1,
+          "n_prepaid": 3,
+          "source": "global",
+          "true_delta_s": 0.2252,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.5416,
+          "abs_err_delta_s": 0.0224,
+          "prior_err_delta_s": 0.1152
+        },
+        {
+          "segment": "SEARCH|T4|high",
+          "orders": 10,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 1,
+          "n_paid": 0,
+          "n_prepaid": 6,
+          "source": "global",
+          "true_delta_s": 0.3378,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.135,
+          "prior_err_delta_s": 0.2278
+        },
+        {
+          "segment": "ORGANIC|T4|high",
+          "orders": 6,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 2,
+          "n_paid": 2,
+          "n_prepaid": 2,
+          "source": "global",
+          "true_delta_s": 0.2652,
+          "true_delta_bad": 0.71,
+          "true_rho": 0.15,
+          "true_delta_p": 0.5816,
+          "abs_err_delta_s": 0.0624,
+          "prior_err_delta_s": 0.1552
+        },
+        {
+          "segment": "SOCIAL|T4|high",
+          "orders": 4,
+          "delta_s": 0.2028,
+          "delta_bad": 0.7266,
+          "rho": 0.152,
+          "delta_p": 0.5772,
+          "n_stepup": 1,
+          "n_paid": 1,
+          "n_prepaid": 2,
+          "source": "global",
+          "true_delta_s": 0.483,
+          "true_delta_bad": 0.64,
+          "true_rho": 0.15,
+          "true_delta_p": 0.8,
+          "abs_err_delta_s": 0.2802,
+          "prior_err_delta_s": 0.373
+        }
+      ],
+      "trajectory": [
+        {
+          "orders": 250,
+          "pnl": {
+            "prior": 31093.774751687477,
+            "learned": 31093.774751687477,
+            "oracle": 30974.323863187477
+          },
+          "estimates": {
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.1552,
+              "source": "prior"
+            },
+            "SEARCH|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.21780000000000002,
+              "source": "prior"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.36300000000000004,
+              "source": "prior"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.37300000000000005,
+              "source": "prior"
+            }
+          }
+        },
+        {
+          "orders": 500,
+          "pnl": {
+            "prior": 67206.00625331246,
+            "learned": 67206.00625331246,
+            "oracle": 67401.14713
+          },
+          "estimates": {
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.36300000000000004,
+              "source": "prior"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.1552,
+              "source": "prior"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.37300000000000005,
+              "source": "prior"
+            },
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.1452,
+              "source": "prior"
+            }
+          }
+        },
+        {
+          "orders": 750,
+          "pnl": {
+            "prior": 99951.08402924993,
+            "learned": 99951.08402924993,
+            "oracle": 101243.853498375
+          },
+          "estimates": {
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.36300000000000004,
+              "source": "prior"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.1552,
+              "source": "prior"
+            },
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.11,
+              "truth": 0.1452,
+              "source": "prior"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.11,
+              "truth": 0.37300000000000005,
+              "source": "prior"
+            }
+          }
+        },
+        {
+          "orders": 1000,
+          "pnl": {
+            "prior": 132947.8257042499,
+            "learned": 134407.7570842499,
+            "oracle": 136628.1465968749
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.1826135538673247,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.1826135538673247,
+              "truth": 0.37300000000000005,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.1826135538673247,
+              "truth": 0.36300000000000004,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.1826135538673247,
+              "truth": 0.1552,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 1250,
+          "pnl": {
+            "prior": 165668.8782214998,
+            "learned": 165967.99817349974,
+            "oracle": 169694.94918187498
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.1991058592280309,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.1991058592280309,
+              "truth": 0.37300000000000005,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.1991058592280309,
+              "truth": 0.36300000000000004,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.1991058592280309,
+              "truth": 0.1552,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 1500,
+          "pnl": {
+            "prior": 199951.0453308747,
+            "learned": 200013.54068662476,
+            "oracle": 205248.75271962496
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.21288180740484783,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.21288180740484783,
+              "truth": 0.37300000000000005,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.21288180740484783,
+              "truth": 0.1552,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.21288180740484783,
+              "truth": 0.36300000000000004,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 1750,
+          "pnl": {
+            "prior": 232416.20532731208,
+            "learned": 231961.01113362462,
+            "oracle": 239522.66170206238
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.21066021883028282,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.21066021883028282,
+              "truth": 0.37300000000000005,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.21066021883028282,
+              "truth": 0.1552,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.21066021883028282,
+              "truth": 0.36300000000000004,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 2000,
+          "pnl": {
+            "prior": 265259.59845993726,
+            "learned": 266929.4394797497,
+            "oracle": 275398.14826081233
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.20920502268276223,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.20920502268276223,
+              "truth": 0.37300000000000005,
+              "source": "global"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.20920502268276223,
+              "truth": 0.1552,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.23397506096750106,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 2250,
+          "pnl": {
+            "prior": 297893.77821056196,
+            "learned": 298399.3965487496,
+            "oracle": 308515.82286231214
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.20701581718003245,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.27896961565655776,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.23277941966589,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.20701581718003245,
+              "truth": 0.1552,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 2500,
+          "pnl": {
+            "prior": 330565.450862512,
+            "learned": 331394.8910140121,
+            "oracle": 341761.94800688734
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.19706022250473784,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.28560892300238366,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.22705430114359887,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.19706022250473784,
+              "truth": 0.1552,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 2750,
+          "pnl": {
+            "prior": 359079.77868663694,
+            "learned": 361733.4374793872,
+            "oracle": 371364.67215451226
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.19592355208296766,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.22540746974148687,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.27527725765676103,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.19592355208296766,
+              "truth": 0.1552,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 3000,
+          "pnl": {
+            "prior": 384841.2372500122,
+            "learned": 387038.9790230127,
+            "oracle": 397121.7427853253
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.19982936099159682,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2134840157714787,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.28932075178114913,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.19982936099159682,
+              "truth": 0.1552,
+              "source": "global"
+            }
+          }
+        },
+        {
+          "orders": 3250,
+          "pnl": {
+            "prior": 417608.93769688695,
+            "learned": 421314.34883169975,
+            "oracle": 432241.7378740122
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.20463727847306906,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.24053486001838065,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2906660222267243,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.13424332500456782,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 3500,
+          "pnl": {
+            "prior": 451176.953569762,
+            "learned": 454060.98297844984,
+            "oracle": 465124.391611137
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.2058171100536803,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.25540732217088763,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2898473690687533,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.12804070801117215,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 3750,
+          "pnl": {
+            "prior": 484614.4651071368,
+            "learned": 488499.0763180746,
+            "oracle": 499209.1846571993
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.2066249466945569,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.30473175319067286,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2630472841144456,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.12175719000322176,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 4000,
+          "pnl": {
+            "prior": 518920.5361365748,
+            "learned": 524332.2082585752,
+            "oracle": 533583.4058841994
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.21247684888259788,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.3190969102620125,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.26783609606001596,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.13244878629557744,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 4250,
+          "pnl": {
+            "prior": 553174.7312428247,
+            "learned": 557992.3280473248,
+            "oracle": 567196.504222949
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.20994857046415352,
+              "truth": 0.1452,
+              "source": "global"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2926655152471856,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.278026632252252,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.1439306569326396,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 4500,
+          "pnl": {
+            "prior": 589473.506351762,
+            "learned": 592434.7749675746,
+            "oracle": 601798.3087921368
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.02282485003049782,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2869602566097709,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2760528142481657,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.1596871050583368,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 4750,
+          "pnl": {
+            "prior": 626352.3663322619,
+            "learned": 627689.7110679495,
+            "oracle": 636504.6470617614
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.02500514320990942,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2741232293533797,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.29883523796677347,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.15636018275974442,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 5000,
+          "pnl": {
+            "prior": 660301.4711248251,
+            "learned": 661085.8410325755,
+            "oracle": 669550.1931096372
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.04499434913855669,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.25940301066402444,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.3061837312933212,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.15952242600950528,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 5250,
+          "pnl": {
+            "prior": 703109.8004276378,
+            "learned": 704328.7926318255,
+            "oracle": 712898.1436511372
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.041187269295154726,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.26743915325608275,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.300156043170753,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.17222755005570609,
+              "truth": 0.1552,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 5500,
+          "pnl": {
+            "prior": 746038.7611825129,
+            "learned": 748991.2719710757,
+            "oracle": 758123.3433893875
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.062205595934941474,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2943374885721729,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.16141624206296312,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2848439349249029,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 5750,
+          "pnl": {
+            "prior": 781285.7152618875,
+            "learned": 784632.2738029507,
+            "oracle": 794440.1014212624
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.08433841667526364,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.14476458746240758,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2953062390547797,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2848881551633854,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 6000,
+          "pnl": {
+            "prior": 818393.4577851369,
+            "learned": 824684.7856187002,
+            "oracle": 833534.404038012
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.0628337061653364,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.13800836828349913,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.29312158528997684,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2862974671222961,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 6250,
+          "pnl": {
+            "prior": 855640.1120397615,
+            "learned": 861621.8465718244,
+            "oracle": 871811.7435711363
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.07126245540163616,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.12692604978842353,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.28435688202727893,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.27737166887151504,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 6500,
+          "pnl": {
+            "prior": 891438.3792429487,
+            "learned": 900911.1635550117,
+            "oracle": 911155.0238583236
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.07573784599341278,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.13327734450568512,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2800163219630299,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.27454257730476866,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 6750,
+          "pnl": {
+            "prior": 927217.5787093858,
+            "learned": 939017.0339520734,
+            "oracle": 950094.6114453851
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.0769697343263605,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11899724129680343,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2864306045922677,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2780614710569641,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 7000,
+          "pnl": {
+            "prior": 964912.7100092607,
+            "learned": 976053.7728614479,
+            "oracle": 987717.8043491973
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.07043553743296739,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.12859703063248387,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.2959865668638593,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2908059428893901,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 7250,
+          "pnl": {
+            "prior": 998984.1298505104,
+            "learned": 1013418.712320573,
+            "oracle": 1024094.8921914476
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.09405887457143373,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.1225707284216073,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.301018376522235,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.29474832076217844,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 7500,
+          "pnl": {
+            "prior": 1032997.4134432606,
+            "learned": 1048218.8279060106,
+            "oracle": 1058917.646736885
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.09497429153637225,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.11925991258407143,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.293565515028636,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.30067210867111505,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        },
+        {
+          "orders": 7750,
+          "pnl": {
+            "prior": 1072819.8418282599,
+            "learned": 1089864.4493672596,
+            "oracle": 1100268.3303788847
+          },
+          "estimates": {
+            "ORGANIC|T1|mid": {
+              "delta_s": 0.07424798685981225,
+              "truth": 0.1452,
+              "source": "segment"
+            },
+            "ORGANIC|T2|mid": {
+              "delta_s": 0.142176699736529,
+              "truth": 0.1552,
+              "source": "segment"
+            },
+            "SOCIAL|T1|mid": {
+              "delta_s": 0.29731588116506114,
+              "truth": 0.36300000000000004,
+              "source": "segment"
+            },
+            "SOCIAL|T2|mid": {
+              "delta_s": 0.2858603119300158,
+              "truth": 0.37300000000000005,
+              "source": "segment"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "headline": "prior_wrong_by_2x",
+  "truth_model": "delta_s = prior x base_mult x channel factor + tier + basket band"
+}

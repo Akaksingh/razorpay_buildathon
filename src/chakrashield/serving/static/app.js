@@ -426,13 +426,14 @@
       const b = await api("/v1/behaviour");
       const rowsKv = [["observations (live learner)", inr.format(b.observations)], ["δ_s prior → global", `${pct(b.prior.delta_s)} → ${pct(b.global.delta_s)}`], ["δ_bad prior → global", `${pct(b.prior.delta_bad)} → ${pct(b.global.delta_bad)}`],
         ["ρ prior → global", `${pct(b.prior.rho)} → ${pct(b.global.rho)}`], ["δ_p prior → global", `${pct(b.prior.delta_p)} → ${pct(b.global.delta_p)}`]];
-      if (bh) { const s = bh.summary; rowsKv.push(["simulation P&L prior / learned / oracle", `${fmtR(s.pnl.prior)} / ${fmtR(s.pnl.learned)} / ${fmtR(s.pnl.oracle)}`],
-        ["gap to oracle recovered", s.recovered_share == null ? "—" : pct(s.recovered_share, 0)], ["mean |δ_s error| prior → learned", `${(s.mean_abs_err_delta_s_prior || 0).toFixed(3)} → ${(s.mean_abs_err_delta_s_learned || 0).toFixed(3)} over ${s.segments_learned} segments`]); }
+      const scen = bh && bh.scenarios ? bh.scenarios : null;
+      if (scen) Object.entries(scen).forEach(([name, sc]) => { const s = sc.summary; rowsKv.push([`simulation — ${name.replace(/_/g, " ")}: P&L prior / learned / oracle`, `${fmtR(s.pnl.prior)} / ${fmtR(s.pnl.learned)} / ${fmtR(s.pnl.oracle)} · gap recovered ${s.recovered_share == null ? "—" : pct(s.recovered_share, 0)}`],
+        [`  mean |δ_s error| prior → learned`, `${(s.mean_abs_err_delta_s_prior || 0).toFixed(3)} → ${(s.mean_abs_err_delta_s_learned || 0).toFixed(3)} over ${s.segments_learned} segments`]); });
       kv("#learnKv", rowsKv);
       $("#learnSub").textContent = `${b.segments} segments · ${inr.format(b.observations)} observations`;
-      const rows = (bh ? bh.segments : b.rows).slice(0, 8);
+      const rows = (scen ? scen[bh.headline || Object.keys(scen)[0]].segments : b.rows).slice(0, 8);
       table($("#learnTable"), [{ h: "segment", k: "segment" }, { h: "n", num: 1, f: r => inr.format(r.orders || r.n_stepup) }, { h: "δ_s learned", num: 1, f: r => pct(r.delta_s) },
-        ...(bh ? [{ h: "δ_s true", num: 1, f: r => pct(r.true_delta_s) }] : []), { h: "δ_bad", num: 1, f: r => pct(r.delta_bad) }, { h: "ρ", num: 1, f: r => pct(r.rho) }, { h: "source", k: "source" }], rows);
+        ...(scen ? [{ h: "δ_s true", num: 1, f: r => pct(r.true_delta_s) }] : []), { h: "δ_bad", num: 1, f: r => pct(r.delta_bad) }, { h: "ρ", num: 1, f: r => pct(r.rho) }, { h: "source", k: "source" }], rows);
     } catch (e) { /* gateway without learner */ }
   }
   // Frontier: Δ P&L (y) against share of orders frictioned (x); one line, labelled points, reference rule.

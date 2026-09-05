@@ -126,7 +126,7 @@ async def _graph_worker() -> None:
                              addr_h=job["hashes"]["addr"], pin=job["pin"], ts=job["ts"], gmv=job["gmv"])
                 state.graph.ingest(job["order_id"], {k: v for k, v in job["hashes"].items() if v}, gmv=job["gmv"])
                 state.outcomes[job["order_id"]] = {"hashes": job["hashes"], "pin": job["pin"],
-                                                   **{k: job.get(k) for k in ("served_action", "policy_action", "p_loss", "segment")}}
+                                                   **{k: job.get(k) for k in ("served_action", "policy_action", "p_loss", "segment", "addr_attr")}}
                 state.ingested += 1
             elif kind == "log":
                 state.decisions.log_decision(job["rec"])
@@ -214,7 +214,8 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
         try:
             state.queue.put_nowait({"kind": "order", "order_id": oid, "hashes": hyd.hashes, "pin": req.delivery_pin,
                                     "ts": state.clock_ts, "gmv": req.cart_gmv, "served_action": served,
-                                    "policy_action": dec.action, "p_loss": round(sc.p_loss, 5), "segment": seg})
+                                    "policy_action": dec.action, "p_loss": round(sc.p_loss, 5), "segment": seg,
+                                    "addr_attr": round(ctx.address_attribution, 4)})
             state.queue.put_nowait({"kind": "log", "rec": {
                 "ts": time.time(), "order_id": oid, "merchant_id": req.merchant_id, "segment": seg, "p_loss": round(sc.p_loss, 5),
                 "p_raw": round(sc.p_raw, 5), "conformal_set": sc.conformal_set, "certainty": dec.certainty,
@@ -291,7 +292,7 @@ async def risk_outcome(order_id: str, rto: bool,
     if state.learner is not None and seg and p is not None:
         if served == STEP_UP and stepup_result:
             state.learner.observe_stepup(seg, float(p), abandoned=(stepup_result == "abandoned"),
-                                         rto=(bool(rto) if stepup_result == "paid" else None))
+                                         rto=(bool(rto) if stepup_result == "paid" else None), addr_attr=float(meta.get("addr_attr") or 0.0))
             learned = "stepup"
         elif served == PREPAID and prepaid_result:
             state.learner.observe_prepaid(seg, float(p), abandoned=(prepaid_result == "abandoned"))
