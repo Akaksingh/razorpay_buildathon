@@ -357,7 +357,7 @@
         { h: "RTO shipped", num: 1, f: r => inr.format(Math.round(r.rto_shipped)) }, { h: "good lost", num: 1, f: r => inr.format(Math.round(r.good_lost)) }], pts);
     }
     // model health + shift experiment (live drift polls every 10 s while the console is open)
-    renderShift(rep); loadDrift();
+    renderShift(rep); loadDrift(); renderLearning(rep);
     if (!state.driftTimer) state.driftTimer = setInterval(() => { if ($("#view-console").classList.contains("active")) loadDrift(); }, 10000);
     // weight-temperature candidates
     const cands = ev.candidates || [];
@@ -403,6 +403,37 @@
         ["ring recall / precision (phone level)", `${pct(n.recall)} / ${pct(n.precision)} → ${pct(g.recall)} / ${pct(g.precision)}`], ["legit phones condemned", `${n.fp} → ${g.fp}`],
         ["hostel / office residents condemned", `${n.residents_condemned} → ${g.residents_condemned} of ${g.legit_residents}`], ["shared entities flagged", `${g.stats.shared_entities} (address ceiling ${g.addr_merge_ceiling} phones)`]]);
     }
+  }
+  async function renderLearning(rep) {
+    const fl = (rep.extra || {}).feedback_loop, bh = (rep.extra || {}).behaviour;
+    if (fl) {
+      const h = fl.headline;
+      $("#loopSub").textContent = `${fl.n_cycles} cycles · window ${pct(fl.window_frac, 0)} of history · headline ε = ${pct(fl.headline_epsilon, 0)}, cap ${fl.headline_cap}`;
+      table($("#loopTable"), [{ h: "ε", f: r => pct(r.epsilon, 0) + (r.epsilon === fl.headline_epsilon && r.cap === fl.headline_cap ? " · chosen" : "") }, { h: "cap", num: 1, k: "cap" },
+        { h: "P&L naive / IPW / oracle", num: 1, f: r => `${fmtR(r.cumulative_pnl.naive)} / ${fmtR(r.cumulative_pnl.ipw)} / ${fmtR(r.cumulative_pnl.oracle)}` },
+        { h: "worst ECE naive → IPW", num: 1, f: r => `${r.worst_cycle.naive.max_ece.toFixed(3)} → ${r.worst_cycle.ipw.max_ece.toFixed(3)}` },
+        { h: "worst boundary gap", num: 1, f: r => `${r.worst_cycle.naive.max_abs_boundary_gap.toFixed(2)} → ${r.worst_cycle.ipw.max_abs_boundary_gap.toFixed(2)}` },
+        { h: "min AUC IPW", num: 1, f: r => r.worst_cycle.ipw.min_auc.toFixed(3) }, { h: "band cost", num: 1, f: r => `${fmtR(r.exploration_cost_rupees)} / ${inr.format(r.control_orders)} orders` }], fl.sweep);
+      const c3 = h.cycles[2] ? h.cycles[2].variants : null;
+      if (c3) $("#loopTable").insertAdjacentHTML("beforeend", `<p class="muted small">Cycle 3 of the headline run: naive trained on a survivor pool with ${pct(c3.naive.training_rto_rate)} RTO (world: ~26 %), predicted ${pct(c3.naive.boundary_pred)} on orders whose true propensity ≥ 50 % that actually returned ${pct(c3.naive.boundary_actual)}; IPW predicted ${pct(c3.ipw.boundary_pred)}.</p>`);
+    } else $("#loopTable").innerHTML = `<p class="muted small">run scripts/09_feedback_loop.py</p>`;
+    try {
+      const led = await api("/v1/ledger/stats");
+      kv("#ledgerKv", [["live ledger — decisions logged", inr.format(led.decisions || 0)], ["control-cohort pass-throughs", `${inr.format(led.control_cohort || 0)} (ε = ${pct(led.epsilon || 0, 0)})`], ["outcomes joined", inr.format(led.outcomes || 0)],
+        ["served-action mix", Object.entries(led.served || {}).map(([k, v]) => `${ACTION_SHORT[k] || k} ${inr.format(v)}`).join(" · ") || "—"]]);
+    } catch (e) { /* gateway without ledger */ }
+    try {
+      const b = await api("/v1/behaviour");
+      const rowsKv = [["observations (live learner)", inr.format(b.observations)], ["δ_s prior → global", `${pct(b.prior.delta_s)} → ${pct(b.global.delta_s)}`], ["δ_bad prior → global", `${pct(b.prior.delta_bad)} → ${pct(b.global.delta_bad)}`],
+        ["ρ prior → global", `${pct(b.prior.rho)} → ${pct(b.global.rho)}`], ["δ_p prior → global", `${pct(b.prior.delta_p)} → ${pct(b.global.delta_p)}`]];
+      if (bh) { const s = bh.summary; rowsKv.push(["simulation P&L prior / learned / oracle", `${fmtR(s.pnl.prior)} / ${fmtR(s.pnl.learned)} / ${fmtR(s.pnl.oracle)}`],
+        ["gap to oracle recovered", s.recovered_share == null ? "—" : pct(s.recovered_share, 0)], ["mean |δ_s error| prior → learned", `${(s.mean_abs_err_delta_s_prior || 0).toFixed(3)} → ${(s.mean_abs_err_delta_s_learned || 0).toFixed(3)} over ${s.segments_learned} segments`]); }
+      kv("#learnKv", rowsKv);
+      $("#learnSub").textContent = `${b.segments} segments · ${inr.format(b.observations)} observations`;
+      const rows = (bh ? bh.segments : b.rows).slice(0, 8);
+      table($("#learnTable"), [{ h: "segment", k: "segment" }, { h: "n", num: 1, f: r => inr.format(r.orders || r.n_stepup) }, { h: "δ_s learned", num: 1, f: r => pct(r.delta_s) },
+        ...(bh ? [{ h: "δ_s true", num: 1, f: r => pct(r.true_delta_s) }] : []), { h: "δ_bad", num: 1, f: r => pct(r.delta_bad) }, { h: "ρ", num: 1, f: r => pct(r.rho) }, { h: "source", k: "source" }], rows);
+    } catch (e) { /* gateway without learner */ }
   }
   // Frontier: Δ P&L (y) against share of orders frictioned (x); one line, labelled points, reference rule.
   function frontierChart(el, rows, o = {}) {

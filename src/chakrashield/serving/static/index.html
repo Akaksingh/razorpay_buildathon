@@ -235,6 +235,20 @@
       <div class="kv" id="guardKv"></div>
     </div>
   </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Counterfactual control band &amp; IPW retraining</h2><span class="muted" id="loopSub"></span></div>
+      <p class="muted small">Frictioned orders never ship, so they never earn a label; retraining on survivors forgets the high-risk boundary. A deterministic ε share of flagged live orders is served frictionless COD, tagged <code>is_control_cohort</code> and logged with its propensity; retraining re-weights them 1/ε. The table replays four rolling-window retraining cycles on the synthetic world.</p>
+      <div id="loopTable"></div>
+      <div class="kv" id="ledgerKv"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Learned buyer response</h2><span class="muted" id="learnSub"></span></div>
+      <p class="muted small">δ_s (good buyers who abandon a ₹49 prompt), δ_bad, ρ and δ_p are estimated per segment from step-up and prepaid outcomes, using calibrated p as the instrument, with shrinkage segment → global → prior. Live estimates from <code>/v1/behaviour</code>; the simulation gives the world a hidden per-segment truth and scores prior vs learned vs oracle.</p>
+      <div class="kv" id="learnKv"></div>
+      <div id="learnTable"></div>
+    </div>
+  </div>
 </main>
 
 <!-- ============================== GRAPH ============================== -->
