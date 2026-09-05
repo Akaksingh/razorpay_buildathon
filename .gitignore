@@ -17,3 +17,6 @@ Thumbs.db
 .vscode/
 .idea/
 artifacts/data/*.jsonl
+
+# real-data run (scripts/14_real_data.py): downloaded source, replay pickles, models; the summary report is committed
+artifacts_real/

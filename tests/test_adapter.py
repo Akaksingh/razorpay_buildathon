@@ -49,3 +49,24 @@ def test_missing_required_column_is_explicit(tmp_path):
         assert "required columns" in str(e) and "customer_phone" in str(e)
     write_mapping_example(tmp_path / "m.json")
     assert json.loads((tmp_path / "m.json").read_text())["columns"]["order_id"] == "Order ID"
+
+
+def test_date_format_list_parses_mixed_columns(tmp_path):
+    """A real export mixed MM-DD-YY and MM-DD-YYYY in one column; every row must keep the first format that parses."""
+    import json
+    import pandas as pd
+    from chakrashield.data.adapter import load_merchant_orders, write_mapping_example
+
+    mp = tmp_path / "m.json"
+    write_mapping_example(mp)
+    mapping = json.loads(mp.read_text(encoding="utf-8"))
+    mapping["date_format"] = ["%m-%d-%y", "%m-%d-%Y"]
+    cols = mapping["columns"]
+    rows = [{cols["order_id"]: f"o{i}", cols["ts"]: d, cols["customer_phone"]: f"98765{i:05d}", cols["shipping_address"]: "12, MG Road, Pune",
+             cols["delivery_pin"]: "411001", cols["cart_gmv"]: 500 + i, cols["payment_method"]: "COD", cols["status"]: "Delivered"}
+            for i, d in enumerate(["04-30-22", "05-03-2022", "06-29-22", "03-31-2022"])]
+    csv = tmp_path / "x.csv"
+    pd.DataFrame(rows).to_csv(csv, index=False)
+    df, rep = load_merchant_orders(csv, mapping)
+    assert rep["dropped"]["unparseable_date"] == 0 and len(df) == 4
+    assert sorted(pd.to_datetime(df["ts"], unit="s").dt.strftime("%Y-%m-%d")) == ["2022-03-31", "2022-04-30", "2022-05-03", "2022-06-29"]

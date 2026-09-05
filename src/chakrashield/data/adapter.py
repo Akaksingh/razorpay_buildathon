@@ -46,7 +46,7 @@ MAPPING_EXAMPLE = {
     "channel_aliases": {"facebook": "META_ADS", "instagram": "META_ADS", "google": "GOOGLE_ADS", "affiliate": "AFFILIATE",
                         "influencer": "INFLUENCER", "whatsapp": "WHATSAPP", "amazon": "MARKETPLACE", "flipkart": "MARKETPLACE",
                         "direct": "DIRECT", "organic": "ORGANIC"},
-    "date_format": None,            # e.g. "%d/%m/%Y %H:%M"; None = infer element-wise, day first
+    "date_format": None,            # e.g. "%d/%m/%Y %H:%M" or a list tried in order; None = infer element-wise, day first
     "outcome_date_format": None,    # defaults to date_format
     "defaults": DEFAULTS,
 }
@@ -74,11 +74,17 @@ def load_merchant_orders(csv_path: str | Path, mapping: dict) -> tuple[pd.DataFr
             report["defaults_used"].append(name)
         return pd.Series([default] * len(raw), index=raw.index)
 
-    def parse_dates(s: pd.Series, fmt: str | None) -> pd.Series:
-        # an explicit format wins; otherwise parse element-wise, day-first (Indian exports are dd/mm/yyyy)
-        if fmt:
-            return pd.to_datetime(s, format=fmt, errors="coerce")
-        return pd.to_datetime(s, format="mixed", dayfirst=True, errors="coerce")
+    def parse_dates(s: pd.Series, fmt: str | list[str] | None) -> pd.Series:
+        # An explicit format wins; a list of formats is tried in order and each row keeps the first
+        # parse that succeeds (real exports mix "04-30-22" and "05-03-2022" in one column); with no
+        # format, parse element-wise day-first (Indian exports are dd/mm/yyyy).
+        if not fmt:
+            return pd.to_datetime(s, format="mixed", dayfirst=True, errors="coerce")
+        out = None
+        for f in ([fmt] if isinstance(fmt, str) else list(fmt)):
+            parsed = pd.to_datetime(s, format=f, errors="coerce")
+            out = parsed if out is None else out.fillna(parsed)
+        return out
 
     def epoch_seconds(s: pd.Series) -> pd.Series:
         return s.astype("datetime64[ns]").astype("int64") / 1e9      # resolution-safe (pandas 3 parses to [us])
@@ -108,7 +114,9 @@ def load_merchant_orders(csv_path: str | Path, mapping: dict) -> tuple[pd.DataFr
     coupon_raw = col("coupon_applied", "")
     coupon = coupon_raw.astype(str).str.strip().str.lower().map(lambda v: v not in ("", "0", "false", "no", "none", "nan"))
     hour = col("hour_of_day", "")
-    hour = pd.to_numeric(hour, errors="coerce").fillna(ts.dt.hour).astype(int)
+    # rows with an unparseable date are dropped below, but the hour is computed here for every row:
+    # never let a NaT turn into an integer-cast crash on a real export
+    hour = pd.to_numeric(hour, errors="coerce").fillna(ts.dt.hour).fillna(0).astype(int)
 
     df = pd.DataFrame({
         "order_id": col("order_id").astype(str), "ts": epoch_seconds(ts), "outcome_ts": epoch_seconds(outcome_ts),

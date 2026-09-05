@@ -1,0 +1,493 @@
+{
+  "source": {
+    "name": "Amazon India seller sale report, Q2 2022",
+    "url": "https://raw.githubusercontent.com/shivamverma26/Amazon_Sales_Analysis/main/Amazon%20Sale%20Report.csv",
+    "rows": 128976
+  },
+  "derivation": {
+    "rows_in": 128976,
+    "rows_with_amount_qty_pin": 113669,
+    "derived": {
+      "customer_phone": "sha1(order id): one customer per order line",
+      "shipping_address": "city, state PIN",
+      "weight_grams": "category proxy",
+      "payment_method": "constant COD (column absent)"
+    },
+    "absent": [
+      "customer identity",
+      "device / IP",
+      "street address",
+      "payment mode",
+      "order hour",
+      "coupon",
+      "checkout duration",
+      "merchant margin",
+      "CAC"
+    ],
+    "unused_columns": [
+      "Fulfilment",
+      "ship-service-level",
+      "Category",
+      "Size",
+      "Courier Status",
+      "B2B"
+    ]
+  },
+  "status_counts": {
+    "Shipped": 77815,
+    "Shipped - Delivered to Buyer": 28756,
+    "Cancelled": 18334,
+    "Shipped - Returned to Seller": 1954,
+    "Shipped - Picked Up": 973,
+    "Pending": 658,
+    "Pending - Waiting for Pick Up": 281,
+    "Shipped - Returning to Seller": 145,
+    "Shipped - Out for Delivery": 35,
+    "Shipped - Rejected by Buyer": 11,
+    "Shipping": 8,
+    "Shipped - Lost in Transit": 5,
+    "Shipped - Damaged": 1
+  },
+  "ingest": {
+    "rows_in": 113669,
+    "defaults_used": [
+      "cac",
+      "card_token",
+      "checkout_seconds",
+      "coupon_applied",
+      "customer_email",
+      "device_fingerprint",
+      "hour_of_day",
+      "ip",
+      "merchant_margin",
+      "outcome_ts",
+      "payment_switch_from",
+      "vpa"
+    ],
+    "dropped": {
+      "unparseable_date": 0,
+      "unlabelled_status": 83588,
+      "bad_amount_or_pin": 0
+    },
+    "rows_out": 30081,
+    "cod_share": 1.0,
+    "cod_rto_rate": 0.06831554802034506
+  },
+  "world": {
+    "orders": 30081,
+    "phones": 27737,
+    "devices": 27737,
+    "cod_share": 1.0,
+    "cod_rto_rate": 0.06831554802034506,
+    "rto_by_cohort": {
+      "unknown": 0.06831554802034506
+    },
+    "graph": {
+      "nodes": 62676,
+      "components": 19110,
+      "rings": 24,
+      "ring_phones": 118,
+      "largest_component": 11,
+      "shared_entities": 163,
+      "non_bridging_addresses": 1134,
+      "guard": true,
+      "orders_ingested": 27739
+    },
+    "top_rings": [
+      {
+        "ring_id": "phone:6583bdc884d44651",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 8,
+        "rto": 5,
+        "delivered": 3,
+        "rto_rate": 0.625,
+        "gmv": 4214.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:2fa755ec7a277883",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 6,
+        "rto": 5,
+        "delivered": 1,
+        "rto_rate": 0.8333,
+        "gmv": 4539.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:73f243c2279bb0bd",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 6,
+        "rto": 4,
+        "delivered": 2,
+        "rto_rate": 0.6667,
+        "gmv": 9613.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:95588a9afedf4bff",
+        "size": 9,
+        "phones": 4,
+        "devices": 4,
+        "addrs": 1,
+        "orders": 6,
+        "rto": 4,
+        "delivered": 2,
+        "rto_rate": 0.6667,
+        "gmv": 3651.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:ad2d58f0ab67b94f",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 7,
+        "rto": 4,
+        "delivered": 3,
+        "rto_rate": 0.5714,
+        "gmv": 3332.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:d73fd2bbd74ad3aa",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 7,
+        "rto": 4,
+        "delivered": 3,
+        "rto_rate": 0.5714,
+        "gmv": 5443.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:07afaac7bf4e9efd",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 7,
+        "rto": 4,
+        "delivered": 3,
+        "rto_rate": 0.5714,
+        "gmv": 3434.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:ad6ec64ba758530a",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 6,
+        "rto": 3,
+        "delivered": 3,
+        "rto_rate": 0.5,
+        "gmv": 4602.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:bde6fdc1f18955fa",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 5,
+        "rto": 3,
+        "delivered": 2,
+        "rto_rate": 0.6,
+        "gmv": 3005.0,
+        "is_ring": true
+      },
+      {
+        "ring_id": "phone:916eeffe150928b8",
+        "size": 11,
+        "phones": 5,
+        "devices": 5,
+        "addrs": 1,
+        "orders": 5,
+        "rto": 3,
+        "delivered": 2,
+        "rto_rate": 0.6,
+        "gmv": 3664.0,
+        "is_ring": true
+      }
+    ],
+    "clock_ts": 1656892800.0,
+    "source": "amazon_india_q2_2022",
+    "derivation": {
+      "rows_in": 128976,
+      "rows_with_amount_qty_pin": 113669,
+      "derived": {
+        "customer_phone": "sha1(order id): one customer per order line",
+        "shipping_address": "city, state PIN",
+        "weight_grams": "category proxy",
+        "payment_method": "constant COD (column absent)"
+      },
+      "absent": [
+        "customer identity",
+        "device / IP",
+        "street address",
+        "payment mode",
+        "order hour",
+        "coupon",
+        "checkout duration",
+        "merchant margin",
+        "CAC"
+      ],
+      "unused_columns": [
+        "Fulfilment",
+        "ship-service-level",
+        "Category",
+        "Size",
+        "Courier Status",
+        "B2B"
+      ],
+      "status_counts": {
+        "Shipped": 77815,
+        "Shipped - Delivered to Buyer": 28756,
+        "Cancelled": 18334,
+        "Shipped - Returned to Seller": 1954,
+        "Shipped - Picked Up": 973,
+        "Pending": 658,
+        "Pending - Waiting for Pick Up": 281,
+        "Shipped - Returning to Seller": 145,
+        "Shipped - Out for Delivery": 35,
+        "Shipped - Rejected by Buyer": 11,
+        "Shipping": 8,
+        "Shipped - Lost in Transit": 5,
+        "Shipped - Damaged": 1
+      }
+    }
+  },
+  "model": {
+    "gamma": 0.5,
+    "auc": 0.5486884527498669,
+    "pr_auc": 0.08501413785894334,
+    "brier": 0.07067757398406029,
+    "ece_raw": 0.015883077546313056,
+    "ece_calibrated": 0.008423656553560536,
+    "best_iter": 52,
+    "conformal": {
+      "alpha": 0.1,
+      "coverage_class0": 0.9031677465802735,
+      "coverage_class1": 0.9869565217391304,
+      "coverage_marginal": 0.9095744680851063,
+      "frac_singleton": 0.11136968085106383,
+      "frac_ambiguous": 0.8886303191489362,
+      "frac_empty": 0.0,
+      "q0": 0.08846153846153848,
+      "q1": 0.9666666666666667
+    }
+  },
+  "candidates": [
+    {
+      "tag": "cand_g00",
+      "gamma": 0.0,
+      "best_iter": 38,
+      "auc": 0.5628830563120167,
+      "pr_auc": 0.08768366067232343,
+      "ece_calibrated": 0.009465605387354296,
+      "valid_weighted_logloss": 0.25297076514767836,
+      "valid_pnl_full": 280479.32248975,
+      "selected": false,
+      "version": "c3c261b3016a"
+    },
+    {
+      "tag": "cand_g05",
+      "gamma": 0.5,
+      "best_iter": 52,
+      "auc": 0.5486884527498669,
+      "pr_auc": 0.08501413785894334,
+      "ece_calibrated": 0.008423656553560536,
+      "valid_weighted_logloss": 0.25473955580293156,
+      "valid_pnl_full": 285231.34498575,
+      "selected": true,
+      "version": "042595358875"
+    },
+    {
+      "tag": "cand_g10",
+      "gamma": 1.0,
+      "best_iter": 53,
+      "auc": 0.5431628947945033,
+      "pr_auc": 0.0863165433120605,
+      "ece_calibrated": 0.00783635645924741,
+      "valid_weighted_logloss": 0.2534887685512707,
+      "valid_pnl_full": 284941.16406181245,
+      "selected": false,
+      "version": "849ba92761e2"
+    }
+  ],
+  "onnx_parity": 1.865015280405613e-07,
+  "feature_importance_top": {
+    "gmv_vs_pin_median": 1549.0969293117523,
+    "gmv_log": 1462.165999531746,
+    "pin_rto_rate": 956.7089134454727,
+    "pin_serviceability": 880.0098571777344,
+    "pin_orders_log": 574.9463084936142,
+    "addr_distinct_phones": 546.8493902683258,
+    "addr_rto_rate": 525.976380109787,
+    "addr_defect_score": 196.22123992443085
+  },
+  "evaluation": {
+    "test_orders": 3008,
+    "test_gmv": 2064317.0,
+    "test_rto_rate": 0.0764627659574468,
+    "policies": {
+      "ALLOW_ALL": {
+        "pnl_total": 275553.00499999995,
+        "delta_vs_allow_all": 0.0,
+        "actions": {
+          "ALLOW_COD": 3008,
+          "STEP_UP_DEPOSIT": 0,
+          "FORCE_PREPAID": 0
+        },
+        "good_customers_lost_expected": 0.0,
+        "rto_shipped_expected": 230.0
+      },
+      "BASE@0.5": {
+        "pnl_total": 275553.00499999995,
+        "delta_vs_allow_all": 0.0,
+        "actions": {
+          "ALLOW_COD": 3008,
+          "STEP_UP_DEPOSIT": 0,
+          "FORCE_PREPAID": 0
+        },
+        "good_customers_lost_expected": 0.0,
+        "rto_shipped_expected": 230.0
+      },
+      "BASE@F1": {
+        "pnl_total": 194086.2480968,
+        "delta_vs_allow_all": -81466.75690319994,
+        "actions": {
+          "ALLOW_COD": 1826,
+          "STEP_UP_DEPOSIT": 0,
+          "FORCE_PREPAID": 1182
+        },
+        "good_customers_lost_expected": 406.6,
+        "rto_shipped_expected": 124.47376
+      },
+      "BASE@GLOBAL_COST": {
+        "pnl_total": 275553.00499999995,
+        "delta_vs_allow_all": 0.0,
+        "actions": {
+          "ALLOW_COD": 3008,
+          "STEP_UP_DEPOSIT": 0,
+          "FORCE_PREPAID": 0
+        },
+        "good_customers_lost_expected": 0.0,
+        "rto_shipped_expected": 230.0
+      },
+      "BASE@TAU*(x)": {
+        "pnl_total": 275553.00499999995,
+        "delta_vs_allow_all": 0.0,
+        "actions": {
+          "ALLOW_COD": 3008,
+          "STEP_UP_DEPOSIT": 0,
+          "FORCE_PREPAID": 0
+        },
+        "good_customers_lost_expected": 0.0,
+        "rto_shipped_expected": 230.0
+      },
+      "CHAKRA@TAU*(x)": {
+        "pnl_total": 275553.00499999995,
+        "delta_vs_allow_all": 0.0,
+        "actions": {
+          "ALLOW_COD": 3008,
+          "STEP_UP_DEPOSIT": 0,
+          "FORCE_PREPAID": 0
+        },
+        "good_customers_lost_expected": 0.0,
+        "rto_shipped_expected": 230.0
+      },
+      "CHAKRA_FULL": {
+        "pnl_total": 272970.0696355625,
+        "delta_vs_allow_all": -2582.935364437464,
+        "actions": {
+          "ALLOW_COD": 2713,
+          "STEP_UP_DEPOSIT": 295,
+          "FORCE_PREPAID": 0
+        },
+        "good_customers_lost_expected": 29.700000000000003,
+        "rto_shipped_expected": 208.859625
+      },
+      "CHAKRA_FULL@F<=30%": {
+        "pnl_total": 272970.0696355625,
+        "delta_vs_allow_all": -2582.935364437464,
+        "actions": {
+          "ALLOW_COD": 2713,
+          "STEP_UP_DEPOSIT": 295,
+          "FORCE_PREPAID": 0
+        },
+        "good_customers_lost_expected": 29.700000000000003,
+        "rto_shipped_expected": 208.859625
+      },
+      "ORACLE": {
+        "pnl_total": 343478.42292239994,
+        "delta_vs_allow_all": 67925.4179224,
+        "actions": {
+          "ALLOW_COD": 2778,
+          "STEP_UP_DEPOSIT": 10,
+          "FORCE_PREPAID": 220
+        },
+        "good_customers_lost_expected": 0.0,
+        "rto_shipped_expected": 14.207697500000002
+      }
+    },
+    "conformal_test": {
+      "alpha": 0.1,
+      "coverage_class0": 0.9031677465802735,
+      "coverage_class1": 0.9869565217391304,
+      "coverage_marginal": 0.9095744680851063,
+      "frac_singleton": 0.11136968085106383,
+      "frac_ambiguous": 0.8886303191489362,
+      "frac_empty": 0.0,
+      "q0": 0.08846153846153848,
+      "q1": 0.9666666666666667
+    },
+    "certainty": {
+      "CERTIFIED_LOW": {
+        "n": 41,
+        "rto_rate": 0.07317073170731707
+      },
+      "AMBIGUOUS": {
+        "n": 2673,
+        "rto_rate": 0.07557052001496446
+      },
+      "CERTIFIED_HIGH": {
+        "n": 294,
+        "rto_rate": 0.08503401360544217
+      },
+      "NOVEL": {
+        "n": 0,
+        "rto_rate": 0.0
+      }
+    },
+    "thresholds": {
+      "f1_optimal": 0.08072916666666667,
+      "global_cost_optimal": 0.13
+    },
+    "friction_budget": {
+      "budget": 0.3,
+      "lambda": 0,
+      "policy": "CHAKRA_FULL@F<=30%",
+      "test_friction_share": 0.09807180851063835
+    },
+    "sensitivity_wins": [
+      3,
+      15
+    ]
+  }
+}

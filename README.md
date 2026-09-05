@@ -60,7 +60,7 @@ hostels / offices / PGs with 581 resident phones. Test split = the chronological
 | ε-greedy control band + IPW retraining | survivor-only retraining collapses in cycle 3 (train RTO rate 28 % → 10.5 %, boundary gap **+0.585**, ECE 0.173); with a 5 % band and cap-20 weights worst-cycle ECE is **0.060**, boundary gap ≤ 0.13, for ₹72,868 on 756 control orders |
 | Per-segment buyer-response learner (δ_s, δ_bad, ρ, δ_p) | prior wrong by 2× (the new-merchant case): learner recovers **62 %** of the gap to the oracle, mean \|δ_s error\| **0.160 → 0.056** over 25 segments; prior right on average: neutral (oracle gap is ₹8k on 7,751 orders) |
 | Conformal drift monitor (label-free) | festival world (paid-social surge, 2× rings, +0.6 logit RTO): ECE 0.013 → **0.100**, monitor raises **MODEL_SCORE_PSI within 300 orders**; same-regime control world stays **OK**; recalibration on the first 30 % restores coverage to 92.5 % / 90.8 % |
-| Merchant CSV adapter | mapping file + explicit defaults; synthetic world exported merchant-style round-trips with exact label, phone, channel and payment parity |
+| Merchant CSV adapter, and a real export through it | mapping file + explicit defaults; synthetic round-trip is exact. On 30,081 real Amazon India orders (Q2 2022, 6.8 % returned; no customer/device/address/payment fields) the scorer reaches only AUC 0.55 and the cost-aware policies correctly do nothing while an F1 cut-off loses ₹81k on 3,008 test orders — the pipeline is a drop-in; the signal has to come from the merchant's own fields |
 | Visa CE 3.0 dispute compiler | deterministic 120–365-day window + two-element hash match · SHA-256 evidence packet, no LLM |
 | FastAPI risk gateway (`explain=auto`: TreeSHAP only when friction is applied) | in-process **p50 1.90 ms / p99 2.97 ms**, mean **1.56 ms** vs 2.12 ms with every order explained (−26 % CPU per request) · HTTP p99 5.26 ms · **0 of 3,000** calls breached the 25 ms budget in either mode |
 | Console: checkout simulator, merchant P&L, ring visualizer, disputes, model health | rendered in headless Chrome, 0 JS errors |
@@ -355,6 +355,41 @@ sharing is fuzzier than exact device / address matches (rotating handsets, near-
 typed union-find cannot merge and a message-passing model can. Runtime 617 s on CPU, 475 s of it the five-fold
 cross-fit; report in `artifacts/reports/gnn_embeddings.json`.
 
+### Real data: Amazon India seller report, Q2 2022
+
+`scripts/14_real_data.py` downloads a public seller export (Kaggle "Unlock Profits with E-Commerce Sales Data":
+128,976 Amazon.in order lines, 31 Mar – 29 Jun 2022, with real PIN codes, basket values and final outcomes
+including *Rejected by Buyer* and *Returned to Seller*), maps it through the merchant CSV adapter with
+`config/amazon_sale_report.mapping.json`, and runs replay → train → evaluate unchanged into `artifacts_real/`.
+The export has no customer, device, street-address or payment-mode fields and no order hour, so every order
+is a new customer with a city/state/PIN address, weight is a category proxy, margin and CAC are the repo
+defaults, and the label is *return-to-seller risk on marketplace orders* rather than pure COD refusal.
+30,081 orders carry a final outcome (6.8 % returned); the first run also found and fixed two adapter gaps a
+real file exposes (mixed `MM-DD-YY` / `MM-DD-YYYY` dates in one column, and an unparseable date crashing the
+hour cast).
+
+| On 3,008 test orders (7.6 % returned) | result |
+|---|---|
+| Scorer (γ = 0.5 chosen on validation; γ = 0 has AUC 0.563) | AUC **0.549** · PR-AUC 0.085 against a 0.076 base rate · ECE 0.016 → **0.008** after isotonic |
+| What carried the little signal there was | basket value vs the PIN's median, basket size, the point-in-time PIN return rate and serviceability, city-level return rate |
+| Conformal sets, α = 0.10 | coverage 90.3 % / 98.7 %, but 88.9 % of sets are ambiguous and the "certified-high" group returns at 8.5 % vs 7.3 % for "certified-low" — the sets are honest about a model that cannot separate the classes |
+| `ALLOW_ALL`, `BASE@0.5`, `BASE@GLOBAL_COST`, `BASE@TAU*(x)` | identical: no order's return probability reaches any cost-aware cut-off, so every cost-aware policy correctly does nothing |
+| `BASE@F1` (the accuracy mindset, cut-off 0.08) | blocks 1,182 of 3,008 orders and **loses ₹81,467** (−30 %) |
+| `CHAKRA_FULL` | steps up 295 orders, prevents 21 returns, loses 30 good buyers: **−₹2,583 (−0.9 %)** vs doing nothing |
+| `ORACLE` | +₹67,925 (+25 %) — the headroom that exists if the features existed |
+
+Two things this run proves and one it does not. It proves the pipeline is a drop-in for a real export
+(19 s end to end, zero code changes beyond the mapping file), and that the decision layer degrades safely:
+with an uninformative scorer, τ*(x) and the friction budget refuse to intervene while the F1-style
+threshold burns a third of the margin. It does not show the engine protecting money on real orders — and it
+cannot on this export, because the signal ChakraShield is built on (address structure, phone and device
+velocity, ring membership, payment fallback) is exactly what a marketplace report omits. The −0.9 % from the
+soft step-ups is what the ε control band and the buyer-response learner are for: on a real merchant the first
+weeks run in shadow mode, and δ_s and ρ are measured before a single deposit is asked for. Summary in
+`artifacts/reports/real_amazon_2022.json`; the 24 "rings" the graph reports there are city-level address
+nodes bridging a few pseudo-customers, not syndicates — a reminder that a graph without real identity keys
+finds geography.
+
 ## Run it
 
 ```powershell
@@ -371,6 +406,7 @@ python scripts/10_learn_behaviour.py   # prior vs learned vs oracle buyer respon
 python scripts/11_gnn_ring_embeddings.py   # GraphSAGE vs union-find ring detection, stacking check (~10 min CPU)
 python scripts/12_conformal_variants.py    # conformal alpha x conditioning sweep with resolver P&L
 python scripts/13_load_test.py             # real HTTP throughput and tail latency under concurrency
+python scripts/14_real_data.py             # public Amazon India seller export through the adapter and the whole pipeline
 python -m pytest tests
 python scripts/serve.py --port 8080    # http://127.0.0.1:8080
 python scripts/ingest_csv.py --csv export.csv --mapping config/merchant_schema.example.json   # real data
@@ -503,7 +539,9 @@ config/                     merchant_schema.example.json
 * The world is synthetic. Its causal structure (address quality, PIN tier, paid channels, payment fallback,
   ring membership, shared hostels) mirrors what practitioners report, but absolute rupee numbers are
   illustrative; the *ranking* of policies and the mechanics are what transfer. The CSV adapter is the path to
-  a merchant's own numbers.
+  a merchant's own numbers. The one real export that has been through it (Amazon India, above) lacks every
+  identity and address field, so it validates the plumbing and the safe-degradation behaviour, not the P&L
+  claim; that claim needs a D2C merchant's own order log.
 * The learner, the control band and the drift monitor were validated on simulated outcomes drawn from hidden
   truths; the simulations are honest about where each helps (a wrong prior; a rolling retraining window; a
   regime change) and where it does not (a prior that was already right).

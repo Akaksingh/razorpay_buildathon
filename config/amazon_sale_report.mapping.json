@@ -1,0 +1,52 @@
+{
+  "_source": "Amazon India seller sale report, Q2 2022 (Kaggle: 'Unlock Profits with E-Commerce Sales Data'; mirror: github.com/shivamverma26/Amazon_Sales_Analysis). Derived columns are produced by scripts/14_real_data.py before this mapping is applied.",
+  "columns": {
+    "order_id": "Order ID",
+    "ts": "Date",
+    "customer_phone": "Derived Phone",
+    "shipping_address": "Derived Address",
+    "delivery_pin": "ship-postal-code",
+    "cart_gmv": "Amount",
+    "items_count": "Qty",
+    "weight_grams": "Derived Weight (g)",
+    "payment_method": "Derived Payment Mode",
+    "acquisition_channel": "Sales Channel",
+    "status": "Status"
+  },
+  "status": {
+    "rto": [
+      "Shipped - Returned to Seller",
+      "Shipped - Returning to Seller",
+      "Shipped - Rejected by Buyer",
+      "Shipped - Lost in Transit",
+      "Shipped - Damaged"
+    ],
+    "delivered": [
+      "Shipped - Delivered to Buyer"
+    ],
+    "drop": [
+      "Shipped",
+      "Cancelled",
+      "Pending",
+      "Pending - Waiting for Pick Up",
+      "Shipped - Picked Up",
+      "Shipped - Out for Delivery",
+      "Shipping"
+    ]
+  },
+  "channel_aliases": {
+    "amazon.in": "MARKETPLACE",
+    "non-amazon": "DIRECT"
+  },
+  "date_format": ["%m-%d-%y", "%m-%d-%Y"],
+  "defaults": {
+    "items_count": 1,
+    "weight_grams": 400.0,
+    "acquisition_channel": "MARKETPLACE",
+    "coupon_applied": false,
+    "checkout_seconds": 90.0,
+    "merchant_margin": 0.18,
+    "cac": 300.0,
+    "outcome_lag_days": 6.0
+  }
+}
