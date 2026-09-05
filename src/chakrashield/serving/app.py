@@ -27,6 +27,7 @@ from ..dispute.ce3 import TransactionLedger, compile_ce3
 from ..features.vectorizer import hydrate
 from ..features.velocity import record_order, record_outcome
 from ..graph.syndicate import SyndicateGraph
+from ..monitoring.drift import ConformalDriftMonitor, DriftBaseline
 from ..policy.economics import TransactionContext
 from ..policy.reason_codes import reason_codes
 from ..policy.resolver import ALLOW, DynamicRiskResolver
@@ -52,6 +53,7 @@ class State:
     ingested: int = 0
     outcomes: dict[str, dict] = field(default_factory=dict)   # order_id -> hashes for outcome recording
     started_at: float = 0.0
+    drift: ConformalDriftMonitor | None = None
 
 
 state = State()
@@ -84,6 +86,9 @@ async def lifespan(app: FastAPI):
             setattr(state, attr, json.loads(p.read_text(encoding="utf-8")))
     if (DATA_DIR / "world.json").exists():
         state.world = json.loads((DATA_DIR / "world.json").read_text(encoding="utf-8"))
+
+    conf = state.scorer.conformal
+    state.drift = ConformalDriftMonitor(state.store, DriftBaseline.from_reports(state.report, q0=conf.q0, q1=conf.q1))
 
     state.queue = asyncio.Queue(maxsize=10_000)
     state.worker_task = asyncio.create_task(_graph_worker())
@@ -155,6 +160,11 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
         holding_cost=req.holding_cost, friction_shadow_price=lam,
     )
     dec = DynamicRiskResolver.resolve_action(ctx, sc.conformal_set)
+    if state.drift is not None:
+        try:
+            state.drift.record(dec.certainty, sc.p_loss)       # one HINCRBY; label-free drift signal
+        except Exception:
+            pass
     # TreeSHAP is ~2/3 of the request cost. In "auto" mode it runs only when the decision applies
     # friction: an ALLOW needs no defence, a step-up or a block must carry reason codes.
     contribs, bias, shap_ms = sc.contribs, sc.bias, sc.timings_ms.get("treeshap", 0.0)
@@ -255,7 +265,15 @@ async def ce3_candidates(n: int = 8):
 
 @app.get("/v1/graph/rings")
 async def graph_rings(top: int = 25):
-    return {"stats": state.graph.stats(), "rings": state.graph.rings(top=top)}
+    return {"stats": state.graph.stats(), "rings": state.graph.rings(top=top), "shared_entities": state.graph.shared_entities(top=10)}
+
+
+@app.get("/v1/monitor/drift")
+async def monitor_drift():
+    """Label-free drift status from conformal set dynamics over the last hour of 5-minute windows."""
+    if state.drift is None:
+        raise HTTPException(503, "monitor not initialised")
+    return state.drift.snapshot()
 
 
 @app.get("/v1/graph/subgraph")
@@ -315,6 +333,7 @@ async def healthz():
         "live_ingested": state.ingested, "queue_depth": state.queue.qsize() if state.queue else 0,
         "clock": pd.Timestamp(state.clock_ts, unit="s").isoformat(), "uptime_s": round(time.time() - state.started_at, 1),
         "latency_budget_ms": LATENCY_BUDGET_MS, "alpha": CONFORMAL_ALPHA,
+        "drift_status": state.drift.snapshot()["status"] if state.drift else None,
     }
 
 
