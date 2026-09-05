@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChakraShield</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="chakra" aria-hidden="true"></span>
+    <span class="wordmark">ChakraShield</span>
+    <span class="sub">In-line Dynamic Checkout Intervenor &amp; Subgraph Abuse Sentinel</span>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-view="checkout" role="tab">Checkout Simulator</button>
+    <button class="tab" data-view="console" role="tab">Merchant Console</button>
+    <button class="tab" data-view="graph" role="tab">Ring Visualizer</button>
+    <button class="tab" data-view="dispute" role="tab">CE3.0 Disputes</button>
+  </nav>
+  <div class="health" id="health"><span class="dot"></span><span id="healthText">connecting…</span></div>
+</header>
+
+<!-- ============================== CHECKOUT ============================== -->
+<main id="view-checkout" class="view active">
+  <section class="col left">
+    <div class="card">
+      <div class="card-head">
+        <h2>Buyer checkout</h2>
+        <div class="chips" id="scenarioChips"></div>
+      </div>
+      <div class="picker">
+        <span class="muted">Load a real historical order:</span>
+        <button class="ghost" data-cohort="legit">legit</button>
+        <button class="ghost" data-cohort="impulse">impulse</button>
+        <button class="ghost" data-cohort="ring">syndicate</button>
+      </div>
+      <form id="checkoutForm" class="form" autocomplete="off">
+        <div class="row2">
+          <label>Phone<input name="customer_phone" value="9876501234" required></label>
+          <label>Delivery PIN<input name="delivery_pin" value="560034" maxlength="6" required></label>
+        </div>
+        <label>Shipping address<textarea name="shipping_address" rows="2">Flat 1203, Prestige Lakeside, Koramangala 5th Block, Bengaluru 560034</textarea></label>
+        <div class="row3">
+          <label>Cart GMV (₹)<input name="cart_gmv" type="number" value="1499" min="1"></label>
+          <label>Items<input name="items_count" type="number" value="1" min="1"></label>
+          <label>Weight (g)<input name="weight_grams" type="number" value="450" min="1"></label>
+        </div>
+        <div class="row2">
+          <label>Device fingerprint<input name="device_fingerprint_hash" value="fp_demo_returning_01"></label>
+          <label>Acquisition channel
+            <select name="acquisition_channel">
+              <option>ORGANIC</option><option>DIRECT</option><option>WHATSAPP</option><option>GOOGLE_ADS</option>
+              <option>MARKETPLACE</option><option>META_ADS</option><option>INFLUENCER</option><option>AFFILIATE</option>
+            </select></label>
+        </div>
+        <div class="row3">
+          <label>Payment
+            <select name="payment_method"><option>COD</option><option>UPI</option><option>CARD</option></select></label>
+          <label>Switched from
+            <select name="payment_switch_from"><option value="">—</option><option>CARD_FAILED</option><option>UPI_FAILED</option></select></label>
+          <label>Hour of day<input name="hour_of_day" type="number" value="14" min="0" max="23"></label>
+        </div>
+        <div class="row3">
+          <label>Checkout seconds<input name="checkout_seconds" type="number" value="95" min="0"></label>
+          <label>Margin (M)<input name="merchant_margin" type="number" value="0.18" step="0.01" min="0" max="1"></label>
+          <label>CAC (₹)<input name="cac" type="number" value="120" min="0"></label>
+        </div>
+        <div class="row3 checks">
+          <label class="check"><input name="coupon_applied" type="checkbox"> Coupon applied</label>
+          <label class="check"><input name="is_new_customer" type="checkbox"> First order (new customer)</label>
+          <label class="check"><input name="commit" type="checkbox" checked> Push to graph observer</label>
+        </div>
+        <button class="primary" type="submit" id="placeOrder">Place order · Cash on Delivery</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="col right">
+    <div class="card decision" id="decisionCard">
+      <div class="empty" id="decisionEmpty">Submit a checkout to see the intervention decision.</div>
+      <div id="decisionBody" hidden>
+        <div class="banner" id="banner">
+          <span class="icon" id="bannerIcon"></span>
+          <div>
+            <div class="action" id="bannerAction"></div>
+            <div class="label" id="bannerLabel"></div>
+          </div>
+          <div class="lat" id="bannerLatency"></div>
+        </div>
+        <div class="buyer-ux" id="buyerUx"></div>
+        <p class="rationale" id="rationale"></p>
+
+        <div class="grid2">
+          <div class="panel">
+            <h3>Risk vs. the merchant’s own indifference points</h3>
+            <div class="meter-wrap" id="thresholdMeter"></div>
+            <div class="kv" id="thresholdKv"></div>
+          </div>
+          <div class="panel">
+            <h3>Conformal prediction set <span class="muted" id="alphaText"></span></h3>
+            <div class="cset" id="csetChips"></div>
+            <div class="kv" id="csetKv"></div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <h3>Expected loss by action <span class="muted">(₹, lower is better)</span></h3>
+            <div class="chart" id="costChart"></div>
+          </div>
+          <div class="panel">
+            <h3>Reason codes <span class="muted">(exact TreeSHAP, log-odds)</span></h3>
+            <div class="reasons" id="reasons"></div>
+          </div>
+        </div>
+
+        <div class="grid3">
+          <div class="panel">
+            <h3>Unit economics</h3>
+            <div class="kv" id="econKv"></div>
+          </div>
+          <div class="panel">
+            <h3>Graph context</h3>
+            <div class="kv" id="graphKv"></div>
+            <button class="ghost small" id="viewRing" hidden>View subgraph →</button>
+          </div>
+          <div class="panel">
+            <h3>Address signals</h3>
+            <div class="kv" id="addrKv"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Latency budget <span class="muted" id="latencyBudgetText"></span></h3>
+          <div class="chart" id="latencyChart"></div>
+        </div>
+        <details class="raw"><summary>Raw response JSON</summary><pre id="rawJson"></pre></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============================== CONSOLE ============================== -->
+<main id="view-console" class="view">
+  <div class="kpis" id="kpis"></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Profit waterfall vs. no risk engine</h2><span class="muted" id="wfSub"></span></div>
+      <div class="chart tall" id="waterfall"></div>
+      <details class="table-view"><summary>Table view</summary><div id="waterfallTable"></div></details>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Action mix by policy</h2><span class="muted">share of test orders</span></div>
+      <div class="legend" id="mixLegend"></div>
+      <div class="chart tall" id="mixChart"></div>
+      <details class="table-view"><summary>Table view</summary><div id="mixTable"></div></details>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Robustness to buyer behaviour the resolver does not know</h2>
+        <span class="muted" id="sensSub"></span></div>
+      <p class="muted small">Cell = ₹ advantage of CHAKRA_FULL over the best binary-threshold policy under that behaviour. Rows: share of good buyers who abandon at the ₹49 prompt. Columns: share of would-be-RTO buyers who abandon.</p>
+      <div class="chart" id="sensHeat"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Calibration on the chronological test split</h2><span class="muted">observed RTO rate per predicted-probability decile</span></div>
+      <div class="chart" id="calibChart"></div>
+      <div class="kv" id="modelKv"></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Instance-dependent threshold τ*(x)</h2><span class="muted">why one global cut-off is wrong</span></div>
+      <div class="chart" id="tauHist"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Conformal certainty on test orders</h2><span class="muted" id="certSub"></span></div>
+      <div id="certTable"></div>
+      <div class="kv" id="latencyKv"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============================== GRAPH ============================== -->
+<main id="view-graph" class="view">
+  <div class="grid-graph">
+    <div class="card">
+      <div class="card-head"><h2>Detected syndicate rings</h2><span class="muted" id="ringStats"></span></div>
+      <p class="muted small">A ring is a connected component where phones outnumber devices or addresses by ≥2.5×. Click a row to render its subgraph.</p>
+      <div id="ringTable"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2 id="sgTitle">Subgraph</h2><span class="muted" id="sgSub"></span></div>
+      <div class="legend" id="sgLegend"></div>
+      <canvas id="sgCanvas" width="900" height="560"></canvas>
+      <div class="kv" id="sgRing"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============================== DISPUTE ============================== -->
+<main id="view-dispute" class="view">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Visa CE3.0 evidence compiler</h2><span class="muted">deterministic hash matching — no LLM</span></div>
+      <p class="muted small">Pick a disputed card transaction. The compiler searches the ledger for ≥2 undisputed prior transactions 120–365 days before the dispute that share ≥2 data elements (one of which is IP or device) with the disputed one.</p>
+      <div class="row2">
+        <label>Transaction ID<input id="txnId" placeholder="ord_…"></label>
+        <label>Dispute date<input id="disputeDate" type="date"></label>
+      </div>
+      <button class="primary" id="compileBtn">Compile evidence packet</button>
+      <h3 class="mt">Candidates with prior history</h3>
+      <div id="candTable"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Evidence packet</h2><span class="muted" id="packetHash"></span></div>
+      <div id="ce3Result" class="empty">No packet compiled yet.</div>
+      <details class="raw"><summary>Raw packet JSON</summary><pre id="ce3Json"></pre></details>
+    </div>
+  </div>
+</main>
+
+<div id="tooltip" class="tooltip" hidden></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

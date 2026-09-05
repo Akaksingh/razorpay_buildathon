@@ -1,0 +1,49 @@
+{
+  "n_inprocess": 3000,
+  "n_http": 1000,
+  "budget_ms": 25.0,
+  "scorer_backend": "onnxruntime",
+  "store_backend": "memory",
+  "inprocess_ms": {
+    "p50": 2.8835999983130023,
+    "p95": 3.3224649992916957,
+    "p99": 3.8636559995938917,
+    "max": 13.00920000358019,
+    "mean": 2.8337233334289826
+  },
+  "http_ms": {
+    "p50": 4.974850002327003,
+    "p95": 5.532414998015156,
+    "p99": 6.475951999236713,
+    "max": 11.35420000355225
+  },
+  "stages_ms_p50": {
+    "hydrate.hash": 0.056,
+    "hydrate.address": 0.324,
+    "hydrate.velocity": 0.087,
+    "hydrate.graph": 0.031,
+    "hydrate.vectorize": 0.048,
+    "score.onnx_infer": 0.134,
+    "score.calibrate_conformal": 0.071,
+    "score.treeshap": 1.878,
+    "hydrate_total": 0.561,
+    "score_total": 2.09,
+    "resolve_explain": 0.133,
+    "total": 2.783
+  },
+  "stages_ms_p99": {
+    "hydrate.hash": 0.14400999999999975,
+    "hydrate.address": 0.4960099999999998,
+    "hydrate.velocity": 0.176,
+    "hydrate.graph": 0.076,
+    "hydrate.vectorize": 0.106,
+    "score.onnx_infer": 0.43803999999999904,
+    "score.calibrate_conformal": 0.1550799999999981,
+    "score.treeshap": 2.254049999999999,
+    "hydrate_total": 0.9210399999999991,
+    "score_total": 2.713,
+    "resolve_explain": 0.3070799999999981,
+    "total": 3.7401899999999957
+  },
+  "budget_breaches_inprocess": 0
+}

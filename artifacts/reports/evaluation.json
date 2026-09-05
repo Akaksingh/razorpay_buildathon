@@ -1,0 +1,730 @@
+{
+  "test_orders": 3868,
+  "test_rto_rate": 0.21070320579110652,
+  "test_gmv": 5140358.0,
+  "thresholds": {
+    "f1_optimal": 0.30325385984414177,
+    "global_cost_optimal": 0.21999999999999997
+  },
+  "behaviour_sim": {
+    "stepup_good_abandon": 0.11,
+    "stepup_bad_abandon": 0.65,
+    "stepup_rto_residual": 0.1,
+    "prepaid_good_abandon": 0.38,
+    "prepaid_bad_abandon": 0.85,
+    "prepaid_rto_residual": 0.04,
+    "deposit": 49.0,
+    "friction_cost": 6.0,
+    "prepaid_rto_unit_cost": 60.0
+  },
+  "policies": {
+    "ALLOW_ALL": {
+      "n": 3868,
+      "pnl_total": 429851.58999999997,
+      "pnl_per_order": 111.13019389865563,
+      "pnl_per_1000_gmv": 83.62288968978424,
+      "actions": {
+        "ALLOW_COD": 3868,
+        "STEP_UP_DEPOSIT": 0,
+        "FORCE_PREPAID": 0
+      },
+      "action_share": {
+        "ALLOW_COD": 1.0,
+        "STEP_UP_DEPOSIT": 0.0,
+        "FORCE_PREPAID": 0.0
+      },
+      "rto_shipped_expected": 815.0,
+      "rto_prevented_expected": 0.0,
+      "good_customers_lost_expected": 0.0,
+      "good_frictioned": 0,
+      "bad_frictioned": 0,
+      "pnl_good": 716655.24,
+      "pnl_bad": -286803.65,
+      "delta_vs_allow_all": 0.0,
+      "delta_vs_base_05": -95781.24086399993,
+      "uplift_pct_vs_allow_all": 0.0
+    },
+    "BASE@0.5": {
+      "n": 3868,
+      "pnl_total": 525632.8308639999,
+      "pnl_per_order": 135.89266568355737,
+      "pnl_per_1000_gmv": 102.25607455044958,
+      "actions": {
+        "ALLOW_COD": 3442,
+        "STEP_UP_DEPOSIT": 0,
+        "FORCE_PREPAID": 426
+      },
+      "action_share": {
+        "ALLOW_COD": 0.889865563598759,
+        "STEP_UP_DEPOSIT": 0.0,
+        "FORCE_PREPAID": 0.11013443640124095
+      },
+      "rto_shipped_expected": 539.69948,
+      "rto_prevented_expected": 275.30052,
+      "good_customers_lost_expected": 50.16,
+      "good_frictioned": 132,
+      "bad_frictioned": 294,
+      "pnl_good": 700296.1944,
+      "pnl_bad": -174663.36353600002,
+      "delta_vs_allow_all": 95781.24086399993,
+      "delta_vs_base_05": 0.0,
+      "uplift_pct_vs_allow_all": 22.282397714057527
+    },
+    "BASE@F1": {
+      "n": 3868,
+      "pnl_total": 532039.516648,
+      "pnl_per_order": 137.5489960310238,
+      "pnl_per_1000_gmv": 103.50242466536378,
+      "actions": {
+        "ALLOW_COD": 3191,
+        "STEP_UP_DEPOSIT": 0,
+        "FORCE_PREPAID": 677
+      },
+      "action_share": {
+        "ALLOW_COD": 0.8249741468459152,
+        "STEP_UP_DEPOSIT": 0.0,
+        "FORCE_PREPAID": 0.1750258531540848
+      },
+      "rto_shipped_expected": 469.0454,
+      "rto_prevented_expected": 345.9546,
+      "good_customers_lost_expected": 117.04,
+      "good_frictioned": 308,
+      "bad_frictioned": 369,
+      "pnl_good": 679114.5194,
+      "pnl_bad": -147075.002752,
+      "delta_vs_allow_all": 102187.92664800002,
+      "delta_vs_base_05": 6406.6857840000885,
+      "uplift_pct_vs_allow_all": 23.772839050798915
+    },
+    "BASE@GLOBAL_COST": {
+      "n": 3868,
+      "pnl_total": 544208.98448,
+      "pnl_per_order": 140.6951873009307,
+      "pnl_per_1000_gmv": 105.86986051944243,
+      "actions": {
+        "ALLOW_COD": 2620,
+        "STEP_UP_DEPOSIT": 0,
+        "FORCE_PREPAID": 1248
+      },
+      "action_share": {
+        "ALLOW_COD": 0.6773526370217167,
+        "STEP_UP_DEPOSIT": 0.0,
+        "FORCE_PREPAID": 0.32264736297828334
+      },
+      "rto_shipped_expected": 318.58972,
+      "rto_prevented_expected": 496.41028,
+      "good_customers_lost_expected": 274.36,
+      "good_frictioned": 722,
+      "bad_frictioned": 526,
+      "pnl_good": 632794.7803999999,
+      "pnl_bad": -88585.79592,
+      "delta_vs_allow_all": 114357.39448000002,
+      "delta_vs_base_05": 18576.153616000083,
+      "uplift_pct_vs_allow_all": 26.60392496861534
+    },
+    "BASE@TAU*(x)": {
+      "n": 3868,
+      "pnl_total": 529254.259232,
+      "pnl_per_order": 136.82891913960702,
+      "pnl_per_1000_gmv": 102.96058352978528,
+      "actions": {
+        "ALLOW_COD": 3372,
+        "STEP_UP_DEPOSIT": 0,
+        "FORCE_PREPAID": 496
+      },
+      "action_share": {
+        "ALLOW_COD": 0.8717683557394003,
+        "STEP_UP_DEPOSIT": 0.0,
+        "FORCE_PREPAID": 0.1282316442605998
+      },
+      "rto_shipped_expected": 523.4174399999999,
+      "rto_prevented_expected": 291.58256000000006,
+      "good_customers_lost_expected": 70.30000000000001,
+      "good_frictioned": 185,
+      "bad_frictioned": 311,
+      "pnl_good": 699700.5444,
+      "pnl_bad": -170446.285168,
+      "delta_vs_allow_all": 99402.66923200001,
+      "delta_vs_base_05": 3621.428368000081,
+      "uplift_pct_vs_allow_all": 23.124881132113533
+    },
+    "CHAKRA@TAU*(x)": {
+      "n": 3868,
+      "pnl_total": 528032.423272,
+      "pnl_per_order": 136.51303600620477,
+      "pnl_per_1000_gmv": 102.72288880891176,
+      "actions": {
+        "ALLOW_COD": 3306,
+        "STEP_UP_DEPOSIT": 0,
+        "FORCE_PREPAID": 562
+      },
+      "action_share": {
+        "ALLOW_COD": 0.8547052740434333,
+        "STEP_UP_DEPOSIT": 0.0,
+        "FORCE_PREPAID": 0.1452947259565667
+      },
+      "rto_shipped_expected": 521.0194,
+      "rto_prevented_expected": 293.9806,
+      "good_customers_lost_expected": 94.62,
+      "good_frictioned": 249,
+      "bad_frictioned": 313,
+      "pnl_good": 700142.2678,
+      "pnl_bad": -172109.844528,
+      "delta_vs_allow_all": 98180.83327200008,
+      "delta_vs_base_05": 2399.5924080001423,
+      "uplift_pct_vs_allow_all": 22.840635129906133
+    },
+    "CHAKRA_FULL": {
+      "n": 3868,
+      "pnl_total": 610227.493518,
+      "pnl_per_order": 157.76305416701138,
+      "pnl_per_1000_gmv": 118.71303390114073,
+      "actions": {
+        "ALLOW_COD": 1348,
+        "STEP_UP_DEPOSIT": 1952,
+        "FORCE_PREPAID": 568
+      },
+      "action_share": {
+        "ALLOW_COD": 0.3485005170630817,
+        "STEP_UP_DEPOSIT": 0.5046535677352637,
+        "FORCE_PREPAID": 0.1468459152016546
+      },
+      "rto_shipped_expected": 201.29599000000002,
+      "rto_prevented_expected": 613.7040099999999,
+      "good_customers_lost_expected": 270.43000000000006,
+      "good_frictioned": 1862,
+      "bad_frictioned": 658,
+      "pnl_good": 649549.9092,
+      "pnl_bad": -39322.415682000006,
+      "delta_vs_allow_all": 180375.90351800004,
+      "delta_vs_base_05": 84594.6626540001,
+      "uplift_pct_vs_allow_all": 41.962367411040645
+    },
+    "ORACLE": {
+      "n": 3868,
+      "pnl_total": 751435.468713625,
+      "pnl_per_order": 194.26976957436014,
+      "pnl_per_1000_gmv": 146.1834893043685,
+      "actions": {
+        "ALLOW_COD": 3053,
+        "STEP_UP_DEPOSIT": 449,
+        "FORCE_PREPAID": 366
+      },
+      "action_share": {
+        "ALLOW_COD": 0.7892967942088935,
+        "STEP_UP_DEPOSIT": 0.11608066184074457,
+        "FORCE_PREPAID": 0.09462254395036195
+      },
+      "rto_shipped_expected": 48.70699750000001,
+      "rto_prevented_expected": 766.2930025,
+      "good_customers_lost_expected": 0.0,
+      "good_frictioned": 0,
+      "bad_frictioned": 815,
+      "pnl_good": 716655.24,
+      "pnl_bad": 34780.228713624994,
+      "delta_vs_allow_all": 321583.878713625,
+      "delta_vs_base_05": 225802.63784962508,
+      "uplift_pct_vs_allow_all": 74.81276938248037
+    }
+  },
+  "certainty": {
+    "CERTIFIED_LOW": {
+      "n": 720,
+      "rto_rate": 0.08055555555555556
+    },
+    "AMBIGUOUS": {
+      "n": 2539,
+      "rto_rate": 0.15793619535250097
+    },
+    "CERTIFIED_HIGH": {
+      "n": 609,
+      "rto_rate": 0.5845648604269293
+    },
+    "NOVEL": {
+      "n": 0,
+      "rto_rate": 0.0
+    }
+  },
+  "sensitivity": [
+    {
+      "stepup_good_abandon": 0.06,
+      "stepup_bad_abandon": 0.4,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 637303.0737679999,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.06,
+      "stepup_bad_abandon": 0.65,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 627800.1095179999,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.06,
+      "stepup_bad_abandon": 0.85,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 620197.738118,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.11,
+      "stepup_bad_abandon": 0.4,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 619730.457768,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.11,
+      "stepup_bad_abandon": 0.65,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 610227.493518,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.11,
+      "stepup_bad_abandon": 0.85,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 602625.1221179999,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.18,
+      "stepup_bad_abandon": 0.4,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 595128.7953679999,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.18,
+      "stepup_bad_abandon": 0.65,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 585625.831118,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.18,
+      "stepup_bad_abandon": 0.85,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 578023.4597179999,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.25,
+      "stepup_bad_abandon": 0.4,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 570527.1329679999,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.25,
+      "stepup_bad_abandon": 0.65,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 561024.168718,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.25,
+      "stepup_bad_abandon": 0.85,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 553421.7973179999,
+      "full_beats_best_binary": true
+    },
+    {
+      "stepup_good_abandon": 0.35,
+      "stepup_bad_abandon": 0.4,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 535381.9009680001,
+      "full_beats_best_binary": false
+    },
+    {
+      "stepup_good_abandon": 0.35,
+      "stepup_bad_abandon": 0.65,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 525878.936718,
+      "full_beats_best_binary": false
+    },
+    {
+      "stepup_good_abandon": 0.35,
+      "stepup_bad_abandon": 0.85,
+      "ALLOW_ALL": 429851.58999999997,
+      "BASE@0.5": 525632.8308639999,
+      "BASE@GLOBAL_COST": 544208.98448,
+      "BASE@TAU*(x)": 529254.259232,
+      "CHAKRA@TAU*(x)": 528032.423272,
+      "CHAKRA_FULL": 518276.56531800004,
+      "full_beats_best_binary": false
+    }
+  ],
+  "sensitivity_wins": [
+    12,
+    15
+  ],
+  "calibration_curve": [
+    {
+      "decile": 0,
+      "p_mean": 0.049432576716270014,
+      "rto_rate": 0.06930693069306931,
+      "n": 505
+    },
+    {
+      "decile": 1,
+      "p_mean": 0.09633898149617062,
+      "rto_rate": 0.09513742071881606,
+      "n": 946
+    },
+    {
+      "decile": 2,
+      "p_mean": 0.134350892283485,
+      "rto_rate": 0.10897435897435898,
+      "n": 156
+    },
+    {
+      "decile": 3,
+      "p_mean": 0.1445750290892024,
+      "rto_rate": 0.14171122994652408,
+      "n": 374
+    },
+    {
+      "decile": 4,
+      "p_mean": 0.17725157185418244,
+      "rto_rate": 0.16981132075471697,
+      "n": 636
+    },
+    {
+      "decile": 5,
+      "p_mean": 0.19090909090909094,
+      "rto_rate": 0.21739130434782608,
+      "n": 92
+    },
+    {
+      "decile": 6,
+      "p_mean": 0.22949126207130127,
+      "rto_rate": 0.24102564102564103,
+      "n": 390
+    },
+    {
+      "decile": 7,
+      "p_mean": 0.3834064682729477,
+      "rto_rate": 0.3482587064676617,
+      "n": 402
+    },
+    {
+      "decile": 8,
+      "p_mean": 0.7103131754917885,
+      "rto_rate": 0.7029972752043597,
+      "n": 367
+    }
+  ],
+  "tau_star_hist": {
+    "edges": [
+      0.0,
+      0.05,
+      0.1,
+      0.15000000000000002,
+      0.2,
+      0.25,
+      0.30000000000000004,
+      0.35000000000000003,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6000000000000001,
+      0.65,
+      0.7000000000000001,
+      0.75,
+      0.8,
+      0.8500000000000001,
+      0.9,
+      0.9500000000000001,
+      1.0
+    ],
+    "counts": [
+      0,
+      0,
+      3,
+      47,
+      110,
+      278,
+      461,
+      590,
+      748,
+      657,
+      503,
+      294,
+      108,
+      62,
+      7,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "p_loss_hist": {
+    "edges": [
+      0.0,
+      0.05,
+      0.1,
+      0.15000000000000002,
+      0.2,
+      0.25,
+      0.30000000000000004,
+      0.35000000000000003,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6000000000000001,
+      0.65,
+      0.7000000000000001,
+      0.75,
+      0.8,
+      0.8500000000000001,
+      0.9,
+      0.9500000000000001,
+      1.0
+    ],
+    "counts": [
+      372,
+      348,
+      1261,
+      729,
+      344,
+      101,
+      104,
+      72,
+      170,
+      29,
+      115,
+      0,
+      0,
+      45,
+      28,
+      14,
+      18,
+      0,
+      108,
+      10
+    ]
+  },
+  "conformal_test": {
+    "alpha": 0.1,
+    "coverage_class0": 0.9171306911234851,
+    "coverage_class1": 0.9288343558282208,
+    "coverage_marginal": 0.9195966907962771,
+    "frac_singleton": 0.34358841778697,
+    "frac_ambiguous": 0.65641158221303,
+    "frac_empty": 0.0,
+    "q0": 0.3392857142857143,
+    "q1": 0.8988941548183255
+  },
+  "model_metrics": {
+    "baseline": {
+      "auc": 0.7711103832296103,
+      "pr_auc": 0.5488777853769709,
+      "logloss": 0.4156384016820184,
+      "ece_raw": 0.023558832385395606,
+      "ece_calibrated": 0.017526833188454324,
+      "brier": 0.12920026072145388,
+      "conformal": {
+        "alpha": 0.1,
+        "coverage_class0": 0.8987880773010154,
+        "coverage_class1": 0.8895705521472392,
+        "coverage_marginal": 0.8968459152016546,
+        "frac_singleton": 0.499741468459152,
+        "frac_ambiguous": 0.500258531540848,
+        "frac_empty": 0.0,
+        "q0": 0.2962962962962963,
+        "q1": 0.884020618556701
+      },
+      "best_iter": 137,
+      "weighted": false,
+      "feature_importance": {
+        "ring_phones": 45746.755653858185,
+        "addr_has_house_no": 11076.123569726944,
+        "ring_is_ring": 8350.985759735107,
+        "pay_switch_from_failed": 5219.544085264206,
+        "channel_risk": 5163.9750192165375,
+        "addr_defect_score": 5137.814115524292,
+        "device_distinct_phones": 4880.220278501511,
+        "pin_tier": 2809.659098625183,
+        "gmv_vs_pin_median": 2681.031058549881,
+        "checkout_seconds_log": 2510.206190109253,
+        "weight_grams": 2223.236788034439,
+        "pin_rto_rate": 2050.2824625968933,
+        "pin_orders_log": 1584.920026063919,
+        "gmv_log": 1560.1002216339111,
+        "phone_rto_rate": 1389.4310274124146,
+        "pin_serviceability": 1357.2469811439514,
+        "phone_first_seen_days": 1243.5724611282349,
+        "ring_rto_rate": 1164.2498533725739,
+        "entity_max_degree": 1012.9662284851074,
+        "hour_cos": 1000.7350919246674,
+        "addr_rto_rate": 820.1782517433167,
+        "addr_distinct_phones": 683.7824215888977,
+        "hour_sin": 662.4337615966797,
+        "coupon_applied": 606.5289707183838,
+        "device_rto_rate": 537.8508851528168,
+        "addr_tokens": 475.64515018463135,
+        "items_count": 469.23628997802734,
+        "ring_size_log": 414.08772826194763,
+        "addr_junk": 230.68815231323242,
+        "phone_orders_total_log": 166.94912004470825,
+        "phone_orders_30d": 104.86370062828064,
+        "addr_landmark_only": 69.74203968048096,
+        "device_orders_24h": 24.185239791870117,
+        "phone_distinct_devices": 21.123640060424805,
+        "addr_state_mismatch": 0.0,
+        "is_cod": 0.0
+      }
+    },
+    "chakra": {
+      "auc": 0.756373998018644,
+      "pr_auc": 0.5422260740156478,
+      "logloss": 0.42388889045912415,
+      "ece_raw": 0.04178205905244466,
+      "ece_calibrated": 0.010958477529476452,
+      "brier": 0.13092085913072832,
+      "conformal": {
+        "alpha": 0.1,
+        "coverage_class0": 0.9171306911234851,
+        "coverage_class1": 0.9288343558282208,
+        "coverage_marginal": 0.9195966907962771,
+        "frac_singleton": 0.34358841778697,
+        "frac_ambiguous": 0.65641158221303,
+        "frac_empty": 0.0,
+        "q0": 0.3392857142857143,
+        "q1": 0.8988941548183255
+      },
+      "best_iter": 113,
+      "weighted": true,
+      "feature_importance": {
+        "ring_phones": 45161.5326962471,
+        "addr_has_house_no": 11456.246457576752,
+        "entity_max_degree": 8723.317833900452,
+        "pay_switch_from_failed": 5363.097413063049,
+        "addr_defect_score": 5083.624354839325,
+        "pin_tier": 4727.411912441254,
+        "addr_distinct_phones": 3575.995934486389,
+        "device_distinct_phones": 3528.9356093406677,
+        "gmv_log": 3191.2247881889343,
+        "ring_rto_rate": 2395.880365371704,
+        "channel_risk": 2288.4274339675903,
+        "checkout_seconds_log": 2216.667555332184,
+        "weight_grams": 2099.354308128357,
+        "ring_is_ring": 1947.439290046692,
+        "gmv_vs_pin_median": 1901.9903321266174,
+        "pin_rto_rate": 1884.7499027252197,
+        "pin_orders_log": 1415.540355205536,
+        "addr_rto_rate": 1016.7180256843567,
+        "pin_serviceability": 955.1573963165283,
+        "phone_first_seen_days": 840.2188568115234,
+        "hour_cos": 727.0348100662231,
+        "items_count": 668.3476190567017,
+        "coupon_applied": 654.3208966255188,
+        "hour_sin": 620.8152604103088,
+        "device_rto_rate": 517.6172189712524,
+        "phone_rto_rate": 451.5531396865845,
+        "ring_size_log": 414.04024934768677,
+        "addr_tokens": 386.4894104003906,
+        "addr_junk": 206.63788032531738,
+        "device_orders_24h": 101.28360891342163,
+        "phone_orders_total_log": 75.10586023330688,
+        "phone_orders_30d": 54.3341498374939,
+        "addr_landmark_only": 28.82004976272583,
+        "addr_state_mismatch": 0.0,
+        "phone_distinct_devices": 0.0,
+        "is_cod": 0.0
+      }
+    },
+    "onnx": {
+      "path": "D:\\razorpay\\artifacts\\models\\chakra_rto.onnx",
+      "opset": 15,
+      "bytes": 252715,
+      "parity_max_abs_diff": 2.1904737493305682e-07,
+      "parity_mean_abs_diff": 4.4437529207113495e-08,
+      "parity_ok": true,
+      "n_checked": 2000
+    },
+    "alpha": 0.1,
+    "economics": {
+      "forward_shipping": 95.0,
+      "reverse_shipping": 110.0,
+      "packaging_cost": 18.0,
+      "restocking_cost": 22.0,
+      "holding_cost_rate": 0.015,
+      "inventory_lockup_lambda": 0.02,
+      "default_margin": 0.18,
+      "default_cac": 420.0,
+      "cac_insult_kappa": 0.55,
+      "stepup_deposit": 49.0,
+      "stepup_abandon_rate": 0.11,
+      "prepaid_abandon_rate": 0.38,
+      "stepup_rto_residual": 0.1,
+      "prepaid_rto_residual": 0.04,
+      "prepaid_rto_unit_cost": 60.0,
+      "stepup_friction_cost": 6.0
+    },
+    "n_cod": 38664,
+    "rto_rate": 0.2641475274156838
+  }
+}

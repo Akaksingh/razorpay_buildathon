@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Regenerable data artifacts (77 MB of pickles; rebuild with scripts/01_generate_data.py)
+artifacts/data/*.pkl
+
+# Trained models + evaluation reports ARE committed (small) so the demo runs after one data-generation step.
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
