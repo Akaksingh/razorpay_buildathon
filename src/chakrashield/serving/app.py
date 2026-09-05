@@ -14,6 +14,7 @@ import os
 import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -326,10 +327,14 @@ async def ledger_stats():
 
 
 def _compile_packet(transaction_id: str, dispute_reason_code: str, dispute_date: str | None) -> dict:
-    try:
-        return compile_ce3(state.ledger, transaction_id, dispute_reason_code, dispute_date)
-    except ValueError as exc:                     # malformed dispute_date
-        raise HTTPException(status_code=422, detail=f"dispute_date must be YYYY-MM-DD: {exc}") from exc
+    # Validate the only client-supplied free-form field here, so a ValueError raised deeper in the
+    # compiler is never mislabelled as a bad date.
+    if dispute_date is not None:
+        try:
+            datetime.strptime(dispute_date, "%Y-%m-%d")
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=f"dispute_date must be YYYY-MM-DD: {exc}") from exc
+    return compile_ce3(state.ledger, transaction_id, dispute_reason_code, dispute_date)
 
 
 @app.post("/v1/dispute/ce3-compile", response_model=DisputeResponse)

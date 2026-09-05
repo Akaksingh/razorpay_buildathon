@@ -201,8 +201,8 @@ def compile_ce3(ledger: TransactionLedger, transaction_id: str, dispute_reason_c
         "prior_transactions": matched[:MIN_PRIOR_TXNS] if eligible else matched,
         "additional_prior_transactions": max(0, len(matched) - MIN_PRIOR_TXNS) if eligible else 0,
         "merchant_narrative": (
-            f"Cardholder credential {disputed.card_token[:8]}… has {len(matched)} undisputed, delivered "
-            f"transactions 120–365 days prior to the dispute, each sharing "
+            f"Cardholder credential {disputed.card_token[:8]}… has {len(matched)} undisputed prior "
+            f"transactions 120–365 days before the dispute, each sharing "
             f"{'device fingerprint / IP' if matched else 'no'} and shipping/account identifiers with the "
             f"disputed transaction. Liability shift requested under Visa CE3.0."
         ) if eligible else "CE3.0 criteria not satisfied; respond with standard compelling evidence.",

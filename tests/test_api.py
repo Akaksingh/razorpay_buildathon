@@ -54,23 +54,32 @@ def test_ce3_endpoint(client):
 
 
 def test_ce3_printable_packet(client):
-    cands = client.get("/v1/dispute/candidates?n=3").json()
+    """The printable document must carry the same hash as the JSON packet and every qualifying prior."""
+    cands = client.get("/v1/dispute/candidates?n=12").json()
     if not cands:
         pytest.skip("no card history in ledger")
-    tid = cands[0]["transaction_id"]
-    body = {"transaction_id": tid, "dispute_date": "2026-01-15"}
-    js = client.post("/v1/dispute/ce3-compile", json=body)
-    assert js.headers["content-type"].startswith("application/json")
-    packet = js.json()
-    r = client.post("/v1/dispute/ce3-compile?format=html", json=body)
+    packet, tid = None, None
+    for c in cands:   # the default dispute date (ts + 45 d) is the one that lands priors in the 120-365 d window
+        p = client.post("/v1/dispute/ce3-compile", json={"transaction_id": c["transaction_id"]})
+        assert p.headers["content-type"].startswith("application/json")
+        if p.json()["eligible"]:
+            packet, tid = p.json(), c["transaction_id"]
+            break
+    if packet is None:
+        pytest.skip("no eligible candidate in the sample")
+    priors = packet["evidence"]["prior_transactions"]
+    assert len(priors) >= 2
+    r = client.post("/v1/dispute/ce3-compile?format=html", json={"transaction_id": tid})
     assert r.status_code == 200 and r.headers["content-type"].startswith("text/html")
     assert packet["packet_hash"] in r.text and tid in r.text
-    for prior in packet["evidence"]["prior_transactions"]:
+    for prior in priors:
         assert prior["transaction_id"] in r.text
-    g = client.get(f"/v1/dispute/packet/{tid}.html?dispute_date=2026-01-15")
+    assert "undisputed prior transactions" in r.text
+    g = client.get(f"/v1/dispute/packet/{tid}.html")
     assert g.status_code == 200 and g.headers["content-type"].startswith("text/html") and packet["packet_hash"] in g.text
-    assert client.post("/v1/dispute/ce3-compile?format=pdf", json=body).status_code == 422
+    assert client.post("/v1/dispute/ce3-compile?format=pdf", json={"transaction_id": tid}).status_code == 422
     assert client.get(f"/v1/dispute/packet/{tid}.html?dispute_date=15-01-2026").status_code == 422
+    assert client.get(f"/v1/dispute/packet/{tid}.html?dispute_date=2026-01-15").status_code == 200
 
 
 def test_graph_endpoints(client):
