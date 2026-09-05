@@ -13,11 +13,12 @@
   "shared_residents": 581,
   "graph": {
     "nodes": 91166,
-    "components": 37639,
-    "rings": 49,
-    "ring_phones": 1191,
-    "largest_component": 192,
+    "components": 38092,
+    "rings": 60,
+    "ring_phones": 1168,
+    "largest_component": 106,
     "shared_entities": 81,
+    "non_bridging_addresses": 199,
     "guard": true,
     "orders_ingested": 60000
   },
@@ -37,15 +38,15 @@
     },
     {
       "ring_id": "phone:318ec893f4f7638d",
-      "size": 84,
-      "phones": 42,
-      "devices": 8,
+      "size": 82,
+      "phones": 41,
+      "devices": 7,
       "addrs": 2,
-      "orders": 173,
+      "orders": 171,
       "rto": 154,
-      "delivered": 19,
-      "rto_rate": 0.8902,
-      "gmv": 279930.0,
+      "delivered": 17,
+      "rto_rate": 0.9006,
+      "gmv": 278550.0,
       "is_ring": true
     },
     {
@@ -62,32 +63,6 @@
       "is_ring": true
     },
     {
-      "ring_id": "phone:a17f13041841dc5f",
-      "size": 77,
-      "phones": 38,
-      "devices": 7,
-      "addrs": 3,
-      "orders": 181,
-      "rto": 148,
-      "delivered": 33,
-      "rto_rate": 0.8177,
-      "gmv": 458610.0,
-      "is_ring": true
-    },
-    {
-      "ring_id": "phone:1cfb0b85d7e1c5bc",
-      "size": 141,
-      "phones": 56,
-      "devices": 29,
-      "addrs": 14,
-      "orders": 221,
-      "rto": 142,
-      "delivered": 79,
-      "rto_rate": 0.6425,
-      "gmv": 408650.0,
-      "is_ring": true
-    },
-    {
       "ring_id": "phone:a69bf7dc213c27da",
       "size": 66,
       "phones": 35,
@@ -101,16 +76,16 @@
       "is_ring": true
     },
     {
-      "ring_id": "phone:7dc8b3c7c9f37bcf",
-      "size": 73,
-      "phones": 37,
-      "devices": 6,
-      "addrs": 3,
-      "orders": 148,
-      "rto": 136,
-      "delivered": 12,
-      "rto_rate": 0.9189,
-      "gmv": 204730.0,
+      "ring_id": "phone:1cfb0b85d7e1c5bc",
+      "size": 106,
+      "phones": 45,
+      "devices": 17,
+      "addrs": 11,
+      "orders": 188,
+      "rto": 135,
+      "delivered": 53,
+      "rto_rate": 0.7181,
+      "gmv": 363350.0,
       "is_ring": true
     },
     {
@@ -140,6 +115,19 @@
       "is_ring": true
     },
     {
+      "ring_id": "phone:7dc8b3c7c9f37bcf",
+      "size": 66,
+      "phones": 34,
+      "devices": 4,
+      "addrs": 3,
+      "orders": 139,
+      "rto": 127,
+      "delivered": 12,
+      "rto_rate": 0.9137,
+      "gmv": 195450.0,
+      "is_ring": true
+    },
+    {
       "ring_id": "phone:0e4e94121240810b",
       "size": 73,
       "phones": 35,
@@ -150,6 +138,19 @@
       "delivered": 23,
       "rto_rate": 0.8456,
       "gmv": 355980.0,
+      "is_ring": true
+    },
+    {
+      "ring_id": "phone:a03927784c7af5bb",
+      "size": 63,
+      "phones": 31,
+      "devices": 2,
+      "addrs": 4,
+      "orders": 140,
+      "rto": 123,
+      "delivered": 17,
+      "rto_rate": 0.8786,
+      "gmv": 295590.0,
       "is_ring": true
     }
   ],

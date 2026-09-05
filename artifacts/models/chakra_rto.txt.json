@@ -1,7 +1,7 @@
 {
-  "best_iter": 122,
+  "best_iter": 133,
   "train_rows": 23255,
-  "valid_logloss": 0.398687805151184,
+  "valid_logloss": 0.3972554030788938,
   "weighted": false,
   "feature_names": [
     "gmv_log",
@@ -59,30 +59,30 @@
     "force_row_wise": true
   },
   "gamma": 0.0,
-  "version": "df08af1ca591",
+  "version": "325042f4500d",
   "alpha": 0.1,
   "test_metrics": {
     "gamma": 0.0,
-    "auc": 0.7952299621334743,
-    "pr_auc": 0.5951607734007915,
-    "logloss": 0.4044671578522841,
-    "ece_raw": 0.020153238497004636,
-    "ece_calibrated": 0.012204662516491008,
-    "brier": 0.12510900373195616,
+    "auc": 0.7937140469839638,
+    "pr_auc": 0.5948371859447321,
+    "logloss": 0.4047131532526388,
+    "ece_raw": 0.020211492641208664,
+    "ece_calibrated": 0.014188734004980936,
+    "brier": 0.12513670969203533,
     "conformal": {
       "alpha": 0.1,
-      "coverage_class0": 0.8579433091628214,
-      "coverage_class1": 0.9131985731272295,
-      "coverage_marginal": 0.8699354838709678,
-      "frac_singleton": 0.544258064516129,
-      "frac_ambiguous": 0.455741935483871,
+      "coverage_class0": 0.9179301252471984,
+      "coverage_class1": 0.9179548156956004,
+      "coverage_marginal": 0.9179354838709678,
+      "frac_singleton": 0.4531612903225806,
+      "frac_ambiguous": 0.5468387096774193,
       "frac_empty": 0.0,
-      "q0": 0.3083700440528634,
-      "q1": 0.8823529411764706
+      "q0": 0.3146067415730337,
+      "q1": 0.8897911832946636
     },
-    "best_iter": 122,
+    "best_iter": 133,
     "weighted": false,
-    "valid_weighted_logloss": 0.398687805151184,
-    "valid_pnl_full": 567677.711058375
+    "valid_weighted_logloss": 0.3972554030788938,
+    "valid_pnl_full": 571938.75284425
   }
 }
