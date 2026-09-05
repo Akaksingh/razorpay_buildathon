@@ -103,3 +103,18 @@ def test_control_cohort_pass_through_is_logged(client):
     off = client.post("/v1/risk/evaluate?commit=false", json=sc["req"]).json()
     assert off["decision"] == off["policy_action"] and not off["exploration"]["is_control_cohort"]
     assert off["exploration"]["propensity"] == 1.0 and off["exploration"]["epsilon"] == 0.0
+
+
+def test_outcome_callback_teaches_the_learner(client):
+    sc = [s for s in client.get("/v1/scenarios").json() if s["tag"] == "step-up"][0]
+    n0 = client.get("/v1/behaviour").json()["observations"]
+    r = client.post("/v1/risk/evaluate?commit=true", json={**sc["req"], "order_id": "test_learn_1"}).json()
+    assert r["behaviour"]["segment"].startswith("SOCIAL|T4") and "delta_s" in r["behaviour"]
+    client.get("/v1/ledger/stats")                     # drains the async worker so the order is registered
+    o = client.post("/v1/risk/outcome/test_learn_1?rto=false&stepup_result=paid").json()
+    stepped = r["decision"] == "STEP_UP_DEPOSIT"
+    assert o["learned"] == ("stepup" if stepped else None) and o["shipped"] is True
+    assert client.get("/v1/behaviour").json()["observations"] == n0 + (1 if stepped else 0)
+    o2 = client.post("/v1/risk/outcome/test_learn_1?rto=false&stepup_result=abandoned").json()
+    assert o2["shipped"] is False
+    assert client.post("/v1/risk/outcome/never_seen?rto=true").status_code == 404

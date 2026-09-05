@@ -38,8 +38,13 @@ LATENCY_BUDGET_MS = float(os.environ.get("CHAKRA_LATENCY_BUDGET_MS", 25.0))
 # frictionless COD anyway, logged with propensity, so retraining is not
 # survival-biased. 0 disables the control band.
 # ---------------------------------------------------------------------------
-EXPLORATION_EPSILON = float(os.environ.get("CHAKRA_EPSILON", 0.02))
+#: 5% with an IPW weight cap of 20 is what scripts/09_feedback_loop.py found keeps
+#: worst-cycle calibration error at 0.06 and ranking intact; 2% is cheaper but noisy.
+EXPLORATION_EPSILON = float(os.environ.get("CHAKRA_EPSILON", 0.05))
+IPW_WEIGHT_CAP = float(os.environ.get("CHAKRA_IPW_CAP", 20.0))
 LEDGER_PATH = Path(os.environ.get("CHAKRA_LEDGER", DATA_DIR / "decisions.jsonl"))
+#: learned buyer-response snapshot (written by the gateway and by scripts/10_learn_behaviour.py)
+BEHAVIOUR_PATH = Path(os.environ.get("CHAKRA_BEHAVIOUR", DATA_DIR / "behaviour_learned.json"))
 
 # ---------------------------------------------------------------------------
 # Unit economics defaults (INR). Overridable per-merchant at request time.

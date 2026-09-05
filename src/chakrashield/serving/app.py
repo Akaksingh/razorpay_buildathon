@@ -22,18 +22,19 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from ..config import (CONFORMAL_ALPHA, DATA_DIR, ECONOMICS, EXPLORATION_EPSILON, LATENCY_BUDGET_MS, LEDGER_PATH,
-                      MODEL_DIR, REPORT_DIR)
+from ..config import (BEHAVIOUR_PATH, CONFORMAL_ALPHA, DATA_DIR, ECONOMICS, EXPLORATION_EPSILON, LATENCY_BUDGET_MS,
+                      LEDGER_PATH, MODEL_DIR, REPORT_DIR)
 from ..dispute.ce3 import TransactionLedger, compile_ce3
 from ..features.vectorizer import hydrate
 from ..features.velocity import record_order, record_outcome
 from ..graph.syndicate import SyndicateGraph
 from ..learning.exploration import control_draw, propensity
 from ..learning.ledger import DecisionLedger
+from ..learning.response import BehaviourLearner, segment_key
 from ..monitoring.drift import ConformalDriftMonitor, DriftBaseline
 from ..policy.economics import TransactionContext
 from ..policy.reason_codes import reason_codes
-from ..policy.resolver import ACTION_UX, ALLOW, DynamicRiskResolver
+from ..policy.resolver import ACTION_UX, ALLOW, PREPAID, STEP_UP, DynamicRiskResolver
 from ..runtime.scorer import Scorer
 from ..schemas import DisputeRequest, DisputeResponse, RiskRequest, RiskResponse
 from ..store.feature_store import MemoryStore, get_store
@@ -60,6 +61,7 @@ class State:
     extras: dict = field(default_factory=dict)          # graph_guard / domain_shift / behaviour / feedback_loop reports
     extras_mtime: dict = field(default_factory=dict)
     decisions: DecisionLedger | None = None             # propensity-logged decision ledger
+    learner: BehaviourLearner | None = None             # per-segment buyer-response estimates
 
 
 state = State()
@@ -96,6 +98,7 @@ async def lifespan(app: FastAPI):
     conf = state.scorer.conformal
     state.drift = ConformalDriftMonitor(state.store, DriftBaseline.from_reports(state.report, q0=conf.q0, q1=conf.q1))
     state.decisions = DecisionLedger(LEDGER_PATH)
+    state.learner = BehaviourLearner(prior=ECONOMICS).load(BEHAVIOUR_PATH)
 
     state.queue = asyncio.Queue(maxsize=10_000)
     state.worker_task = asyncio.create_task(_graph_worker())
@@ -108,6 +111,8 @@ async def lifespan(app: FastAPI):
           f"graph={state.graph.stats()} ledger={len(state.ledger)}")
     yield
     state.worker_task.cancel()
+    if state.learner is not None and state.learner.observations:
+        state.learner.snapshot(BEHAVIOUR_PATH)
 
 
 async def _graph_worker() -> None:
@@ -163,11 +168,14 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
     t2 = time.perf_counter()
     is_new = req.is_new_customer if req.is_new_customer is not None else hyd.velocity.phone_is_new
     lam, lam_source = _shadow_price_for(req)
+    # buyer-response parameters: learned per segment where there is data, the configured prior otherwise
+    seg = segment_key(req.acquisition_channel, int(hyd.features["pin_tier"]), req.cart_gmv)
+    econ, est = state.learner.economics_for(seg, ECONOMICS) if state.learner is not None else (ECONOMICS, None)
     ctx = TransactionContext(
         gmv=req.cart_gmv, merchant_margin=req.merchant_margin if req.merchant_margin is not None else ECONOMICS.default_margin,
         cac=req.cac if req.cac is not None else ECONOMICS.default_cac, p_loss=sc.p_loss, is_new_customer=bool(is_new),
         weight_grams=req.weight_grams, addr_defect=hyd.address.defect_score, logistics_loss=req.logistics_loss,
-        holding_cost=req.holding_cost, friction_shadow_price=lam,
+        holding_cost=req.holding_cost, friction_shadow_price=lam, econ=econ,
     )
     dec = DynamicRiskResolver.resolve_action(ctx, sc.conformal_set)
     if state.drift is not None:
@@ -206,9 +214,9 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
         try:
             state.queue.put_nowait({"kind": "order", "order_id": oid, "hashes": hyd.hashes, "pin": req.delivery_pin,
                                     "ts": state.clock_ts, "gmv": req.cart_gmv, "served_action": served,
-                                    "policy_action": dec.action, "p_loss": round(sc.p_loss, 5)})
+                                    "policy_action": dec.action, "p_loss": round(sc.p_loss, 5), "segment": seg})
             state.queue.put_nowait({"kind": "log", "rec": {
-                "ts": time.time(), "order_id": oid, "merchant_id": req.merchant_id, "p_loss": round(sc.p_loss, 5),
+                "ts": time.time(), "order_id": oid, "merchant_id": req.merchant_id, "segment": seg, "p_loss": round(sc.p_loss, 5),
                 "p_raw": round(sc.p_raw, 5), "conformal_set": sc.conformal_set, "certainty": dec.certainty,
                 "policy_action": dec.action, "served_action": served, "is_control_cohort": is_control,
                 "propensity": prop, "epsilon": eps, "draw": draw, "tau_star": round(ctx.tau_star, 5),
@@ -223,6 +231,7 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
     return {
         "order_id": oid, "decision": served, "policy_action": dec.action, "action_label": ux["label"], "friction_level": ux["friction"],
         "exploration": {"is_control_cohort": is_control, "epsilon": eps, "propensity": prop, "policy_action": dec.action},
+        "behaviour": {**(est.as_dict() if est else {}), "segment": seg, "applied": bool(est and est.source != "prior")},
         "p_loss": round(sc.p_loss, 4), "p_raw": round(sc.p_raw, 4), "tau_star": round(ctx.tau_star, 4), "tau_soft": round(ctx.tau_soft, 4),
         "conformal": conformal, "expected_costs": {k: round(v, 2) for k, v in dec.expected_costs.items()},
         "expected_saving_vs_allow": round(dec.expected_saving_vs_allow, 2), "admissible_actions": dec.admissible,
@@ -269,15 +278,41 @@ async def risk_evaluate(req: RiskRequest, commit: bool = Query(True, description
 
 
 @app.post("/v1/risk/outcome/{order_id}")
-async def risk_outcome(order_id: str, rto: bool):
-    """Delivery outcome callback from the 3PL / OMS. Closes the learning loop."""
+async def risk_outcome(order_id: str, rto: bool,
+                       stepup_result: str | None = Query(None, pattern="^(paid|abandoned)$", description="if a deposit was asked"),
+                       prepaid_result: str | None = Query(None, pattern="^(paid|abandoned)$", description="if prepaid was mandated")):
+    """Delivery / intervention outcome callback from the 3PL and the checkout. Closes both learning loops:
+    the entity velocity + graph statistics, and the per-segment buyer-response estimates."""
     meta = state.outcomes.get(order_id)
     if meta is None:
         raise HTTPException(404, "order not seen by the gateway")
-    await state.queue.put({"kind": "outcome", "order_id": order_id, "hashes": meta["hashes"], "pin": meta["pin"], "rto": rto})
+    served, seg, p = meta.get("served_action"), meta.get("segment"), meta.get("p_loss")
+    learned = None
+    if state.learner is not None and seg and p is not None:
+        if served == STEP_UP and stepup_result:
+            state.learner.observe_stepup(seg, float(p), abandoned=(stepup_result == "abandoned"),
+                                         rto=(bool(rto) if stepup_result == "paid" else None))
+            learned = "stepup"
+        elif served == PREPAID and prepaid_result:
+            state.learner.observe_prepaid(seg, float(p), abandoned=(prepaid_result == "abandoned"))
+            learned = "prepaid"
+        if learned and state.learner.observations % 200 == 0:
+            state.learner.snapshot(BEHAVIOUR_PATH)
+    shipped = stepup_result != "abandoned" and prepaid_result != "abandoned"
+    if shipped:   # an abandoned order never shipped: no delivery outcome to fold into velocity / graph stats
+        await state.queue.put({"kind": "outcome", "order_id": order_id, "hashes": meta["hashes"], "pin": meta["pin"], "rto": rto})
     if state.decisions is not None:
-        state.decisions.log_outcome(order_id, rto, {"served_action": meta.get("served_action"), "policy_action": meta.get("policy_action")})
-    return {"order_id": order_id, "rto": rto, "queued": True}
+        state.decisions.log_outcome(order_id, rto, {"served_action": served, "policy_action": meta.get("policy_action"),
+                                                    "segment": seg, "stepup_result": stepup_result, "prepaid_result": prepaid_result})
+    return {"order_id": order_id, "rto": rto, "shipped": shipped, "learned": learned, "segment": seg}
+
+
+@app.get("/v1/behaviour")
+async def behaviour():
+    """Learned buyer response per segment (delta_s, delta_bad, rho, delta_p) with the prior and global levels."""
+    if state.learner is None:
+        raise HTTPException(503, "learner not initialised")
+    return {**state.learner.summary(), "snapshot": str(BEHAVIOUR_PATH)}
 
 
 @app.get("/v1/ledger/stats")
