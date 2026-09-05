@@ -84,3 +84,22 @@ def test_friction_shadow_price_and_budget(client):
     assert priced["tau_star"] > base["tau_star"] and priced["tau_soft"] > base["tau_soft"]
     budget = client.post("/v1/risk/evaluate?commit=false", json={**sc["req"], "friction_budget": 0.3}).json()
     assert budget["friction"]["budget"] == 0.3 and budget["friction"]["source"] in ("frontier", "no_frontier")
+
+
+def test_control_cohort_pass_through_is_logged(client):
+    import chakrashield.serving.app as appmod
+    sc = [s for s in client.get("/v1/scenarios").json() if s["tag"] == "prepaid"][0]
+    old = appmod.EXPLORATION_EPSILON
+    appmod.EXPLORATION_EPSILON = 1.0          # every flagged order becomes a control pass-through
+    try:
+        r = client.post("/v1/risk/evaluate?commit=true", json={**sc["req"], "order_id": "test_ctrl_1"}).json()
+    finally:
+        appmod.EXPLORATION_EPSILON = old
+    assert r["policy_action"] != "ALLOW_COD" and r["decision"] == "ALLOW_COD"
+    assert r["exploration"]["is_control_cohort"] and r["exploration"]["propensity"] == 1.0
+    assert r["rationale"].startswith("CONTROL COHORT") and r["friction_level"] == 0
+    stats = client.get("/v1/ledger/stats").json()
+    assert stats["decisions"] >= 1 and stats["control_cohort"] >= 1
+    off = client.post("/v1/risk/evaluate?commit=false", json=sc["req"]).json()
+    assert off["decision"] == off["policy_action"] and not off["exploration"]["is_control_cohort"]
+    assert off["exploration"]["propensity"] == 1.0 and off["exploration"]["epsilon"] == 0.0

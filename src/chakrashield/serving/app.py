@@ -22,15 +22,18 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from ..config import CONFORMAL_ALPHA, DATA_DIR, ECONOMICS, LATENCY_BUDGET_MS, MODEL_DIR, REPORT_DIR
+from ..config import (CONFORMAL_ALPHA, DATA_DIR, ECONOMICS, EXPLORATION_EPSILON, LATENCY_BUDGET_MS, LEDGER_PATH,
+                      MODEL_DIR, REPORT_DIR)
 from ..dispute.ce3 import TransactionLedger, compile_ce3
 from ..features.vectorizer import hydrate
 from ..features.velocity import record_order, record_outcome
 from ..graph.syndicate import SyndicateGraph
+from ..learning.exploration import control_draw, propensity
+from ..learning.ledger import DecisionLedger
 from ..monitoring.drift import ConformalDriftMonitor, DriftBaseline
 from ..policy.economics import TransactionContext
 from ..policy.reason_codes import reason_codes
-from ..policy.resolver import ALLOW, DynamicRiskResolver
+from ..policy.resolver import ACTION_UX, ALLOW, DynamicRiskResolver
 from ..runtime.scorer import Scorer
 from ..schemas import DisputeRequest, DisputeResponse, RiskRequest, RiskResponse
 from ..store.feature_store import MemoryStore, get_store
@@ -56,6 +59,7 @@ class State:
     drift: ConformalDriftMonitor | None = None
     extras: dict = field(default_factory=dict)          # graph_guard / domain_shift / behaviour / feedback_loop reports
     extras_mtime: dict = field(default_factory=dict)
+    decisions: DecisionLedger | None = None             # propensity-logged decision ledger
 
 
 state = State()
@@ -91,6 +95,7 @@ async def lifespan(app: FastAPI):
 
     conf = state.scorer.conformal
     state.drift = ConformalDriftMonitor(state.store, DriftBaseline.from_reports(state.report, q0=conf.q0, q1=conf.q1))
+    state.decisions = DecisionLedger(LEDGER_PATH)
 
     state.queue = asyncio.Queue(maxsize=10_000)
     state.worker_task = asyncio.create_task(_graph_worker())
@@ -115,8 +120,11 @@ async def _graph_worker() -> None:
                 record_order(state.store, phone_h=job["hashes"]["phone"], device_h=job["hashes"]["device"],
                              addr_h=job["hashes"]["addr"], pin=job["pin"], ts=job["ts"], gmv=job["gmv"])
                 state.graph.ingest(job["order_id"], {k: v for k, v in job["hashes"].items() if v}, gmv=job["gmv"])
-                state.outcomes[job["order_id"]] = {"hashes": job["hashes"], "pin": job["pin"]}
+                state.outcomes[job["order_id"]] = {"hashes": job["hashes"], "pin": job["pin"],
+                                                   **{k: job.get(k) for k in ("served_action", "policy_action", "p_loss", "segment")}}
                 state.ingested += 1
+            elif kind == "log":
+                state.decisions.log_decision(job["rec"])
             elif kind == "outcome":
                 h = job["hashes"]
                 record_outcome(state.store, phone_h=h["phone"], device_h=h["device"], addr_h=h["addr"], pin=job["pin"], rto=job["rto"])
@@ -167,6 +175,19 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
             state.drift.record(dec.certainty, sc.p_loss)       # one HINCRBY; label-free drift signal
         except Exception:
             pass
+    # epsilon-greedy shadow control band: a deterministic slice of *flagged* live orders ships
+    # frictionless anyway, tagged and propensity-logged, so retraining is not survival-biased
+    oid = req.order_id or (f"live_{int(time.time() * 1000)}" if commit else None)
+    eps = EXPLORATION_EPSILON if commit else 0.0
+    served, is_control, draw = dec.action, False, None
+    if eps > 0 and dec.action != ALLOW:
+        is_control, draw = control_draw(f"{oid}|{hyd.hashes['phone']}", eps)
+        if is_control:
+            served = ALLOW
+    prop = propensity(dec.action, served, eps)
+    ux = ACTION_UX[served]
+    rationale = (f"CONTROL COHORT (ε={eps:.0%}): resolver chose {dec.action}; served frictionless COD to earn an "
+                 f"unbiased delivery label for retraining. " + dec.rationale) if is_control else dec.rationale
     # TreeSHAP is ~2/3 of the request cost. In "auto" mode it runs only when the decision applies
     # friction: an ALLOW needs no defence, a step-up or a block must carry reason codes.
     contribs, bias, shap_ms = sc.contribs, sc.bias, sc.timings_ms.get("treeshap", 0.0)
@@ -182,24 +203,32 @@ def evaluate_pipeline(req: RiskRequest, commit: bool = True, explain: str = "aut
                "resolve_explain": round((t3 - t2) * 1e3, 3), "total": round(total, 3),
                "budget_ms": LATENCY_BUDGET_MS, "within_budget": total <= LATENCY_BUDGET_MS}
     if commit and state.queue is not None:
-        oid = req.order_id or f"live_{int(time.time() * 1000)}"
         try:
             state.queue.put_nowait({"kind": "order", "order_id": oid, "hashes": hyd.hashes, "pin": req.delivery_pin,
-                                    "ts": state.clock_ts, "gmv": req.cart_gmv})
+                                    "ts": state.clock_ts, "gmv": req.cart_gmv, "served_action": served,
+                                    "policy_action": dec.action, "p_loss": round(sc.p_loss, 5)})
+            state.queue.put_nowait({"kind": "log", "rec": {
+                "ts": time.time(), "order_id": oid, "merchant_id": req.merchant_id, "p_loss": round(sc.p_loss, 5),
+                "p_raw": round(sc.p_raw, 5), "conformal_set": sc.conformal_set, "certainty": dec.certainty,
+                "policy_action": dec.action, "served_action": served, "is_control_cohort": is_control,
+                "propensity": prop, "epsilon": eps, "draw": draw, "tau_star": round(ctx.tau_star, 5),
+                "tau_soft": round(ctx.tau_soft, 5), "shadow_price": lam, "model_version": state.scorer.version,
+                "gmv": req.cart_gmv, "merchant_margin": ctx.merchant_margin, "cac": ctx.cac,
+                "weight_grams": req.weight_grams, "is_new_customer": bool(is_new), "addr_defect": hyd.address.defect_score,
+                "phone_h": hyd.hashes["phone"], "features": [round(float(v), 6) for v in hyd.vector[0]]}})
         except asyncio.QueueFull:
             pass
-    else:
-        oid = req.order_id
     conformal = {"alpha": CONFORMAL_ALPHA, "prediction_set": sc.conformal_set, "certainty": dec.certainty,
                  "nonconformity": sc.nonconformity, "quantiles": {"q0": state.scorer.conformal.q0, "q1": state.scorer.conformal.q1}}
     return {
-        "order_id": oid, "decision": dec.action, "action_label": dec.ux["label"], "friction_level": dec.ux["friction"],
+        "order_id": oid, "decision": served, "policy_action": dec.action, "action_label": ux["label"], "friction_level": ux["friction"],
+        "exploration": {"is_control_cohort": is_control, "epsilon": eps, "propensity": prop, "policy_action": dec.action},
         "p_loss": round(sc.p_loss, 4), "p_raw": round(sc.p_raw, 4), "tau_star": round(ctx.tau_star, 4), "tau_soft": round(ctx.tau_soft, 4),
         "conformal": conformal, "expected_costs": {k: round(v, 2) for k, v in dec.expected_costs.items()},
         "expected_saving_vs_allow": round(dec.expected_saving_vs_allow, 2), "admissible_actions": dec.admissible,
         "reason_codes": codes, "economics": ctx.as_dict(), "graph": hyd.graph, "address": hyd.address.as_dict(),
         "velocity": hyd.velocity.as_dict(), "features": hyd.features, "hashes": hyd.hashes,
-        "rationale": dec.rationale, "latency_ms": latency, "model_version": state.scorer.version,
+        "rationale": rationale, "latency_ms": latency, "model_version": state.scorer.version,
         "scorer_backend": state.scorer.backend, "explained": contribs is not None, "explain_mode": explain,
         "elasticity": ctx.elasticity(),
         "friction": {"shadow_price": round(lam, 2), "source": lam_source, "budget": req.friction_budget,
@@ -246,7 +275,17 @@ async def risk_outcome(order_id: str, rto: bool):
     if meta is None:
         raise HTTPException(404, "order not seen by the gateway")
     await state.queue.put({"kind": "outcome", "order_id": order_id, "hashes": meta["hashes"], "pin": meta["pin"], "rto": rto})
+    if state.decisions is not None:
+        state.decisions.log_outcome(order_id, rto, {"served_action": meta.get("served_action"), "policy_action": meta.get("policy_action")})
     return {"order_id": order_id, "rto": rto, "queued": True}
+
+
+@app.get("/v1/ledger/stats")
+async def ledger_stats():
+    """Propensity ledger counters: decisions, control-cohort pass-throughs, outcomes, served-action mix."""
+    if state.queue is not None:
+        await state.queue.join()                  # drain the async writer so counters are current
+    return {**(state.decisions.stats() if state.decisions else {}), "epsilon": EXPLORATION_EPSILON}
 
 
 @app.post("/v1/dispute/ce3-compile", response_model=DisputeResponse)

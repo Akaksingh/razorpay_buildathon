@@ -34,6 +34,14 @@ CONFORMAL_ALPHA = float(os.environ.get("CHAKRA_ALPHA", 0.10))
 LATENCY_BUDGET_MS = float(os.environ.get("CHAKRA_LATENCY_BUDGET_MS", 25.0))
 
 # ---------------------------------------------------------------------------
+# Counterfactual exploration: share of *flagged* live orders routed through
+# frictionless COD anyway, logged with propensity, so retraining is not
+# survival-biased. 0 disables the control band.
+# ---------------------------------------------------------------------------
+EXPLORATION_EPSILON = float(os.environ.get("CHAKRA_EPSILON", 0.02))
+LEDGER_PATH = Path(os.environ.get("CHAKRA_LEDGER", DATA_DIR / "decisions.jsonl"))
+
+# ---------------------------------------------------------------------------
 # Unit economics defaults (INR). Overridable per-merchant at request time.
 # Calibrated against public Indian D2C benchmarks: RTO on COD runs 18-30%,
 # forward+reverse logistics on a sub-500g parcel is ~Rs.110-140 each way.
