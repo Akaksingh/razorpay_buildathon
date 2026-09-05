@@ -101,3 +101,116 @@ class ConformalCalibrator:
     def load(cls, path: Path) -> "ConformalCalibrator":
         with open(path, "r", encoding="utf-8") as fh:
             return cls(**json.load(fh))
+
+
+# ---------------------------------------------------------------------------
+# Alternative conditionings. Neither is served; scripts/12_conformal_variants.py
+# measures what each buys in coverage, ambiguity and resolver P&L against the
+# class-conditional calibrator above.
+# ---------------------------------------------------------------------------
+
+
+def _pooled_scores(p: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """s(x_i, y_i) for the observed label, written exactly as ConformalCalibrator.fit writes it."""
+    return np.where(y == 1, 1.0 - p, 1.0 - (1.0 - p))
+
+
+def set_metrics(sets: list[list[int]], y: np.ndarray) -> dict:
+    """Coverage per class and set-size mix; the part of evaluate() every variant shares."""
+    y = np.asarray(y, dtype=int)
+    sizes = np.array([len(s) for s in sets])
+    hit = np.array([yy in s for s, yy in zip(sets, y)])
+    return {
+        "coverage_class0": float(hit[y == 0].mean()) if (y == 0).any() else 0.0,
+        "coverage_class1": float(hit[y == 1].mean()) if (y == 1).any() else 0.0,
+        "coverage_marginal": float(hit.mean()),
+        "frac_singleton": float(np.mean(sizes == 1)), "frac_ambiguous": float(np.mean(sizes == 2)),
+        "frac_empty": float(np.mean(sizes == 0)),
+    }
+
+
+@dataclass
+class MarginalConformalCalibrator:
+    """One quantile over the pooled nonconformity scores: P(y in C(x)) >= 1 - alpha, no per-class promise.
+
+    The cheapest conformal layer there is, and the one most textbooks describe. Its guarantee can be
+    met by covering the 78 % of deliverables well and the RTOs poorly, which is exactly the failure a
+    COD engine cannot afford; it is kept as the control the class-conditional layer is compared against.
+    """
+    alpha: float
+    q: float
+    n: int
+
+    @classmethod
+    def fit(cls, p_cal: np.ndarray, y_cal: np.ndarray, alpha: float) -> "MarginalConformalCalibrator":
+        p_cal = np.asarray(p_cal, dtype=float)
+        y_cal = np.asarray(y_cal, dtype=int)
+        return cls(alpha=alpha, q=ConformalCalibrator._quantile(_pooled_scores(p_cal, y_cal), alpha), n=int(len(y_cal)))
+
+    def predict_set(self, p: np.ndarray | float) -> list[list[int]]:
+        p = np.atleast_1d(np.asarray(p, dtype=float))
+        return [[c for c, s in ((0, v), (1, 1.0 - v)) if s <= self.q] for v in p]
+
+    def evaluate(self, p: np.ndarray, y: np.ndarray) -> dict:
+        return {"alpha": self.alpha, **set_metrics(self.predict_set(p), y), "q": self.q}
+
+
+@dataclass
+class GroupConformalCalibrator:
+    """Mondrian by class x group (here: PIN tier): a quantile per (group, class) cell.
+
+    Class conditioning promises 1 - alpha coverage of RTOs overall; it does not promise it in tier-4
+    PINs, where the scorer's errors concentrate. Conditioning on the group as well makes the promise
+    per cell, at the price of smaller calibration cells (noisier quantiles, wider sets). A group unseen
+    at calibration falls back to the class-conditional quantiles.
+    """
+    alpha: float
+    q0: dict[int, float]
+    q1: dict[int, float]
+    n0: dict[int, int]
+    n1: dict[int, int]
+    fallback: ConformalCalibrator
+
+    @classmethod
+    def fit(cls, p_cal: np.ndarray, y_cal: np.ndarray, g_cal: np.ndarray, alpha: float) -> "GroupConformalCalibrator":
+        p_cal = np.asarray(p_cal, dtype=float)
+        y_cal = np.asarray(y_cal, dtype=int)
+        g_cal = np.asarray(g_cal, dtype=int)
+        q0, q1, n0, n1 = {}, {}, {}, {}
+        for g in sorted(set(g_cal.tolist())):
+            m = g_cal == g
+            q0[g] = ConformalCalibrator._quantile(1.0 - (1.0 - p_cal[m & (y_cal == 0)]), alpha)
+            q1[g] = ConformalCalibrator._quantile(1.0 - p_cal[m & (y_cal == 1)], alpha)
+            n0[g], n1[g] = int((m & (y_cal == 0)).sum()), int((m & (y_cal == 1)).sum())
+        return cls(alpha=alpha, q0=q0, q1=q1, n0=n0, n1=n1, fallback=ConformalCalibrator.fit(p_cal, y_cal, alpha))
+
+    def quantiles(self, g: int) -> tuple[float, float]:
+        g = int(g)
+        if g in self.q0:
+            return self.q0[g], self.q1[g]
+        return self.fallback.q0, self.fallback.q1
+
+    def predict_set(self, p: np.ndarray | float, g: np.ndarray | int) -> list[list[int]]:
+        p = np.atleast_1d(np.asarray(p, dtype=float))
+        g = np.broadcast_to(np.atleast_1d(np.asarray(g, dtype=int)), p.shape)
+        out = []
+        for v, gg in zip(p, g):
+            q0, q1 = self.quantiles(gg)
+            out.append([c for c, s, q in ((0, v, q0), (1, 1.0 - v, q1)) if s <= q])
+        return out
+
+    def evaluate(self, p: np.ndarray, y: np.ndarray, g: np.ndarray) -> dict:
+        return {"alpha": self.alpha, **set_metrics(self.predict_set(p, g), y),
+                "q0": {int(k): v for k, v in self.q0.items()}, "q1": {int(k): v for k, v in self.q1.items()}}
+
+
+def coverage_by_group(sets: list[list[int]], y: np.ndarray, g: np.ndarray) -> dict[int, dict]:
+    """Class-conditional coverage inside each group, for any variant's sets."""
+    y = np.asarray(y, dtype=int)
+    g = np.asarray(g, dtype=int)
+    out = {}
+    for gg in sorted(set(g.tolist())):
+        m = g == gg
+        sub = [s for s, keep in zip(sets, m) if keep]
+        out[int(gg)] = {"n0": int((m & (y == 0)).sum()), "n1": int((m & (y == 1)).sum()), **{k: v for k, v in set_metrics(sub, y[m]).items()}}
+    return out

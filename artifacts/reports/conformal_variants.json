@@ -1,0 +1,1495 @@
+{
+  "alphas": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.3
+  ],
+  "variants": [
+    "marginal",
+    "class",
+    "class_x_tier"
+  ],
+  "served": {
+    "variant": "class",
+    "alpha": 0.1
+  },
+  "undercover_tolerance": 0.02,
+  "behaviour_sim": {
+    "stepup_good_abandon": 0.11,
+    "stepup_bad_abandon": 0.65,
+    "stepup_rto_residual": 0.1,
+    "prepaid_good_abandon": 0.38,
+    "prepaid_bad_abandon": 0.85,
+    "prepaid_rto_residual": 0.04,
+    "deposit": 49.0,
+    "friction_cost": 6.0,
+    "prepaid_rto_unit_cost": 60.0
+  },
+  "test_orders": 3875,
+  "test_rto_rate": 0.21703225806451612,
+  "test_tier_counts": {
+    "1": 1623,
+    "2": 1302,
+    "3": 526,
+    "4": 424
+  },
+  "conf_orders": 3876,
+  "conf_tier_cells": {
+    "1": {
+      "n0": 1219,
+      "n1": 312
+    },
+    "2": {
+      "n0": 946,
+      "n1": 444
+    },
+    "3": {
+      "n0": 311,
+      "n1": 247
+    },
+    "4": {
+      "n0": 248,
+      "n1": 149
+    }
+  },
+  "references": {
+    "allow_all_pnl": 440481.5,
+    "ungated_argmin": {
+      "pnl_total": 643936.2066846249,
+      "actions": {
+        "ALLOW_COD": 1611,
+        "STEP_UP_DEPOSIT": 1680,
+        "FORCE_PREPAID": 584
+      },
+      "friction_share": 0.584258064516129,
+      "good_lost": 229.77,
+      "rto_shipped": 190.04583499999998
+    }
+  },
+  "rows": [
+    {
+      "variant": "marginal",
+      "alpha": 0.05,
+      "served": false,
+      "coverage_class0": 0.9963744232036915,
+      "coverage_class1": 0.9179548156956004,
+      "coverage_marginal": 0.9793548387096774,
+      "frac_singleton": 0.32283870967741934,
+      "frac_ambiguous": 0.6771612903225807,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9985358711566618,
+          "coverage_class1": 0.8638132295719845,
+          "coverage_marginal": 0.9772027110289587,
+          "frac_singleton": 0.41404805914972276,
+          "frac_ambiguous": 0.5859519408502772,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.993103448275862,
+          "coverage_class1": 0.89198606271777,
+          "coverage_marginal": 0.9708141321044547,
+          "frac_singleton": 0.3817204301075269,
+          "frac_ambiguous": 0.6182795698924731,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.9973890339425587,
+          "coverage_class1": 0.986013986013986,
+          "coverage_marginal": 0.9942965779467681,
+          "frac_singleton": 0.10456273764258556,
+          "frac_ambiguous": 0.8954372623574145,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.9962962962962963,
+          "coverage_class1": 0.9935064935064936,
+          "coverage_marginal": 0.9952830188679245,
+          "frac_singleton": 0.06367924528301887,
+          "frac_ambiguous": 0.9363207547169812,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier2/class1"
+      ],
+      "min_tier_coverage_class1": 0.8638132295719845,
+      "min_tier_coverage_class0": 0.993103448275862,
+      "rto_rate_in_set": {
+        "certified_low": 0.06261343012704174,
+        "ambiguous": 0.24161585365853658,
+        "certified_high": 0.9261744966442953
+      },
+      "test": {
+        "pnl_total": 643612.5079346249,
+        "actions": {
+          "ALLOW_COD": 1696,
+          "STEP_UP_DEPOSIT": 1595,
+          "FORCE_PREPAID": 584
+        },
+        "friction_share": 0.5623225806451613,
+        "good_lost": 220.97000000000003,
+        "rto_shipped": 194.870835
+      },
+      "valid_pnl": 568868.4033742499,
+      "quantiles": {
+        "q": 0.8897911832946636
+      }
+    },
+    {
+      "variant": "class",
+      "alpha": 0.05,
+      "served": false,
+      "coverage_class0": 0.9706657877389585,
+      "coverage_class1": 0.9417360285374554,
+      "coverage_marginal": 0.9643870967741935,
+      "frac_singleton": 0.3161290322580645,
+      "frac_ambiguous": 0.6838709677419355,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9831625183016105,
+          "coverage_class1": 0.8949416342412452,
+          "coverage_marginal": 0.9691928527418361,
+          "frac_singleton": 0.3783117683302526,
+          "frac_ambiguous": 0.6216882316697474,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.9773399014778326,
+          "coverage_class1": 0.926829268292683,
+          "coverage_marginal": 0.9662058371735791,
+          "frac_singleton": 0.3533026113671275,
+          "frac_ambiguous": 0.6466973886328725,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.9242819843342036,
+          "coverage_class1": 0.993006993006993,
+          "coverage_marginal": 0.9429657794676806,
+          "frac_singleton": 0.17490494296577946,
+          "frac_ambiguous": 0.8250950570342205,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.9481481481481482,
+          "coverage_class1": 1.0,
+          "coverage_marginal": 0.9669811320754716,
+          "frac_singleton": 0.1391509433962264,
+          "frac_ambiguous": 0.8608490566037735,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class0"
+      ],
+      "min_tier_coverage_class1": 0.8949416342412452,
+      "min_tier_coverage_class0": 0.9242819843342036,
+      "rto_rate_in_set": {
+        "certified_low": 0.057919621749408984,
+        "ambiguous": 0.18943396226415093,
+        "certified_high": 0.7651715039577837
+      },
+      "test": {
+        "pnl_total": 643449.8721846249,
+        "actions": {
+          "ALLOW_COD": 1668,
+          "STEP_UP_DEPOSIT": 1623,
+          "FORCE_PREPAID": 584
+        },
+        "friction_share": 0.5695483870967741,
+        "good_lost": 223.94,
+        "rto_shipped": 193.905835
+      },
+      "valid_pnl": 569430.3993742501,
+      "quantiles": {
+        "q0": 0.5342465753424658,
+        "q1": 0.9308755760368663
+      }
+    },
+    {
+      "variant": "class_x_tier",
+      "alpha": 0.05,
+      "served": false,
+      "coverage_class0": 0.966381015161503,
+      "coverage_class1": 0.9797859690844233,
+      "coverage_marginal": 0.9692903225806452,
+      "frac_singleton": 0.20258064516129032,
+      "frac_ambiguous": 0.7974193548387096,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9458272327964861,
+          "coverage_class1": 0.9883268482490273,
+          "coverage_marginal": 0.9525569932224276,
+          "frac_singleton": 0.21626617375231053,
+          "frac_ambiguous": 0.7837338262476895,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.9793103448275862,
+          "coverage_class1": 0.9616724738675958,
+          "coverage_marginal": 0.9754224270353302,
+          "frac_singleton": 0.2565284178187404,
+          "frac_ambiguous": 0.7434715821812596,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.9921671018276762,
+          "coverage_class1": 0.986013986013986,
+          "coverage_marginal": 0.9904942965779467,
+          "frac_singleton": 0.11216730038022814,
+          "frac_ambiguous": 0.8878326996197718,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.9851851851851852,
+          "coverage_class1": 0.9935064935064936,
+          "coverage_marginal": 0.9882075471698113,
+          "frac_singleton": 0.09669811320754718,
+          "frac_ambiguous": 0.9033018867924528,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [],
+      "min_tier_coverage_class1": 0.9616724738675958,
+      "min_tier_coverage_class0": 0.9458272327964861,
+      "rto_rate_in_set": {
+        "certified_low": 0.0412621359223301,
+        "ambiguous": 0.1789644012944984,
+        "certified_high": 0.7265415549597856
+      },
+      "test": {
+        "pnl_total": 644250.060184625,
+        "actions": {
+          "ALLOW_COD": 1638,
+          "STEP_UP_DEPOSIT": 1650,
+          "FORCE_PREPAID": 587
+        },
+        "friction_share": 0.5772903225806452,
+        "good_lost": 227.07,
+        "rto_shipped": 190.275835
+      },
+      "valid_pnl": 571343.6238442499,
+      "quantiles": {
+        "q0": {
+          "1": 0.3146067415730337,
+          "2": 0.6,
+          "3": 0.782051282051282,
+          "4": 0.7
+        },
+        "q1": {
+          "1": 0.9367588932806324,
+          "2": 0.9358490566037736,
+          "3": 0.8897911832946636,
+          "4": 0.8897911832946636
+        }
+      }
+    },
+    {
+      "variant": "marginal",
+      "alpha": 0.1,
+      "served": false,
+      "coverage_class0": 0.9884640738299275,
+      "coverage_class1": 0.6420927467300832,
+      "coverage_marginal": 0.9132903225806451,
+      "frac_singleton": 0.7765161290322581,
+      "frac_ambiguous": 0.22348387096774194,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9926793557833089,
+          "coverage_class1": 0.5642023346303502,
+          "coverage_marginal": 0.9248305606900801,
+          "frac_singleton": 0.8287122612446087,
+          "frac_ambiguous": 0.17128773875539124,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.9862068965517241,
+          "coverage_class1": 0.6202090592334495,
+          "coverage_marginal": 0.9055299539170507,
+          "frac_singleton": 0.8448540706605223,
+          "frac_ambiguous": 0.15514592933947774,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.9817232375979112,
+          "coverage_class1": 0.6993006993006993,
+          "coverage_marginal": 0.9049429657794676,
+          "frac_singleton": 0.5950570342205324,
+          "frac_ambiguous": 0.4049429657794677,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.9851851851851852,
+          "coverage_class1": 0.7597402597402597,
+          "coverage_marginal": 0.9033018867924528,
+          "frac_singleton": 0.5919811320754716,
+          "frac_ambiguous": 0.4080188679245283,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class1",
+        "tier4/class1"
+      ],
+      "min_tier_coverage_class1": 0.5642023346303502,
+      "min_tier_coverage_class0": 0.9817232375979112,
+      "rto_rate_in_set": {
+        "certified_low": 0.10989412194231471,
+        "ambiguous": 0.35219399538106233,
+        "certified_high": 0.8703703703703703
+      },
+      "test": {
+        "pnl_total": 609344.0043765,
+        "actions": {
+          "ALLOW_COD": 2787,
+          "STEP_UP_DEPOSIT": 504,
+          "FORCE_PREPAID": 584
+        },
+        "friction_share": 0.28077419354838706,
+        "good_lost": 119.44,
+        "rto_shipped": 353.45181
+      },
+      "valid_pnl": 531099.062427375,
+      "quantiles": {
+        "q": 0.7768595041322314
+      }
+    },
+    {
+      "variant": "class",
+      "alpha": 0.1,
+      "served": true,
+      "coverage_class0": 0.9179301252471984,
+      "coverage_class1": 0.9179548156956004,
+      "coverage_marginal": 0.9179354838709678,
+      "frac_singleton": 0.4531612903225806,
+      "frac_ambiguous": 0.5468387096774193,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9458272327964861,
+          "coverage_class1": 0.8638132295719845,
+          "coverage_marginal": 0.9328404189772027,
+          "frac_singleton": 0.4959950708564387,
+          "frac_ambiguous": 0.5040049291435613,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.9438423645320198,
+          "coverage_class1": 0.89198606271777,
+          "coverage_marginal": 0.9324116743471582,
+          "frac_singleton": 0.4877112135176651,
+          "frac_ambiguous": 0.5122887864823349,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.8198433420365535,
+          "coverage_class1": 0.986013986013986,
+          "coverage_marginal": 0.8650190114068441,
+          "frac_singleton": 0.3365019011406844,
+          "frac_ambiguous": 0.6634980988593155,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.8185185185185185,
+          "coverage_class1": 0.9935064935064936,
+          "coverage_marginal": 0.8820754716981132,
+          "frac_singleton": 0.3278301886792453,
+          "frac_ambiguous": 0.6721698113207547,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier3/class0",
+        "tier4/class0"
+      ],
+      "min_tier_coverage_class1": 0.8638132295719845,
+      "min_tier_coverage_class0": 0.8185185185185185,
+      "rto_rate_in_set": {
+        "certified_low": 0.06261343012704174,
+        "ambiguous": 0.17319490325625295,
+        "certified_high": 0.6192660550458715
+      },
+      "test": {
+        "pnl_total": 643851.731934625,
+        "actions": {
+          "ALLOW_COD": 1687,
+          "STEP_UP_DEPOSIT": 1597,
+          "FORCE_PREPAID": 591
+        },
+        "friction_share": 0.5646451612903226,
+        "good_lost": 222.71,
+        "rto_shipped": 192.320835
+      },
+      "valid_pnl": 571938.75284425,
+      "quantiles": {
+        "q0": 0.3146067415730337,
+        "q1": 0.8897911832946636
+      }
+    },
+    {
+      "variant": "class_x_tier",
+      "alpha": 0.1,
+      "served": false,
+      "coverage_class0": 0.9482531311799605,
+      "coverage_class1": 0.8953626634958383,
+      "coverage_marginal": 0.9367741935483871,
+      "frac_singleton": 0.4338064516129032,
+      "frac_ambiguous": 0.5661935483870968,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9458272327964861,
+          "coverage_class1": 0.8949416342412452,
+          "coverage_marginal": 0.937769562538509,
+          "frac_singleton": 0.4239063462723352,
+          "frac_ambiguous": 0.5760936537276649,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.9438423645320198,
+          "coverage_class1": 0.89198606271777,
+          "coverage_marginal": 0.9324116743471582,
+          "frac_singleton": 0.4877112135176651,
+          "frac_ambiguous": 0.5122887864823349,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.9686684073107049,
+          "coverage_class1": 0.8741258741258742,
+          "coverage_marginal": 0.9429657794676806,
+          "frac_singleton": 0.3973384030418251,
+          "frac_ambiguous": 0.6026615969581749,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.9481481481481482,
+          "coverage_class1": 0.922077922077922,
+          "coverage_marginal": 0.9386792452830188,
+          "frac_singleton": 0.35141509433962265,
+          "frac_ambiguous": 0.6485849056603774,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier3/class1"
+      ],
+      "min_tier_coverage_class1": 0.8741258741258742,
+      "min_tier_coverage_class0": 0.9438423645320198,
+      "rto_rate_in_set": {
+        "certified_low": 0.07333333333333333,
+        "ambiguous": 0.19553327256153144,
+        "certified_high": 0.6735966735966736
+      },
+      "test": {
+        "pnl_total": 639499.341195875,
+        "actions": {
+          "ALLOW_COD": 1874,
+          "STEP_UP_DEPOSIT": 1410,
+          "FORCE_PREPAID": 591
+        },
+        "friction_share": 0.5163870967741935,
+        "good_lost": 204.67000000000002,
+        "rto_shipped": 214.48039749999998
+      },
+      "valid_pnl": 567612.1346567499,
+      "quantiles": {
+        "q0": {
+          "1": 0.3146067415730337,
+          "2": 0.3146067415730337,
+          "3": 0.6470588235294118,
+          "4": 0.5342465753424658
+        },
+        "q1": {
+          "1": 0.9308755760368663,
+          "2": 0.8897911832946636,
+          "3": 0.8245614035087719,
+          "4": 0.8245614035087719
+        }
+      }
+    },
+    {
+      "variant": "marginal",
+      "alpha": 0.15,
+      "served": false,
+      "coverage_class0": 0.9713249835201054,
+      "coverage_class1": 0.42092746730083236,
+      "coverage_marginal": 0.8518709677419355,
+      "frac_singleton": 0.9636129032258065,
+      "frac_ambiguous": 0.03638709677419355,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9831625183016105,
+          "coverage_class1": 0.38132295719844356,
+          "coverage_marginal": 0.8878619839802834,
+          "frac_singleton": 0.9808995686999384,
+          "frac_ambiguous": 0.019100431300061615,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.9773399014778326,
+          "coverage_class1": 0.4564459930313589,
+          "coverage_marginal": 0.8625192012288786,
+          "frac_singleton": 0.9738863287250384,
+          "frac_ambiguous": 0.026113671274961597,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.9268929503916449,
+          "coverage_class1": 0.43356643356643354,
+          "coverage_marginal": 0.7927756653992395,
+          "frac_singleton": 0.9277566539923955,
+          "frac_ambiguous": 0.07224334600760456,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.9518518518518518,
+          "coverage_class1": 0.4090909090909091,
+          "coverage_marginal": 0.7547169811320755,
+          "frac_singleton": 0.910377358490566,
+          "frac_ambiguous": 0.08962264150943396,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class1",
+        "tier4/class1"
+      ],
+      "min_tier_coverage_class1": 0.38132295719844356,
+      "min_tier_coverage_class0": 0.9268929503916449,
+      "rto_rate_in_set": {
+        "certified_low": 0.14502680166765933,
+        "ambiguous": 0.46099290780141844,
+        "certified_high": 0.7686170212765957
+      },
+      "test": {
+        "pnl_total": 564147.3503724999,
+        "actions": {
+          "ALLOW_COD": 3359,
+          "STEP_UP_DEPOSIT": 45,
+          "FORCE_PREPAID": 471
+        },
+        "friction_share": 0.13316129032258062,
+        "good_lost": 55.620000000000005,
+        "rto_shipped": 508.4019425
+      },
+      "valid_pnl": 482926.110590875,
+      "quantiles": {
+        "q": 0.5849056603773585
+      }
+    },
+    {
+      "variant": "class",
+      "alpha": 0.15,
+      "served": false,
+      "coverage_class0": 0.9179301252471984,
+      "coverage_class1": 0.9179548156956004,
+      "coverage_marginal": 0.9179354838709678,
+      "frac_singleton": 0.4531612903225806,
+      "frac_ambiguous": 0.5468387096774193,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9458272327964861,
+          "coverage_class1": 0.8638132295719845,
+          "coverage_marginal": 0.9328404189772027,
+          "frac_singleton": 0.4959950708564387,
+          "frac_ambiguous": 0.5040049291435613,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.9438423645320198,
+          "coverage_class1": 0.89198606271777,
+          "coverage_marginal": 0.9324116743471582,
+          "frac_singleton": 0.4877112135176651,
+          "frac_ambiguous": 0.5122887864823349,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.8198433420365535,
+          "coverage_class1": 0.986013986013986,
+          "coverage_marginal": 0.8650190114068441,
+          "frac_singleton": 0.3365019011406844,
+          "frac_ambiguous": 0.6634980988593155,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.8185185185185185,
+          "coverage_class1": 0.9935064935064936,
+          "coverage_marginal": 0.8820754716981132,
+          "frac_singleton": 0.3278301886792453,
+          "frac_ambiguous": 0.6721698113207547,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier3/class0",
+        "tier4/class0"
+      ],
+      "min_tier_coverage_class1": 0.8638132295719845,
+      "min_tier_coverage_class0": 0.8185185185185185,
+      "rto_rate_in_set": {
+        "certified_low": 0.06261343012704174,
+        "ambiguous": 0.17319490325625295,
+        "certified_high": 0.6192660550458715
+      },
+      "test": {
+        "pnl_total": 643851.731934625,
+        "actions": {
+          "ALLOW_COD": 1687,
+          "STEP_UP_DEPOSIT": 1597,
+          "FORCE_PREPAID": 591
+        },
+        "friction_share": 0.5646451612903226,
+        "good_lost": 222.71,
+        "rto_shipped": 192.320835
+      },
+      "valid_pnl": 571938.75284425,
+      "quantiles": {
+        "q0": 0.3146067415730337,
+        "q1": 0.8897911832946636
+      }
+    },
+    {
+      "variant": "class_x_tier",
+      "alpha": 0.15,
+      "served": false,
+      "coverage_class0": 0.8638760711931444,
+      "coverage_class1": 0.8561236623067776,
+      "coverage_marginal": 0.8621935483870967,
+      "frac_singleton": 0.5863225806451613,
+      "frac_ambiguous": 0.4136774193548387,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.8382137628111274,
+          "coverage_class1": 0.8638132295719845,
+          "coverage_marginal": 0.8422674060382008,
+          "frac_singleton": 0.6087492298213185,
+          "frac_ambiguous": 0.39125077017868143,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.8926108374384236,
+          "coverage_class1": 0.89198606271777,
+          "coverage_marginal": 0.8924731182795699,
+          "frac_singleton": 0.5468509984639017,
+          "frac_ambiguous": 0.45314900153609833,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.835509138381201,
+          "coverage_class1": 0.6993006993006993,
+          "coverage_marginal": 0.7984790874524715,
+          "frac_singleton": 0.7718631178707225,
+          "frac_ambiguous": 0.22813688212927757,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.9259259259259259,
+          "coverage_class1": 0.922077922077922,
+          "coverage_marginal": 0.9245283018867925,
+          "frac_singleton": 0.3915094339622642,
+          "frac_ambiguous": 0.6084905660377359,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier3/class1"
+      ],
+      "min_tier_coverage_class1": 0.6993006993006993,
+      "min_tier_coverage_class0": 0.835509138381201,
+      "rto_rate_in_set": {
+        "certified_low": 0.08455625436757512,
+        "ambiguous": 0.18215845290081098,
+        "certified_high": 0.5089179548156956
+      },
+      "test": {
+        "pnl_total": 633972.2493789999,
+        "actions": {
+          "ALLOW_COD": 1959,
+          "STEP_UP_DEPOSIT": 1319,
+          "FORCE_PREPAID": 597
+        },
+        "friction_share": 0.4944516129032258,
+        "good_lost": 198.27,
+        "rto_shipped": 232.502185
+      },
+      "valid_pnl": 561868.4371361249,
+      "quantiles": {
+        "q0": {
+          "1": 0.18796992481203012,
+          "2": 0.22314049586776863,
+          "3": 0.3157894736842105,
+          "4": 0.41509433962264153
+        },
+        "q1": {
+          "1": 0.8897911832946636,
+          "2": 0.8897911832946636,
+          "3": 0.7768595041322314,
+          "4": 0.8245614035087719
+        }
+      }
+    },
+    {
+      "variant": "marginal",
+      "alpha": 0.2,
+      "served": false,
+      "coverage_class0": 0.9179301252471984,
+      "coverage_class1": 0.28894173602853745,
+      "coverage_marginal": 0.7814193548387097,
+      "frac_singleton": 0.9052903225806451,
+      "frac_ambiguous": 0.0,
+      "frac_empty": 0.09470967741935483,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.9458272327964861,
+          "coverage_class1": 0.311284046692607,
+          "coverage_marginal": 0.8453481207640172,
+          "frac_singleton": 0.944547134935305,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.05545286506469501
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.9438423645320198,
+          "coverage_class1": 0.3519163763066202,
+          "coverage_marginal": 0.8133640552995391,
+          "frac_singleton": 0.9393241167434716,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.060675883256528416
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.8198433420365535,
+          "coverage_class1": 0.20279720279720279,
+          "coverage_marginal": 0.6520912547528517,
+          "frac_singleton": 0.8041825095057035,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.1958174904942966
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.8185185185185185,
+          "coverage_class1": 0.21428571428571427,
+          "coverage_marginal": 0.5990566037735849,
+          "frac_singleton": 0.7759433962264151,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.2240566037735849
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class1",
+        "tier4/class1"
+      ],
+      "min_tier_coverage_class1": 0.20279720279720279,
+      "min_tier_coverage_class0": 0.8185185185185185,
+      "rto_rate_in_set": {
+        "certified_low": 0.13536168891648556,
+        "ambiguous": null,
+        "certified_high": 0.8466898954703833
+      },
+      "test": {
+        "pnl_total": 577944.0071014999,
+        "actions": {
+          "ALLOW_COD": 3221,
+          "STEP_UP_DEPOSIT": 134,
+          "FORCE_PREPAID": 520
+        },
+        "friction_share": 0.16877419354838707,
+        "good_lost": 73.28999999999999,
+        "rto_shipped": 462.48859500000003
+      },
+      "valid_pnl": 496477.162688,
+      "quantiles": {
+        "q": 0.3146067415730337
+      }
+    },
+    {
+      "variant": "class",
+      "alpha": 0.2,
+      "served": false,
+      "coverage_class0": 0.8408042188529994,
+      "coverage_class1": 0.7835909631391201,
+      "coverage_marginal": 0.8283870967741935,
+      "frac_singleton": 0.7979354838709677,
+      "frac_ambiguous": 0.20206451612903226,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.8667642752562226,
+          "coverage_class1": 0.7003891050583657,
+          "coverage_marginal": 0.8404189772027111,
+          "frac_singleton": 0.8311768330252619,
+          "frac_ambiguous": 0.16882316697473815,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.8926108374384236,
+          "coverage_class1": 0.7386759581881533,
+          "coverage_marginal": 0.858678955453149,
+          "frac_singleton": 0.8425499231950845,
+          "frac_ambiguous": 0.15745007680491552,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.6840731070496083,
+          "coverage_class1": 0.8741258741258742,
+          "coverage_marginal": 0.7357414448669202,
+          "frac_singleton": 0.7186311787072244,
+          "frac_ambiguous": 0.2813688212927757,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.737037037037037,
+          "coverage_class1": 0.922077922077922,
+          "coverage_marginal": 0.8042452830188679,
+          "frac_singleton": 0.6320754716981132,
+          "frac_ambiguous": 0.36792452830188677,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class0",
+        "tier4/class0"
+      ],
+      "min_tier_coverage_class1": 0.7003891050583657,
+      "min_tier_coverage_class0": 0.6840731070496083,
+      "rto_rate_in_set": {
+        "certified_low": 0.08617424242424243,
+        "ambiguous": 0.20689655172413793,
+        "certified_high": 0.5071428571428571
+      },
+      "test": {
+        "pnl_total": 634662.7648214999,
+        "actions": {
+          "ALLOW_COD": 2199,
+          "STEP_UP_DEPOSIT": 1077,
+          "FORCE_PREPAID": 599
+        },
+        "friction_share": 0.4325161290322581,
+        "good_lost": 174.17,
+        "rto_shipped": 247.02789750000002
+      },
+      "valid_pnl": 561647.8265236251,
+      "quantiles": {
+        "q0": 0.22314049586776863,
+        "q1": 0.8245614035087719
+      }
+    },
+    {
+      "variant": "class_x_tier",
+      "alpha": 0.2,
+      "served": false,
+      "coverage_class0": 0.8187211601845749,
+      "coverage_class1": 0.7728894173602854,
+      "coverage_marginal": 0.8087741935483871,
+      "frac_singleton": 0.7729032258064517,
+      "frac_ambiguous": 0.2270967741935484,
+      "frac_empty": 0.0,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.8052708638360175,
+          "coverage_class1": 0.8638132295719845,
+          "coverage_marginal": 0.8145409735058533,
+          "frac_singleton": 0.6438693776956254,
+          "frac_ambiguous": 0.3561306223043746,
+          "frac_empty": 0.0
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.8246305418719212,
+          "coverage_class1": 0.7386759581881533,
+          "coverage_marginal": 0.8056835637480799,
+          "frac_singleton": 0.9124423963133641,
+          "frac_ambiguous": 0.08755760368663594,
+          "frac_empty": 0.0
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.8198433420365535,
+          "coverage_class1": 0.6433566433566433,
+          "coverage_marginal": 0.7718631178707225,
+          "frac_singleton": 0.8669201520912547,
+          "frac_ambiguous": 0.13307984790874525,
+          "frac_empty": 0.0
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.8629629629629629,
+          "coverage_class1": 0.8051948051948052,
+          "coverage_marginal": 0.8419811320754716,
+          "frac_singleton": 0.7216981132075472,
+          "frac_ambiguous": 0.2783018867924528,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier2/class1",
+        "tier3/class1"
+      ],
+      "min_tier_coverage_class1": 0.6433566433566433,
+      "min_tier_coverage_class0": 0.8052708638360175,
+      "rto_rate_in_set": {
+        "certified_low": 0.09779825908858167,
+        "ambiguous": 0.17954545454545454,
+        "certified_high": 0.472168905950096
+      },
+      "test": {
+        "pnl_total": 626492.880157125,
+        "actions": {
+          "ALLOW_COD": 2273,
+          "STEP_UP_DEPOSIT": 1003,
+          "FORCE_PREPAID": 599
+        },
+        "friction_share": 0.41341935483870973,
+        "good_lost": 169.0,
+        "rto_shipped": 274.0845975
+      },
+      "valid_pnl": 554820.3265859999,
+      "quantiles": {
+        "q0": {
+          "1": 0.17543859649122806,
+          "2": 0.17543859649122806,
+          "3": 0.3146067415730337,
+          "4": 0.3157894736842105
+        },
+        "q1": {
+          "1": 0.8897911832946636,
+          "2": 0.8245614035087719,
+          "3": 0.6853932584269663,
+          "4": 0.8120300751879699
+        }
+      }
+    },
+    {
+      "variant": "marginal",
+      "alpha": 0.3,
+      "served": false,
+      "coverage_class0": 0.8032300593276203,
+      "coverage_class1": 0.23067776456599287,
+      "coverage_marginal": 0.6789677419354839,
+      "frac_singleton": 0.7615483870967742,
+      "frac_ambiguous": 0.0,
+      "frac_empty": 0.2384516129032258,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.8382137628111274,
+          "coverage_class1": 0.2529182879377432,
+          "coverage_marginal": 0.7455329636475663,
+          "frac_singleton": 0.8176216882316697,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.18237831176833025
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.865024630541872,
+          "coverage_class1": 0.289198606271777,
+          "coverage_marginal": 0.7380952380952381,
+          "frac_singleton": 0.8294930875576036,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.17050691244239632
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.6161879895561357,
+          "coverage_class1": 0.14685314685314685,
+          "coverage_marginal": 0.48859315589353614,
+          "frac_singleton": 0.5760456273764258,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.42395437262357416
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.6592592592592592,
+          "coverage_class1": 0.16233766233766234,
+          "coverage_marginal": 0.47877358490566035,
+          "frac_singleton": 0.5683962264150944,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.43160377358490565
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class0",
+        "tier3/class1",
+        "tier4/class0",
+        "tier4/class1"
+      ],
+      "min_tier_coverage_class1": 0.14685314685314685,
+      "min_tier_coverage_class0": 0.6161879895561357,
+      "rto_rate_in_set": {
+        "certified_low": 0.10993425858290723,
+        "ambiguous": null,
+        "certified_high": 0.9107981220657277
+      },
+      "test": {
+        "pnl_total": 611960.103794625,
+        "actions": {
+          "ALLOW_COD": 2738,
+          "STEP_UP_DEPOSIT": 536,
+          "FORCE_PREPAID": 601
+        },
+        "friction_share": 0.2934193548387096,
+        "good_lost": 126.42,
+        "rto_shipped": 341.5244975
+      },
+      "valid_pnl": 535059.5516048749,
+      "quantiles": {
+        "q": 0.18796992481203012
+      }
+    },
+    {
+      "variant": "class",
+      "alpha": 0.3,
+      "served": false,
+      "coverage_class0": 0.7620303230059328,
+      "coverage_class1": 0.5897740784780023,
+      "coverage_marginal": 0.7246451612903225,
+      "frac_singleton": 0.9174193548387096,
+      "frac_ambiguous": 0.0,
+      "frac_empty": 0.08258064516129032,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.8052708638360175,
+          "coverage_class1": 0.5214007782101168,
+          "coverage_marginal": 0.7603203943314849,
+          "frac_singleton": 0.933456561922366,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.066543438077634
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.8246305418719212,
+          "coverage_class1": 0.5714285714285714,
+          "coverage_marginal": 0.7688172043010753,
+          "frac_singleton": 0.9285714285714286,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.07142857142857142
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.5535248041775457,
+          "coverage_class1": 0.6433566433566433,
+          "coverage_marginal": 0.5779467680608364,
+          "frac_singleton": 0.8840304182509505,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.11596958174904944
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.6037037037037037,
+          "coverage_class1": 0.6883116883116883,
+          "coverage_marginal": 0.6344339622641509,
+          "frac_singleton": 0.8632075471698113,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.13679245283018868
+        }
+      },
+      "undercovered_cells": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class0",
+        "tier3/class1",
+        "tier4/class0"
+      ],
+      "min_tier_coverage_class1": 0.5214007782101168,
+      "min_tier_coverage_class0": 0.5535248041775457,
+      "rto_rate_in_set": {
+        "certified_low": 0.10526315789473684,
+        "ambiguous": null,
+        "certified_high": 0.5108135942327497
+      },
+      "test": {
+        "pnl_total": 617949.9624564999,
+        "actions": {
+          "ALLOW_COD": 2584,
+          "STEP_UP_DEPOSIT": 690,
+          "FORCE_PREPAID": 601
+        },
+        "friction_share": 0.3331612903225807,
+        "good_lost": 140.17,
+        "rto_shipped": 314.9900725
+      },
+      "valid_pnl": 545223.25277175,
+      "quantiles": {
+        "q0": 0.17543859649122806,
+        "q1": 0.6853932584269663
+      }
+    },
+    {
+      "variant": "class_x_tier",
+      "alpha": 0.3,
+      "served": false,
+      "coverage_class0": 0.7656558998022412,
+      "coverage_class1": 0.5719381688466112,
+      "coverage_marginal": 0.7236129032258064,
+      "frac_singleton": 0.9326451612903226,
+      "frac_ambiguous": 0.01032258064516129,
+      "frac_empty": 0.05703225806451613,
+      "coverage_by_tier": {
+        "1": {
+          "n0": 1366,
+          "n1": 257,
+          "coverage_class0": 0.6961932650073206,
+          "coverage_class1": 0.7003891050583657,
+          "coverage_marginal": 0.6968576709796673,
+          "frac_singleton": 0.9963031423290203,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.0036968576709796672
+        },
+        "2": {
+          "n0": 1015,
+          "n1": 287,
+          "coverage_class0": 0.8246305418719212,
+          "coverage_class1": 0.4634146341463415,
+          "coverage_marginal": 0.7450076804915514,
+          "frac_singleton": 0.8571428571428571,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.14285714285714285
+        },
+        "3": {
+          "n0": 383,
+          "n1": 143,
+          "coverage_class0": 0.8198433420365535,
+          "coverage_class1": 0.43356643356643354,
+          "coverage_marginal": 0.714828897338403,
+          "frac_singleton": 0.9448669201520913,
+          "frac_ambiguous": 0.0,
+          "frac_empty": 0.055133079847908745
+        },
+        "4": {
+          "n0": 270,
+          "n1": 154,
+          "coverage_class0": 0.8185185185185185,
+          "coverage_class1": 0.6883116883116883,
+          "coverage_marginal": 0.7712264150943396,
+          "frac_singleton": 0.9056603773584906,
+          "frac_ambiguous": 0.09433962264150944,
+          "frac_empty": 0.0
+        }
+      },
+      "undercovered_cells": [
+        "tier2/class1",
+        "tier3/class1"
+      ],
+      "min_tier_coverage_class1": 0.43356643356643354,
+      "min_tier_coverage_class0": 0.6961932650073206,
+      "rto_rate_in_set": {
+        "certified_low": 0.113120430934975,
+        "ambiguous": 0.55,
+        "certified_high": 0.4522167487684729
+      },
+      "test": {
+        "pnl_total": 609839.5000245,
+        "actions": {
+          "ALLOW_COD": 2601,
+          "STEP_UP_DEPOSIT": 699,
+          "FORCE_PREPAID": 575
+        },
+        "friction_share": 0.3287741935483871,
+        "good_lost": 135.86,
+        "rto_shipped": 336.173815
+      },
+      "valid_pnl": 535960.094677875,
+      "quantiles": {
+        "q0": {
+          "1": 0.11020881670533644,
+          "2": 0.17543859649122806,
+          "3": 0.3146067415730337,
+          "4": 0.3146067415730337
+        },
+        "q1": {
+          "1": 0.8245614035087719,
+          "2": 0.6774193548387097,
+          "3": 0.5849056603773585,
+          "4": 0.6853932584269663
+        }
+      }
+    }
+  ],
+  "best_by_variant": {
+    "marginal": {
+      "alpha_chosen_on_valid": 0.05,
+      "test_pnl_at_valid_choice": 643612.5079346249,
+      "alpha_argmax_on_test": 0.05,
+      "test_pnl_argmax": 643612.5079346249
+    },
+    "class": {
+      "alpha_chosen_on_valid": 0.1,
+      "test_pnl_at_valid_choice": 643851.731934625,
+      "alpha_argmax_on_test": 0.1,
+      "test_pnl_argmax": 643851.731934625
+    },
+    "class_x_tier": {
+      "alpha_chosen_on_valid": 0.05,
+      "test_pnl_at_valid_choice": 644250.060184625,
+      "alpha_argmax_on_test": 0.05,
+      "test_pnl_argmax": 644250.060184625
+    }
+  },
+  "chosen_on_valid": {
+    "variant": "class",
+    "alpha": 0.1,
+    "test_pnl": 643851.731934625
+  },
+  "argmax_on_test": {
+    "variant": "class_x_tier",
+    "alpha": 0.05,
+    "test_pnl": 644250.060184625
+  },
+  "served_test_pnl": 643851.731934625,
+  "tier_conditioning": [
+    {
+      "alpha": 0.05,
+      "class_tier_cov1": [
+        0.8949416342412452,
+        0.926829268292683,
+        0.993006993006993,
+        1.0
+      ],
+      "class_x_tier_tier_cov1": [
+        0.9883268482490273,
+        0.9616724738675958,
+        0.986013986013986,
+        0.9935064935064936
+      ],
+      "class_undercovered": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class0"
+      ],
+      "class_x_tier_undercovered": [],
+      "ambiguous_class": 0.6838709677419355,
+      "ambiguous_class_x_tier": 0.7974193548387096,
+      "pnl_delta_tier_minus_class": 800.188000000082
+    },
+    {
+      "alpha": 0.1,
+      "class_tier_cov1": [
+        0.8638132295719845,
+        0.89198606271777,
+        0.986013986013986,
+        0.9935064935064936
+      ],
+      "class_x_tier_tier_cov1": [
+        0.8949416342412452,
+        0.89198606271777,
+        0.8741258741258742,
+        0.922077922077922
+      ],
+      "class_undercovered": [
+        "tier1/class1",
+        "tier3/class0",
+        "tier4/class0"
+      ],
+      "class_x_tier_undercovered": [
+        "tier3/class1"
+      ],
+      "ambiguous_class": 0.5468387096774193,
+      "ambiguous_class_x_tier": 0.5661935483870968,
+      "pnl_delta_tier_minus_class": -4352.390738749993
+    },
+    {
+      "alpha": 0.15,
+      "class_tier_cov1": [
+        0.8638132295719845,
+        0.89198606271777,
+        0.986013986013986,
+        0.9935064935064936
+      ],
+      "class_x_tier_tier_cov1": [
+        0.8638132295719845,
+        0.89198606271777,
+        0.6993006993006993,
+        0.922077922077922
+      ],
+      "class_undercovered": [
+        "tier3/class0",
+        "tier4/class0"
+      ],
+      "class_x_tier_undercovered": [
+        "tier3/class1"
+      ],
+      "ambiguous_class": 0.5468387096774193,
+      "ambiguous_class_x_tier": 0.4136774193548387,
+      "pnl_delta_tier_minus_class": -9879.482555625029
+    },
+    {
+      "alpha": 0.2,
+      "class_tier_cov1": [
+        0.7003891050583657,
+        0.7386759581881533,
+        0.8741258741258742,
+        0.922077922077922
+      ],
+      "class_x_tier_tier_cov1": [
+        0.8638132295719845,
+        0.7386759581881533,
+        0.6433566433566433,
+        0.8051948051948052
+      ],
+      "class_undercovered": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class0",
+        "tier4/class0"
+      ],
+      "class_x_tier_undercovered": [
+        "tier2/class1",
+        "tier3/class1"
+      ],
+      "ambiguous_class": 0.20206451612903226,
+      "ambiguous_class_x_tier": 0.2270967741935484,
+      "pnl_delta_tier_minus_class": -8169.884664374986
+    },
+    {
+      "alpha": 0.3,
+      "class_tier_cov1": [
+        0.5214007782101168,
+        0.5714285714285714,
+        0.6433566433566433,
+        0.6883116883116883
+      ],
+      "class_x_tier_tier_cov1": [
+        0.7003891050583657,
+        0.4634146341463415,
+        0.43356643356643354,
+        0.6883116883116883
+      ],
+      "class_undercovered": [
+        "tier1/class1",
+        "tier2/class1",
+        "tier3/class0",
+        "tier3/class1",
+        "tier4/class0"
+      ],
+      "class_x_tier_undercovered": [
+        "tier2/class1",
+        "tier3/class1"
+      ],
+      "ambiguous_class": 0.0,
+      "ambiguous_class_x_tier": 0.01032258064516129,
+      "pnl_delta_tier_minus_class": -8110.462431999971
+    }
+  ]
+}

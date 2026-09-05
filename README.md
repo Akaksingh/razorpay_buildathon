@@ -234,6 +234,54 @@ a second Python process were active showed p99 near 10 ms with every stage, hash
 uniformly — the budget check is self-reported on every response for exactly that reason.
 <!-- RESULTS:END -->
 
+### Conformal alpha as a business knob
+
+α is not only the coverage promise; through the gate ({0} forces ALLOW, {1} forbids it, {0,1} hands the
+order to the rupee argmin) it also decides how many orders the resolver is allowed to price. `scripts/12_conformal_variants.py`
+sweeps α ∈ {0.05, 0.10, 0.15, 0.20, 0.30} × conditioning ∈ {marginal, class (served), class × PIN tier}, each fitted on the conf
+split with the served scorer and run through the full resolver on the same 3,875 test orders. References: `ALLOW_ALL` ₹4,40,482;
+the **ungated** argmin (every set {0,1}, the α → 0 limit) ₹6,43,936.
+
+| conditioning | α | coverage 0 / 1 | min tier cov. of RTO | ambiguous | empty | frictioned | RTOs shipped | test P&L (₹) | Δ vs served |
+|---|---:|:---:|---:|---:|---:|---:|---:|---:|---:|
+| marginal | 0.05 | 0.996 / 0.918 | 0.864 | 67.7 % | 0 % | 56.2 % | 195 | 6,43,613 | −239 |
+| **class (served)** | **0.05** | 0.971 / 0.942 | 0.895 | 68.4 % | 0 % | 57.0 % | 194 | 6,43,450 | −402 |
+| class × tier | 0.05 | 0.966 / 0.980 | **0.962** | 79.7 % | 0 % | 57.7 % | 190 | **6,44,250** | +398 |
+| marginal | 0.10 | 0.988 / **0.642** | 0.564 | 22.3 % | 0 % | 28.1 % | 353 | 6,09,344 | **−34,508** |
+| **class (served)** | **0.10** | 0.918 / 0.918 | 0.864 | 54.7 % | 0 % | 56.5 % | 192 | **6,43,852** | — |
+| class × tier | 0.10 | 0.948 / 0.895 | 0.874 | 56.6 % | 0 % | 51.6 % | 214 | 6,39,499 | −4,353 |
+| marginal | 0.15 | 0.971 / 0.421 | 0.381 | 3.6 % | 0 % | 13.3 % | 508 | 5,64,147 | −79,705 |
+| class | 0.15 | 0.918 / 0.918 | 0.864 | 54.7 % | 0 % | 56.5 % | 192 | 6,43,852 | 0 |
+| class × tier | 0.15 | 0.864 / 0.856 | 0.699 | 41.4 % | 0 % | 49.4 % | 233 | 6,33,972 | −9,880 |
+| marginal | 0.20 | 0.918 / 0.289 | 0.203 | 0 % | 9.5 % | 16.9 % | 462 | 5,77,944 | −65,908 |
+| class | 0.20 | 0.841 / 0.784 | 0.700 | 20.2 % | 0 % | 43.3 % | 247 | 6,34,663 | −9,189 |
+| class × tier | 0.20 | 0.819 / 0.773 | 0.643 | 22.7 % | 0 % | 41.3 % | 274 | 6,26,493 | −17,359 |
+| marginal | 0.30 | 0.803 / 0.231 | 0.147 | 0 % | 23.8 % | 29.3 % | 342 | 6,11,960 | −31,892 |
+| class | 0.30 | 0.762 / 0.590 | 0.521 | 0 % | 8.3 % | 33.3 % | 315 | 6,17,950 | −25,902 |
+| class × tier | 0.30 | 0.766 / 0.572 | 0.434 | 1.0 % | 5.7 % | 32.9 % | 336 | 6,09,840 | −34,012 |
+
+* **Which α.** Chosen on VALID, the class-conditional layer picks α = 0.10 — the served value — and the served cell is also the
+  best configuration on VALID overall. On TEST the argmax is class × tier at α = 0.05, ₹398 (0.06 %) above served: noise. P&L is
+  flat for α ≤ 0.10 because the sets are wide and the argmin makes the decision; it falls once α ≥ 0.20 turns {0} singletons into
+  forced ALLOWs on orders that return (RTOs shipped 192 → 247 → 315).
+* **The gate is P&L-neutral at the served α** (₹84 below the ungated argmin). What α = 0.10 buys is the certification the rationale
+  and the drift monitor rest on — 6.3 % RTO among certified-low orders, 61.9 % among certified-high — not margin. The margin comes
+  from the resolver.
+* **Conditioning on class is not a nicety.** The marginal layer meets its 90 % promise by covering deliverables at 98.8 % and RTOs
+  at 64.2 %; those uncovered RTOs are certified-low, forced to ALLOW, and cost ₹34,508 at α = 0.10 and ₹79,705 at α = 0.15.
+* **Tier conditioning fixes under-coverage only where the cells are large.** At α = 0.05 the class-conditional sets under-cover
+  RTOs in tier 1 (0.895) and tier 2 (0.927) against a 0.95 promise; class × tier lifts them to 0.988 / 0.962 with no cell more than
+  2 points under, at the price of 11 more points of ambiguity. At α ≥ 0.10 it trades that for tier-3 under-coverage (0.874, then
+  0.699): the conf split has 311 deliverables / 247 RTOs in tier 3 and 248 / 149 in tier 4, and quantiles from cells that size are
+  not robust to the conf → test shift. It is not served.
+* **Two properties of this scorer.** Isotonic recalibration emits 77 distinct probabilities, so the conformal quantile is a
+  ladder in α (0.10 and 0.15 share q₀ = 0.315, q₁ = 0.890). And the conf split has 29.7 % RTO against 21.7 % on test, with
+  mean p | RTO falling 0.60 → 0.43: class-conditional RTO coverage holds at α ≤ 0.10 (0.918 vs 0.90 promised), misses at 0.20
+  (0.784) and 0.30 (0.590). Small α is also insurance against exactly this shift. Empty sets — the `MODEL_EPISTEMIC_DRIFT`
+  signal — first appear at α = 0.30 for the class layer (8.3 %) and at 0.20 for the marginal one.
+
+Report: `artifacts/reports/conformal_variants.json`.
+
 ## Run it
 
 ```powershell
