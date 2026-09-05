@@ -226,21 +226,22 @@
     if (o.tipFn) $$("g[data-i]", el).forEach(g => { const d = rows[+g.dataset.i]; g.addEventListener("mousemove", e => showTip(e, o.tipFn(d))); g.addEventListener("mouseleave", hideTip); });
   }
   // Horizontal 100% stacked bars, 3 fixed categorical slots, 2px surface gaps.
-  function stacked(el, rows, series) {
-    const W = widthOf(el), rowH = 26, padL = 150, padR = 16, H = rows.length * rowH + 8, w = W - padL - padR;
+  function stacked(el, rows, series, o = {}) {
+    const color = o.color || (k => ACTION_COLOR[k]), label = o.label || (k => ACTION_SHORT[k]);
+    const W = widthOf(el), rowH = 26, padL = o.padL || 150, padR = 16, H = rows.length * rowH + 8, w = W - padL - padR;
     let s = `<svg viewBox="0 0 ${W} ${H}">`;
     rows.forEach((r, i) => {
       const y = i * rowH + 4; let x = padL;
       s += `<text x="${padL - 8}" y="${y + 13}" text-anchor="end">${esc(r.label)}</text>`;
       series.forEach((k, j) => {
         const v = r.values[k] || 0; const bw = Math.max(0, v * w - (j < series.length - 1 ? 2 : 0));
-        if (v > 0) s += `<g data-i="${i}" data-k="${k}"><rect class="mark" x="${x}" y="${y}" width="${bw}" height="18" fill="var(${ACTION_COLOR[k]})" rx="${j === series.length - 1 ? 4 : 0}"/>` +
+        if (v > 0) s += `<g data-i="${i}" data-k="${k}"><rect class="mark" x="${x}" y="${y}" width="${bw}" height="18" fill="var(${color(k)})" rx="${j === series.length - 1 ? 4 : 0}"/>` +
           (v * w > 44 ? `<text x="${x + bw / 2}" y="${y + 13}" text-anchor="middle" fill="#fff" style="fill:#fff;font-weight:500">${pct(v, 0)}</text>` : "") + `</g>`;
         x += v * w;
       });
     });
     s += "</svg>"; el.innerHTML = s;
-    $$("g[data-i]", el).forEach(g => { const r = rows[+g.dataset.i], k = g.dataset.k; g.addEventListener("mousemove", e => showTip(e, `<b>${esc(r.label)}</b>${ACTION_SHORT[k]}: ${pct(r.values[k])} (${inr.format(r.counts[k])} orders)`)); g.addEventListener("mouseleave", hideTip); });
+    $$("g[data-i]", el).forEach(g => { const r = rows[+g.dataset.i], k = g.dataset.k; g.addEventListener("mousemove", e => showTip(e, `<b>${esc(r.label)}</b>${label(k)}: ${pct(r.values[k])} (${inr.format(r.counts[k])} orders)`)); g.addEventListener("mouseleave", hideTip); });
   }
   // Column histogram, single hue.
   function columns(el, edges, counts, o = {}) {
@@ -355,6 +356,9 @@
       table($("#frontierTable"), [{ h: "λ (₹ per frictioned order)", k: "lambda" }, { h: "friction share", num: 1, f: r => pct(r.friction_share) }, { h: "Δ P&L vs no engine", num: 1, f: r => fmtR(r.y) },
         { h: "RTO shipped", num: 1, f: r => inr.format(Math.round(r.rto_shipped)) }, { h: "good lost", num: 1, f: r => inr.format(Math.round(r.good_lost)) }], pts);
     }
+    // model health + shift experiment (live drift polls every 10 s while the console is open)
+    renderShift(rep); loadDrift();
+    if (!state.driftTimer) state.driftTimer = setInterval(() => { if ($("#view-console").classList.contains("active")) loadDrift(); }, 10000);
     // weight-temperature candidates
     const cands = ev.candidates || [];
     if (cands.length) {
@@ -362,6 +366,42 @@
       table($("#gammaTable"), [{ h: "γ", f: r => r.gamma.toFixed(1) + (r.selected ? " · served" : "") }, { h: "trees", num: 1, k: "best_iter" }, { h: "AUC", num: 1, f: r => r.auc.toFixed(4) },
         { h: "PR-AUC", num: 1, f: r => r.pr_auc.toFixed(4) }, { h: "ECE", num: 1, f: r => r.ece_calibrated.toFixed(4) }, { h: "VALID P&L", num: 1, f: r => fmtR(r.valid_pnl_full) },
         { h: "TEST Δ vs no engine", num: 1, f: r => fmtR(r.test_delta_vs_allow) }], cands);
+    }
+  }
+  // ------------------------------------------------------------------ model health (drift) + shift experiment
+  const CERT_COLOR = { CERTIFIED_LOW: "--s1", AMBIGUOUS: "--s4", CERTIFIED_HIGH: "--s3", NOVEL: "--serious" };
+  const CERT_SHORT = { CERTIFIED_LOW: "certified low", AMBIGUOUS: "ambiguous {0,1}", CERTIFIED_HIGH: "certified RTO", NOVEL: "empty ∅" };
+  async function loadDrift() {
+    let d; try { d = await api("/v1/monitor/drift"); } catch (e) { return; }
+    const badge = { OK: "good", WARN: "warning", ALERT: "serious", WARMING: "muted" }[d.status] || "muted";
+    $("#driftSub").innerHTML = `<span class="cert"><i style="background:var(--${badge === "muted" ? "de" : badge})"></i>${d.status}</span> · ${inr.format(d.rolling_n)} orders in the last hour · PSI ${d.score_psi.toFixed(3)}`;
+    $("#driftAlerts").innerHTML = d.alerts.length ? d.alerts.map(a => `<div class="banner ${a.severity === "critical" ? "serious" : "warning"}" style="margin:6px 0"><span class="icon">!</span><div><div class="action">${esc(a.code)}</div><div class="label">${esc(a.message)}</div></div></div>`).join("")
+      : (d.status === "WARMING" ? `<p class="muted small">Warming up: fewer than ${d.thresholds.min_n} orders in the window. Score a few checkouts or run <code>04_bench_latency.py</code>.</p>` : `<p class="muted small">No alarms. Live set mix matches the calibration baseline.</p>`);
+    $("#driftLegend").innerHTML = Object.keys(CERT_COLOR).map(c => `<span><i style="background:var(${CERT_COLOR[c]})"></i>${CERT_SHORT[c]}</span>`).join("");
+    const rows = d.windows.map(w => ({ label: new Date(w.start_ts * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + (w.n ? ` (${w.n})` : ""), values: w.share, counts: w.counts }));
+    stacked($("#driftChart"), rows, Object.keys(CERT_COLOR), { color: k => CERT_COLOR[k], label: k => CERT_SHORT[k], padL: 96 });
+    const b = d.baseline.share, s = d.rolling_share;
+    kv("#driftKv", Object.keys(CERT_COLOR).map(c => [`${CERT_SHORT[c]} — live vs calibration`, `${pct(s[c])} vs ${pct(b[c])}`]).concat([
+      ["empty sets possible (q₀ + q₁ < 1)", d.baseline.empty_sets_possible ? "yes" : `no — q₀ ${d.baseline.q0.toFixed(3)} + q₁ ${d.baseline.q1.toFixed(3)} > 1; alarm arms itself once the scorer sharpens`],
+      ["thresholds", `empty > ${pct(d.thresholds.empty, 0)} · |z| > ${d.thresholds.z} · certified-RTO > ${d.thresholds.mix_ratio}× · PSI > ${d.thresholds.psi}`]]));
+  }
+  function renderShift(rep) {
+    const ds = (rep.extra || {}).domain_shift, gg = (rep.extra || {}).graph_guard;
+    if (ds) {
+      const names = Object.keys(ds.scenarios);
+      $("#shiftSub").textContent = `served model: test AUC ${ds.baseline.test_auc.toFixed(3)} · coverage ${pct(ds.baseline.test_coverage.coverage_class0)} / ${pct(ds.baseline.test_coverage.coverage_class1)}`;
+      table($("#shiftTable"), [{ h: "world", k: "name" }, { h: "RTO", num: 1, f: r => pct(r.s.rto_rate) }, { h: "AUC", num: 1, f: r => r.s.auc.toFixed(3) }, { h: "ECE", num: 1, f: r => r.s.ece.toFixed(3) },
+        { h: "coverage 0 / 1", num: 1, f: r => `${pct(r.s.coverage_before.coverage_class0)} / ${pct(r.s.coverage_before.coverage_class1)}` },
+        { h: "after recal.", num: 1, f: r => `${pct(r.s.coverage_after_recalibration.coverage_class0)} / ${pct(r.s.coverage_after_recalibration.coverage_class1)}` },
+        { h: "certified RTO", num: 1, f: r => pct(r.s.certainty_share.CERTIFIED_HIGH) }, { h: "monitor", f: r => `${r.s.monitor_final.status}${r.s.first_alert_after_orders ? " @ " + inr.format(r.s.first_alert_after_orders) + " orders" : ""}` },
+        { h: "alarms", f: r => [...new Set(r.s.monitor_final.alerts.map(a => a.code))].map(c => c.replace("MODEL_", "")).join(", ") || "—" }],
+        names.map(n => ({ name: n, s: ds.scenarios[n] })));
+    } else $("#shiftTable").innerHTML = `<p class="muted small">run scripts/08_festival_shift.py</p>`;
+    if (gg) {
+      const n = gg.variants.naive, g = gg.variants.guarded || Object.values(gg.variants).slice(-1)[0];
+      kv("#guardKv", [["graph guard — naive → guarded components", `${inr.format(n.stats.components)} → ${inr.format(g.stats.components)}`], ["largest component", `${inr.format(n.stats.largest_component)} → ${inr.format(g.stats.largest_component)} nodes`],
+        ["ring recall / precision (phone level)", `${pct(n.recall)} / ${pct(n.precision)} → ${pct(g.recall)} / ${pct(g.precision)}`], ["legit phones condemned", `${n.fp} → ${g.fp}`],
+        ["hostel / office residents condemned", `${n.residents_condemned} → ${g.residents_condemned} of ${g.legit_residents}`], ["shared entities flagged", `${g.stats.shared_entities} (address ceiling ${g.addr_merge_ceiling} phones)`]]);
     }
   }
   // Frontier: Δ P&L (y) against share of orders frictioned (x); one line, labelled points, reference rule.

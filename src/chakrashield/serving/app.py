@@ -54,6 +54,8 @@ class State:
     outcomes: dict[str, dict] = field(default_factory=dict)   # order_id -> hashes for outcome recording
     started_at: float = 0.0
     drift: ConformalDriftMonitor | None = None
+    extras: dict = field(default_factory=dict)          # graph_guard / domain_shift / behaviour / feedback_loop reports
+    extras_mtime: dict = field(default_factory=dict)
 
 
 state = State()
@@ -281,6 +283,9 @@ async def graph_subgraph(seed: str, max_nodes: int = 120):
     return state.graph.subgraph(seed, max_nodes=max_nodes)
 
 
+EXTRA_REPORTS = ("graph_guard", "domain_shift", "behaviour", "feedback_loop")
+
+
 def _refresh_reports() -> None:
     """Reports are produced by offline scripts that may run after the gateway started."""
     for name, attr in (("evaluation.json", "report"), ("latency.json", "latency")):
@@ -290,13 +295,22 @@ def _refresh_reports() -> None:
                 setattr(state, attr, json.loads(p.read_text(encoding="utf-8")))
             except json.JSONDecodeError:
                 pass  # being written right now; serve the previous copy
+    for name in EXTRA_REPORTS:
+        p = REPORT_DIR / f"{name}.json"
+        if p.exists() and (name not in state.extras or p.stat().st_mtime > state.extras_mtime.get(name, 0)):
+            try:
+                state.extras[name] = json.loads(p.read_text(encoding="utf-8"))
+                state.extras_mtime[name] = p.stat().st_mtime
+            except json.JSONDecodeError:
+                pass
 
 
 @app.get("/v1/report")
 async def report():
     _refresh_reports()
     return {"evaluation": state.report, "latency": state.latency, "world": state.world, "alpha": CONFORMAL_ALPHA,
-            "economics": ECONOMICS.to_dict(), "model_version": state.scorer.version if state.scorer else None}
+            "economics": ECONOMICS.to_dict(), "model_version": state.scorer.version if state.scorer else None,
+            "extra": state.extras}
 
 
 @app.get("/favicon.ico", include_in_schema=False)

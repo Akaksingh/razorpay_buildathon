@@ -219,6 +219,22 @@
       <div id="gammaTable"></div>
     </div>
   </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Model health: conformal drift monitor</h2><span class="muted" id="driftSub"></span></div>
+      <p class="muted small">Label-free. Every scored order lands in one conformal set; under exchangeability the mix is stationary and known from calibration. Sliding 5-minute windows (last hour) in the feature store; alarms on empty-set share, ambiguity shift, certified-RTO burst and PSI of calibrated p. Live from <code>/v1/monitor/drift</code>, refreshed every 10 s.</p>
+      <div id="driftAlerts"></div>
+      <div class="legend" id="driftLegend"></div>
+      <div class="chart" id="driftChart"></div>
+      <div class="kv" id="driftKv"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Festival-shift experiment</h2><span class="muted" id="shiftSub"></span></div>
+      <p class="muted small">A second world with a paid-social surge, more syndicates and a +0.6 logit RTO shift is streamed through the served model. Left: what the monitor saw and when. Right: what the labels later confirmed, before and after recalibrating on the first 30 % of the new regime. A same-regime control world separates "new data" from "new regime".</p>
+      <div id="shiftTable"></div>
+      <div class="kv" id="guardKv"></div>
+    </div>
+  </div>
 </main>
 
 <!-- ============================== GRAPH ============================== -->
