@@ -147,3 +147,55 @@ def test_outcome_callback_teaches_the_learner(client):
     o2 = client.post("/v1/risk/outcome/test_learn_1?rto=false&stepup_result=abandoned").json()
     assert o2["shipped"] is False
     assert client.post("/v1/risk/outcome/never_seen?rto=true").status_code == 404
+
+
+def test_outcome_callback_does_not_evict_a_freshly_claimed_order(client):
+    """Claiming an order's outcome must not free its entry (a later corrective callback for the
+    same order -- e.g. paid-then-abandoned -- is legitimate; test_outcome_callback_teaches_the_learner
+    relies on calling /v1/risk/outcome twice for one order_id)."""
+    import chakrashield.serving.app as appmod
+    sc = [s for s in client.get("/v1/scenarios").json() if s["tag"] == "prepaid"][0]
+    before = len(appmod.state.outcomes)
+    oid = "test_outcome_lifecycle_1"
+    client.post("/v1/risk/evaluate?commit=true&explain=never", json={**sc["req"], "order_id": oid})
+    assert oid in appmod.state.outcomes and len(appmod.state.outcomes) == before + 1
+    r = client.post(f"/v1/risk/outcome/{oid}?rto=false")
+    assert r.status_code == 200
+    assert oid in appmod.state.outcomes                     # still resolvable for a corrective callback
+    r2 = client.post(f"/v1/risk/outcome/{oid}?rto=false")
+    assert r2.status_code == 200                             # repeat callbacks for one order are legitimate
+
+
+def test_pending_outcomes_are_bounded(client):
+    """Orders whose outcome never arrives (an abandoned step-up ships nothing) must not grow the
+    pending-outcomes table without bound; the oldest unclaimed entries are evicted."""
+    import chakrashield.serving.app as appmod
+    old_cap = appmod.MAX_PENDING_OUTCOMES
+    appmod.MAX_PENDING_OUTCOMES = 5
+    try:
+        sc = [s for s in client.get("/v1/scenarios").json() if s["tag"] == "prepaid"][0]
+        for i in range(20):
+            client.post("/v1/risk/evaluate?commit=true&explain=never", json={**sc["req"], "order_id": f"bound_test_{i}"})
+        assert len(appmod.state.outcomes) <= appmod.MAX_PENDING_OUTCOMES
+        assert "bound_test_19" in appmod.state.outcomes and "bound_test_0" not in appmod.state.outcomes
+    finally:
+        appmod.MAX_PENDING_OUTCOMES = old_cap
+
+
+def test_orders_sample_caches_the_source_frame(client):
+    """The demo picker must load orders.pkl at most once per process, not on every request."""
+    import chakrashield.serving.app as appmod
+    calls = []
+    real = appmod.pd.read_pickle
+    def counting(*a, **k):
+        calls.append(1)
+        return real(*a, **k)
+    appmod._orders_cache.clear()
+    appmod.pd.read_pickle = counting
+    try:
+        for _ in range(3):
+            r = client.get("/v1/orders/sample?n=2")
+            assert r.status_code == 200 and len(r.json()) == 2
+        assert len(calls) == 1
+    finally:
+        appmod.pd.read_pickle = real

@@ -13,6 +13,7 @@ import json
 import os
 import time
 from contextlib import asynccontextmanager
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -43,6 +44,7 @@ from ..store.feature_store import MemoryStore, get_store
 from .merchants import MerchantConfig, MerchantRegistry, api_key_required
 
 STATIC = Path(__file__).parent / "static"
+MAX_PENDING_OUTCOMES = 50_000   # bounds memory when outcome callbacks never arrive for some orders
 
 
 @dataclass
@@ -58,7 +60,12 @@ class State:
     queue: asyncio.Queue | None = None
     worker_task: asyncio.Task | None = None
     ingested: int = 0
-    outcomes: dict[str, dict] = field(default_factory=dict)   # order_id -> hashes for outcome recording
+    # order_id -> hashes for outcome recording. An LRU-bounded OrderedDict: real checkouts don't all
+    # get an outcome callback (an abandoned step-up never ships), and a delivery outcome can also be
+    # corrected by a later callback (paid-then-abandoned), so entries are kept around, not popped on
+    # first use -- but a plain unbounded dict grows forever under live traffic, so the oldest
+    # still-unclaimed orders are evicted once the table passes MAX_PENDING_OUTCOMES.
+    outcomes: "OrderedDict[str, dict]" = field(default_factory=OrderedDict)
     started_at: float = 0.0
     drift: ConformalDriftMonitor | None = None
     extras: dict = field(default_factory=dict)          # graph_guard / domain_shift / behaviour / feedback_loop reports
@@ -136,6 +143,9 @@ async def _graph_worker() -> None:
                 state.graph.ingest(job["order_id"], {k: v for k, v in job["hashes"].items() if v}, gmv=job["gmv"])
                 state.outcomes[job["order_id"]] = {"hashes": job["hashes"], "pin": job["pin"],
                                                    **{k: job.get(k) for k in ("served_action", "policy_action", "p_loss", "segment", "addr_attr")}}
+                state.outcomes.move_to_end(job["order_id"])
+                while len(state.outcomes) > MAX_PENDING_OUTCOMES:
+                    state.outcomes.popitem(last=False)   # evict the oldest still-unclaimed order first
                 state.ingested += 1
             elif kind == "log":
                 state.decisions.log_decision(job["rec"])
@@ -513,11 +523,31 @@ async def scenarios():
     return SCENARIOS
 
 
+_orders_cache: dict = {}   # {"df": DataFrame} lazily populated once; orders.pkl never changes at runtime
+
+
+def _cod_orders_tail() -> pd.DataFrame:
+    """The picker's source frame, loaded and filtered once instead of on every request.
+
+    A naive version re-read and re-unpickled the 14 MB orders.pkl on every call: ~80 ms of
+    synchronous disk + deserialisation inside an ``async def`` route, 30x the cost of the real
+    scoring endpoint, blocking the event loop for every other in-flight request each time the
+    demo picker was clicked.
+    """
+    if "df" not in _orders_cache:
+        df = pd.read_pickle(DATA_DIR / "orders.pkl")
+        _orders_cache["df"] = df[df.payment_method == "COD"].tail(15_000)
+    return _orders_cache["df"]
+
+
 @app.get("/v1/orders/sample")
-async def orders_sample(n: int = 6, cohort: str | None = None):
-    """Real historical COD orders (from the tail of history) for the picker."""
-    df = pd.read_pickle(DATA_DIR / "orders.pkl")
-    df = df[df.payment_method == "COD"].tail(15_000)
+def orders_sample(n: int = 6, cohort: str | None = None):
+    """Real historical COD orders (from the tail of history) for the picker.
+
+    A plain ``def``: FastAPI runs it in the threadpool, same as ``risk_evaluate``, so even the
+    first (cache-filling) call cannot block the event loop.
+    """
+    df = _cod_orders_tail()
     if cohort:
         df = df[df.cohort == cohort]
     rows = df.sample(n=min(n, len(df)), random_state=int(time.time()) % 10_000).to_dict("records")
