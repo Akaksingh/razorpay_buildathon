@@ -407,6 +407,7 @@ python scripts/11_gnn_ring_embeddings.py   # GraphSAGE vs union-find ring detect
 python scripts/12_conformal_variants.py    # conformal alpha x conditioning sweep with resolver P&L
 python scripts/13_load_test.py             # real HTTP throughput and tail latency under concurrency
 python scripts/14_real_data.py             # public Amazon India seller export through the adapter and the whole pipeline
+python scripts/15_export_demo_bundle.py    # curated real responses -> a self-contained JSON bundle for a static/offline console
 python -m pytest tests
 python scripts/serve.py --port 8080    # http://127.0.0.1:8080
 python scripts/ingest_csv.py --csv export.csv --mapping config/merchant_schema.example.json   # real data
